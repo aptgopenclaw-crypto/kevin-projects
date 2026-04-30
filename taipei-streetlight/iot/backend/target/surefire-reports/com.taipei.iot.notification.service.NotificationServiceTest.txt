@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.taipei.iot.notification.service.NotificationServiceTest
+-------------------------------------------------------------------------------
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.753 s -- in com.taipei.iot.notification.service.NotificationServiceTest

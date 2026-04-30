@@ -1,0 +1,41 @@
+export interface UserEventLogDto {
+  userEventLogPk: number
+  tenantId: number | null
+  userId: string
+  username: string
+  userLabel: string
+  email: string
+  eventType: string
+  eventDesc: string
+  apiEndpoint: string
+  payload: string
+  errorCode: string
+  message: string
+  ipAddress: string
+  userAgent: string
+  executionTime: number
+  deptId: number | null
+  createTime: string
+}
+
+export interface AuditFilterModel {
+  userName?: string
+  eventDesc?: string
+  eventType?: string
+  startTimestamp?: string
+  endTimestamp?: string
+}
+
+export interface PaginationState {
+  page: number
+  size: number
+  total: number
+}
+
+export interface PageData<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+}

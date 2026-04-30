@@ -1,0 +1,29 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import { Lock } from 'lucide-vue-next'
+
+const { t } = useI18n()
+</script>
+
+<template>
+  <div class="unavailable-widget">
+    <Lock :size="40" class="lock-icon" />
+    <p class="message">{{ t('dashboard.moduleNotEnabled') }}</p>
+    <p class="hint">{{ t('dashboard.moduleNotEnabledHint') }}</p>
+  </div>
+</template>
+
+<style scoped>
+.unavailable-widget {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--el-text-color-secondary);
+}
+.lock-icon { opacity: 0.4; margin-bottom: 12px; }
+.message { font-size: 14px; font-weight: 500; margin: 0; }
+.hint { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+</style>

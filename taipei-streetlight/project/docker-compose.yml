@@ -1,0 +1,58 @@
+# ============================================================
+# Taipei Streetlight — Local Development Infrastructure
+# ============================================================
+# Usage:
+#   docker compose up -d          # 啟動所有服務
+#   docker compose logs -f emqx   # 查看 EMQX 日誌
+#   docker compose down            # 停止所有服務
+# ============================================================
+
+services:
+
+  # ── EMQX MQTT Broker ────────────────────────────────────
+  emqx:
+    image: emqx/emqx:5.8
+    container_name: taipei-emqx
+    restart: unless-stopped
+    ports:
+      - "1883:1883"       # MQTT TCP
+      - "8083:8083"       # MQTT WebSocket
+      - "18083:18083"     # EMQX Dashboard (admin/public)
+    environment:
+      EMQX_NAME: taipei-emqx
+      EMQX_LOADED_PLUGINS: "emqx_management,emqx_dashboard"
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── TimescaleDB (PostgreSQL + TimescaleDB Extension) ────
+  # 注意：僅供 Phase 7 telemetry 時序資料使用。
+  # 若既有 PostgreSQL 已安裝 TimescaleDB extension，可移除此服務，
+  # 直接在既有 DB 執行 CREATE EXTENSION IF NOT EXISTS timescaledb;
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: taipei-timescaledb
+    restart: unless-stopped
+    ports:
+      - "5433:5432"       # 使用 5433 避免與既有 PostgreSQL 5432 衝突
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Kali1234!}
+      POSTGRES_DB: mydb
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  emqx-data:
+  emqx-log:
+  timescaledb-data:

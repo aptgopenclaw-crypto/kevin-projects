@@ -1,0 +1,1471 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m-----------------< [0;36mcom.taipei.iot:taipei-streetlight[0;1m >------------------[m
+[[1;34mINFO[m] [1mBuilding taipei-streetlight 0.0.1-SNAPSHOT[m
+[[1;34mINFO[m]   from pom.xml
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mtaipei-streetlight[0;1m ---[m
+[[1;34mINFO[m] Copying 3 resources from src/main/resources to target/classes
+[[1;34mINFO[m] Copying 75 resources from src/main/resources to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.13.0:compile[m [1m(default-compile)[m @ [36mtaipei-streetlight[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mtaipei-streetlight[0;1m ---[m
+[[1;34mINFO[m] Copying 2 resources from src/test/resources to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.13.0:testCompile[m [1m(default-testCompile)[m @ [36mtaipei-streetlight[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.5.2:test[m [1m(default-test)[m @ [36mtaipei-streetlight[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m] Running com.taipei.iot.notification.service.[1mNotificationServiceTest[m
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build what is described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/home/keivn/.m2/repository/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+SLF4J(W): Class path contains multiple SLF4J providers.
+SLF4J(W): Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@54d8c20d]
+SLF4J(W): Found provider [org.slf4j.simple.SimpleServiceProvider@4b65d9f4]
+SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceProvider@54d8c20d]
+22:08:04.115 [main] WARN com.taipei.iot.notification.service.NotificationService -- Channel null failed: fail
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m14[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.83 s -- in com.taipei.iot.notification.service.[1mNotificationServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.notification.listener.[1mWorkflowNotificationListenerTest[m
+22:08:07.534 [main] INFO com.taipei.iot.notification.listener.CompletionReportedNotificationListener -- 通知：完工回報 RPR-2026-00020 → 通知 user=squad-leader-1
+22:08:07.680 [main] INFO com.taipei.iot.notification.listener.ReplacementDispatchNotificationListener -- 通知：換裝派工 RPL-2026-00040 → 通知 user=contractor-1
+22:08:07.728 [main] INFO com.taipei.iot.notification.listener.RepairDispatchNotificationListener -- 通知：報修派工 RPR-2026-00010 → 通知 user=field-user-1
+22:08:07.760 [main] INFO com.taipei.iot.notification.listener.IssueRequestedNotificationListener -- 通知：領料需求 RPL-2026-00050 → 通知 2 位倉管人員
+22:08:07.802 [main] INFO com.taipei.iot.notification.listener.RepairClosedNotificationListener -- 通知：報修結案 RPR-2026-00030 → 通知 user=original-creator
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.180 s -- in com.taipei.iot.notification.listener.[1mWorkflowNotificationListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.notification.channel.[1mNoOpEmailChannelTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.taipei.iot.notification.channel.[1mNoOpEmailChannelTest[m
+[[1;34mINFO[m] Running com.taipei.iot.notification.channel.[1mInAppChannelTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.786 s -- in com.taipei.iot.notification.channel.[1mInAppChannelTest[m
+[[1;34mINFO[m] Running com.taipei.iot.notification.channel.[1mEmailChannelTest[m
+22:08:09.437 [main] WARN com.taipei.iot.notification.channel.EmailChannel -- Failed to send email to userId=u1: SMTP error
+22:08:09.459 [main] INFO com.taipei.iot.notification.channel.EmailChannel -- Email sent to userId=u1
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.748 s -- in com.taipei.iot.notification.channel.[1mEmailChannelTest[m
+[[1;34mINFO[m] Running com.taipei.iot.notification.channel.[1mNoOpSmsChannelTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.taipei.iot.notification.channel.[1mNoOpSmsChannelTest[m
+[[1;34mINFO[m] Running com.taipei.iot.notification.controller.[1mNotificationControllerTest[m
+22:08:10.386 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.taipei.iot.notification.controller.NotificationControllerTest]: NotificationControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+22:08:11.802 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.notification.controller.NotificationControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:08:16.026+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:08:16.116+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.n.c.NotificationControllerTest     : Starting NotificationControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:08:16.120+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.n.c.NotificationControllerTest     : The following 1 profile is active: "dev"
+2026-04-26T22:08:24.052+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 4c36393e-a88e-42d6-ad87-51bc058844a5
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:08:24.101+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:08:27.699+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:08:27.700+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:08:27.707+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 6 ms
+2026-04-26T22:08:27.863+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.n.c.NotificationControllerTest     : Started NotificationControllerTest in 15.66 seconds (process running for 47.503)
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 19.32 s -- in com.taipei.iot.notification.controller.[1mNotificationControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.service.[1mInspectionServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.773 s -- in com.taipei.iot.repair.service.[1mInspectionServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.service.[1mTicketAttachmentServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.061 s -- in com.taipei.iot.repair.service.[1mTicketAttachmentServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.service.[1mRepairDispatchServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.529 s -- in com.taipei.iot.repair.service.[1mRepairDispatchServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.service.[1mRepairTicketServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m14[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.043 s -- in com.taipei.iot.repair.service.[1mRepairTicketServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.listener.[1mFaultApprovedListenerTest[m
+2026-04-26T22:08:32.828+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.listener.FaultApprovedListener   : E1 事件：障礙工單 2 審核通過，自動建立報修工單
+2026-04-26T22:08:32.853+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.listener.FaultApprovedListener   : E1 事件：障礙工單 1 審核通過，自動建立報修工單
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.465 s -- in com.taipei.iot.repair.listener.[1mFaultApprovedListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.listener.[1mRepairClosedListenerTest[m
+2026-04-26T22:08:33.020+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.listener.RepairClosedListener    : E9 事件：報修工單 1 結案審核通過
+2026-04-26T22:08:33.057+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.listener.RepairClosedListener    : E9 事件：報修工單 2 結案審核通過
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 s -- in com.taipei.iot.repair.listener.[1mRepairClosedListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.listener.[1mRepairDispatchedListenerTest[m
+2026-04-26T22:08:33.096+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.RepairDispatchedListener       : E4 事件：報修工單 1 已派工，更新設備狀態為維修中
+2026-04-26T22:08:33.126+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.RepairDispatchedListener       : E4 事件：報修工單 2 已派工，更新設備狀態為維修中
+2026-04-26T22:08:33.158+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.RepairDispatchedListener       : E4 事件：報修工單 99 已派工，更新設備狀態為維修中
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.095 s -- in com.taipei.iot.repair.listener.[1mRepairDispatchedListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.controller.[1mRepairTicketControllerTest[m
+2026-04-26T22:08:33.193+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.repair.controller.RepairTicketControllerTest]: RepairTicketControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:08:33.401+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.repair.controller.RepairTicketControllerTest
+2026-04-26T22:08:33.511+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:08:33.734+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:08:33.750+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.RepairTicketControllerTest     : Starting RepairTicketControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:08:33.751+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.RepairTicketControllerTest     : The following 1 profile is active: "dev"
+2026-04-26T22:08:36.363+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 2265b286-d2e6-4fd3-9992-ac806e9cd889
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:08:36.368+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:08:37.189+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:08:37.190+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:08:37.194+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-04-26T22:08:37.234+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.RepairTicketControllerTest     : Started RepairTicketControllerTest in 3.8 seconds (process running for 56.874)
+2026-04-26T22:08:38.102+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/repair/tickets user=user-001
+2026-04-26T22:08:38.154+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [70001] 報修工單不存在
+2026-04-26T22:08:38.312+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/repair/tickets user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.413 s -- in com.taipei.iot.repair.controller.[1mRepairTicketControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.controller.[1mPublicRepairControllerTest[m
+2026-04-26T22:08:38.633+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.repair.controller.PublicRepairControllerTest]: PublicRepairControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:08:38.722+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.repair.controller.PublicRepairControllerTest
+2026-04-26T22:08:38.812+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:08:39.003+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:08:39.009+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.PublicRepairControllerTest     : Starting PublicRepairControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:08:39.010+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.PublicRepairControllerTest     : The following 1 profile is active: "dev"
+2026-04-26T22:08:40.878+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8a6884c9-d989-4bbb-b44b-e7f4486e255b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:08:40.882+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:08:41.663+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:08:41.666+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:08:41.668+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:08:41.719+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.PublicRepairControllerTest     : Started PublicRepairControllerTest in 2.971 seconds (process running for 61.359)
+2026-04-26T22:08:41.894+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:08:42.079+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:08:42.092+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [00001] 請求參數驗證失敗: 請同意個資使用聲明
+2026-04-26T22:08:42.134+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:08:42.143+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10007] 圖形驗證碼錯誤
+2026-04-26T22:08:42.178+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:08:42.226+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.661 s -- in com.taipei.iot.repair.controller.[1mPublicRepairControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.repair.controller.[1mInspectionControllerTest[m
+2026-04-26T22:08:42.294+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.repair.controller.InspectionControllerTest]: InspectionControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:08:42.338+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.repair.controller.InspectionControllerTest
+2026-04-26T22:08:42.374+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:08:42.505+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:08:42.515+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.InspectionControllerTest       : Starting InspectionControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:08:42.516+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.InspectionControllerTest       : The following 1 profile is active: "dev"
+2026-04-26T22:08:44.364+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f67cf1c9-8fa1-4b1f-94b6-c5908b5979fe
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:08:44.367+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:08:45.315+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:08:45.316+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:08:45.319+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:08:45.349+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.InspectionControllerTest       : Started InspectionControllerTest in 2.987 seconds (process running for 64.989)
+2026-04-26T22:08:45.748+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/inspection/tasks user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.480 s -- in com.taipei.iot.repair.controller.[1mInspectionControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.fault.service.[1mFaultTicketServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.236 s -- in com.taipei.iot.fault.service.[1mFaultTicketServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.fault.service.[1mFaultCorrelationServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.266 s -- in com.taipei.iot.fault.service.[1mFaultCorrelationServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.fault.controller.[1mFaultTicketControllerTest[m
+2026-04-26T22:08:46.313+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.fault.controller.FaultTicketControllerTest]: FaultTicketControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:08:46.422+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.fault.controller.FaultTicketControllerTest
+2026-04-26T22:08:46.437+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:08:46.547+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:08:46.555+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.f.c.FaultTicketControllerTest      : Starting FaultTicketControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:08:46.556+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.f.c.FaultTicketControllerTest      : The following 1 profile is active: "dev"
+2026-04-26T22:08:47.849+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: d567e050-f7dc-4753-b61c-b978d5097fa0
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:08:47.852+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:08:48.525+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:08:48.526+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:08:48.529+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:08:48.569+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.f.c.FaultTicketControllerTest      : Started FaultTicketControllerTest in 2.14 seconds (process running for 68.209)
+2026-04-26T22:08:48.680+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/faults/1/resolve user=user-001
+2026-04-26T22:08:48.967+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/faults user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.674 s -- in com.taipei.iot.fault.controller.[1mFaultTicketControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.service.[1mIssueServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.902 s -- in com.taipei.iot.material.service.[1mIssueServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.service.[1mPurchaseOrderServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.520 s -- in com.taipei.iot.material.service.[1mPurchaseOrderServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.service.[1mInventoryServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.185 s -- in com.taipei.iot.material.service.[1mInventoryServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.service.[1mWarehouseServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.278 s -- in com.taipei.iot.material.service.[1mWarehouseServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.service.[1mInventoryAdjustmentServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.516 s -- in com.taipei.iot.material.service.[1mInventoryAdjustmentServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.service.[1mReceivingServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.407 s -- in com.taipei.iot.material.service.[1mReceivingServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.material.listener.[1mLowStockAlertListenerTest[m
+2026-04-26T22:08:51.867+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.m.listener.LowStockAlertListener   : E12 事件：庫存預警 — LED燈具-20W (南區倉庫) 現有 0 / 安全量 15
+2026-04-26T22:08:51.874+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.m.listener.LowStockAlertListener   : E12 事件：庫存預警 — 鈉光燈-250W (北區倉庫) 現有 0 / 安全量 5
+2026-04-26T22:08:51.880+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.m.listener.LowStockAlertListener   : E12 事件：庫存預警 — LED燈具-10W (主倉庫) 現有 3 / 安全量 10
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.taipei.iot.material.listener.[1mLowStockAlertListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.rbac.service.[1mRoleServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.125 s -- in com.taipei.iot.rbac.service.[1mRoleServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.rbac.service.[1mMenuServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.337 s -- in com.taipei.iot.rbac.service.[1mMenuServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.rbac.controller.[1mMenuControllerTest[m
+2026-04-26T22:08:53.369+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.rbac.controller.MenuControllerTest]: MenuControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:08:53.512+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.rbac.controller.MenuControllerTest
+2026-04-26T22:08:53.534+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:08:53.677+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:08:53.681+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.controller.MenuControllerTest    : Starting MenuControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:08:53.682+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.controller.MenuControllerTest    : The following 1 profile is active: "dev"
+2026-04-26T22:08:54.991+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: cd0df5d0-c55c-4e84-819c-fd9e28d13cd9
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:08:54.994+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:08:55.615+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:08:55.616+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:08:55.617+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:08:55.642+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.controller.MenuControllerTest    : Started MenuControllerTest in 2.115 seconds (process running for 75.282)
+2026-04-26T22:08:55.797+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/menus user=user-admin-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.446 s -- in com.taipei.iot.rbac.controller.[1mMenuControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.kpi.engine.[1mFormulaEngineTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.073 s -- in com.taipei.iot.kpi.engine.[1mFormulaEngineTest[m
+[[1;34mINFO[m] Running com.taipei.iot.kpi.service.[1mKpiIndicatorServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.877 s -- in com.taipei.iot.kpi.service.[1mKpiIndicatorServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.kpi.service.[1mKpiCalculationServiceTest[m
+2026-04-26T22:08:57.085+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.kpi.service.KpiCalculationService  : KPI 計算完成: tenant=T1, period=2025/3, indicators=1, results=1
+2026-04-26T22:08:57.100+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.kpi.service.KpiCalculationService  : KPI 計算完成: tenant=T1, period=2025/4, indicators=1, results=1
+2026-04-26T22:08:57.111+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.kpi.service.KpiCalculationService  : 期間 2025/2 已鎖定，跳過計算 (tenant=T1)
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.325 s -- in com.taipei.iot.kpi.service.[1mKpiCalculationServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.kpi.service.[1mKpiPeriodServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.091 s -- in com.taipei.iot.kpi.service.[1mKpiPeriodServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.service.[1mFileValidationServiceTest[m
+2026-04-26T22:08:57.780+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.service.FileValidationService    : Magic bytes mismatch: extension=jpg, detectedMime=image/png, file=fake.jpg
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m19[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.679 s -- in com.taipei.iot.common.service.[1mFileValidationServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.service.[1mImageSanitizerTest[m
+2026-04-26T22:08:58.251+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.iot.common.service.ImageSanitizer    : ImageIO 無法解析圖片 (extension=jpg)
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.343 s -- in com.taipei.iot.common.service.[1mImageSanitizerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.service.[1mNoOpVirusScanServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.taipei.iot.common.service.[1mNoOpVirusScanServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.interceptor.[1mRateLimitInterceptorTest[m
+2026-04-26T22:08:59.540+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] RATE_LIMITED ip=10.0.0.1 endpoint=captcha count=21/20 period=60s
+2026-04-26T22:08:59.541+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : 速率限制觸發 — IP: 10.0.0.1, key: captcha, count: 21/20, period: 60s
+2026-04-26T22:08:59.607+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] RATE_LIMITED ip=192.168.1.100 endpoint=login count=11/10 period=60s
+2026-04-26T22:08:59.609+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : 速率限制觸發 — IP: 192.168.1.100, key: login, count: 11/10, period: 60s
+2026-04-26T22:08:59.650+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Connection refused
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m12[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.415 s -- in com.taipei.iot.common.interceptor.[1mRateLimitInterceptorTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.dto.[1mUserInfoTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in com.taipei.iot.common.dto.[1mUserInfoTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.enums.[1mErrorCodeTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.taipei.iot.common.enums.[1mErrorCodeTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.util.[1mSecurityContextUtilsTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m11[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in com.taipei.iot.common.util.[1mSecurityContextUtilsTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.response.[1mBaseResponseTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s -- in com.taipei.iot.common.response.[1mBaseResponseTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.exception.[1mBusinessExceptionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in com.taipei.iot.common.exception.[1mBusinessExceptionTest[m
+[[1;34mINFO[m] Running com.taipei.iot.common.exception.[1mGlobalExceptionHandlerTest[m
+2026-04-26T22:08:59.971+08:00 ERROR 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Unhandled exception
+
+java.lang.RuntimeException: internal detail that should not leak
+	at com.taipei.iot.common.exception.GlobalExceptionHandlerTest.handleException_doesNotExposeInternalDetail(GlobalExceptionHandlerTest.java:226)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:767)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$8(TestMethodTestDescriptor.java:217)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:213)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:138)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:156)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+2026-04-26T22:09:00.011+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : ResponseStatusException [503 SERVICE_UNAVAILABLE]: maintenance
+2026-04-26T22:09:00.028+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Missing request parameter: Required request parameter 'page' for method parameter type Integer is not present
+2026-04-26T22:09:00.036+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : ResponseStatusException [429 TOO_MANY_REQUESTS]: rate limit exceeded
+2026-04-26T22:09:00.193+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Unreadable request body: Bad JSON
+2026-04-26T22:09:00.198+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [20005] 查無使用者
+2026-04-26T22:09:00.203+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [20005] 查無使用者: userId=42
+2026-04-26T22:09:00.508+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Constraint violation: pageSize: must be greater than 0
+2026-04-26T22:09:00.521+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [30003] 角色不存在
+2026-04-26T22:09:00.530+08:00 ERROR 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Unhandled exception
+
+java.lang.RuntimeException: unexpected
+	at com.taipei.iot.common.exception.GlobalExceptionHandlerTest.handleException_returns500WithUnknownErrorCode(GlobalExceptionHandlerTest.java:215)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:767)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$8(TestMethodTestDescriptor.java:217)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:213)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:138)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:156)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m14[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.606 s -- in com.taipei.iot.common.exception.[1mGlobalExceptionHandlerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.setting.service.[1mSystemSettingServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.272 s -- in com.taipei.iot.setting.service.[1mSystemSettingServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.setting.controller.[1mSystemSettingControllerTest[m
+2026-04-26T22:09:00.824+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.setting.controller.SystemSettingControllerTest]: SystemSettingControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:00.916+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.setting.controller.SystemSettingControllerTest
+2026-04-26T22:09:00.954+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:01.088+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:01.097+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.SystemSettingControllerTest    : Starting SystemSettingControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:01.097+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.SystemSettingControllerTest    : The following 1 profile is active: "dev"
+2026-04-26T22:09:02.801+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 0c5d3780-f0de-4a75-a2cd-3e648d744386
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:02.803+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:03.655+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:03.656+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:03.658+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:09:03.699+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.SystemSettingControllerTest    : Started SystemSettingControllerTest in 2.774 seconds (process running for 83.339)
+2026-04-26T22:09:03.872+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/system-settings/idle-timeout user=user-viewer-001
+2026-04-26T22:09:04.065+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/system-settings/idle_timeout_minutes user=user-viewer-001
+2026-04-26T22:09:04.117+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/system-settings user=user-viewer-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.359 s -- in com.taipei.iot.setting.controller.[1mSystemSettingControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.audit.aspect.[1mBaseLoggerAspectTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.708 s -- in com.taipei.iot.audit.aspect.[1mBaseLoggerAspectTest[m
+[[1;34mINFO[m] Running com.taipei.iot.audit.service.[1mAuditServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.043 s -- in com.taipei.iot.audit.service.[1mAuditServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.audit.controller.[1mAuditControllerTest[m
+2026-04-26T22:09:09.985+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.audit.controller.AuditControllerTest]: AuditControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:10.163+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.audit.controller.AuditControllerTest
+2026-04-26T22:09:10.181+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:10.331+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:10.336+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.a.controller.AuditControllerTest   : Starting AuditControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:10.337+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.a.controller.AuditControllerTest   : The following 1 profile is active: "dev"
+2026-04-26T22:09:12.239+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 7ef25de6-a97b-4bbb-b084-cbd8bf8867f2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:12.242+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:13.462+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:13.463+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:13.465+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:09:13.526+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.a.controller.AuditControllerTest   : Started AuditControllerTest in 3.352 seconds (process running for 93.166)
+2026-04-26T22:09:13.700+08:00  WARN 580092 --- [taipei-iot] [           main] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-04-26T22:09:13.904+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/audit/user/usage/history user=user-viewer-001
+2026-04-26T22:09:13.926+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/audit/user/usage/history/export user=user-viewer-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.261 s -- in com.taipei.iot.audit.controller.[1mAuditControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.audit.async.[1mAuditAsyncWriterTest[m
+2026-04-26T22:09:14.283+08:00 ERROR 580092 --- [taipei-iot] [           main] c.t.iot.audit.async.AuditAsyncWriter     : Audit async write failed: LOGIN /v1/noauth/token DB connection lost
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.068 s -- in com.taipei.iot.audit.async.[1mAuditAsyncWriterTest[m
+[[1;34mINFO[m] Running com.taipei.iot.audit.util.[1mPayloadSanitizerTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.053 s -- in com.taipei.iot.audit.util.[1mPayloadSanitizerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.audit.job.[1mAuditPurgeJobTest[m
+2026-04-26T22:09:14.405+08:00  INFO 580092 --- [taipei-iot] [           main] com.taipei.iot.audit.job.AuditPurgeJob   : AuditPurgeJob: deleted 100 audit records older than 2026-04-19T22:09:14.405028157
+2026-04-26T22:09:14.415+08:00  INFO 580092 --- [taipei-iot] [           main] com.taipei.iot.audit.job.AuditPurgeJob   : AuditPurgeJob: deleted 0 audit records older than 2026-04-19T22:09:14.415048889
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.taipei.iot.audit.job.[1mAuditPurgeJobTest[m
+[[1;34mINFO[m] Running com.taipei.iot.auth.service.[1mAuthServiceTest[m
+2026-04-26T22:09:17.099+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.auth.service.impl.AuthServiceImpl  : Reset password token generated and email sent for user admin@test.com (ref: a17b6f...)
+2026-04-26T22:09:17.186+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] LOGIN_FAILED ip=null email=nonexistent@test.com reason=user_not_found
+2026-04-26T22:09:17.202+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] LOGIN_FAILED ip=null email=locked@test.com reason=account_locked
+2026-04-26T22:09:17.404+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] LOGIN_FAILED ip=null email=disabled@test.com reason=account_disabled
+2026-04-26T22:09:17.447+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] LOGIN_FAILED ip=null email=admin@test.com reason=bad_password failCount=1
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m20[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.030 s -- in com.taipei.iot.auth.service.[1mAuthServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.auth.service.[1mCaptchaServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.taipei.iot.auth.service.[1mCaptchaServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.auth.controller.[1mAuthControllerTest[m
+2026-04-26T22:09:17.497+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.auth.controller.AuthControllerTest]: AuthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:17.636+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.auth.controller.AuthControllerTest
+2026-04-26T22:09:17.666+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:17.745+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:17.753+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.a.controller.AuthControllerTest    : Starting AuthControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:17.754+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.a.controller.AuthControllerTest    : The following 1 profile is active: "dev"
+2026-04-26T22:09:19.772+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8de6ca6f-6948-46c2-b8bd-f0d881079e41
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:19.776+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:20.329+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:20.329+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:20.331+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:09:20.356+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.a.controller.AuthControllerTest    : Started AuthControllerTest in 2.703 seconds (process running for 99.996)
+2026-04-26T22:09:20.389+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:20.645+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:20.720+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:20.808+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:20.824+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [20005] 查無使用者
+2026-04-26T22:09:20.847+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:20.892+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] JWT_INVALID ip=127.0.0.1 reason=malformed uri=/v1/auth/select-tenant
+2026-04-26T22:09:20.915+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:20.924+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10002] 帳號鎖定中
+2026-04-26T22:09:20.958+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10021] 無此場域存取權限
+2026-04-26T22:09:21.008+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.013+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10003] 帳號已停用
+2026-04-26T22:09:21.029+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.034+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [20014] 重設密碼 token 無效或過期
+2026-04-26T22:09:21.050+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.097+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.102+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10007] 圖形驗證碼錯誤
+2026-04-26T22:09:21.136+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10021] 無此場域存取權限
+2026-04-26T22:09:21.170+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.241+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.246+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10013] 登入失敗
+2026-04-26T22:09:21.271+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.i.RateLimitInterceptor           : Redis 不可用，跳過速率限制檢查: Cannot invoke "org.springframework.data.redis.core.ValueOperations.increment(Object)" because the return value of "org.springframework.data.redis.core.StringRedisTemplate.opsForValue()" is null
+2026-04-26T22:09:21.273+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [10004] refresh token 無效
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m21[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.797 s -- in com.taipei.iot.auth.controller.[1mAuthControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.workflow.service.[1mDelegateServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.654 s -- in com.taipei.iot.workflow.service.[1mDelegateServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.workflow.service.[1mWorkflowServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m14[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.842 s -- in com.taipei.iot.workflow.service.[1mWorkflowServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.workflow.controller.[1mWorkflowControllerTest[m
+2026-04-26T22:09:22.829+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.workflow.controller.WorkflowControllerTest]: WorkflowControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:23.051+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.workflow.controller.WorkflowControllerTest
+2026-04-26T22:09:23.082+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:23.214+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:23.225+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.w.c.WorkflowControllerTest         : Starting WorkflowControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:23.226+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.w.c.WorkflowControllerTest         : The following 1 profile is active: "dev"
+2026-04-26T22:09:25.663+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 0dc6515c-8df7-4aed-baf5-79a1df51ce6b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:25.666+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:26.248+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:26.249+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:26.251+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:09:26.272+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.w.c.WorkflowControllerTest         : Started WorkflowControllerTest in 3.205 seconds (process running for 105.912)
+2026-04-26T22:09:26.406+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/workflow/1/cancel user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.617 s -- in com.taipei.iot.workflow.controller.[1mWorkflowControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.workflow.controller.[1mDelegateControllerTest[m
+2026-04-26T22:09:26.451+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.workflow.controller.DelegateControllerTest]: DelegateControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:26.472+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.workflow.controller.DelegateControllerTest
+2026-04-26T22:09:26.488+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:26.662+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:26.678+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.w.c.DelegateControllerTest         : Starting DelegateControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:26.679+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.w.c.DelegateControllerTest         : The following 1 profile is active: "dev"
+2026-04-26T22:09:28.668+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 04b36158-2069-432e-b074-8f648e1c574f
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:28.670+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:29.323+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:29.326+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:29.334+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 8 ms
+2026-04-26T22:09:29.389+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.w.c.DelegateControllerTest         : Started DelegateControllerTest in 2.91 seconds (process running for 109.029)
+2026-04-26T22:09:29.441+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/delegates/candidates user=user-001
+2026-04-26T22:09:29.510+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/delegates user=user-001
+2026-04-26T22:09:29.694+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/delegates/1 user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m8[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.405 s -- in com.taipei.iot.workflow.controller.[1mDelegateControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dashboard.service.[1mDashboardLayoutServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.091 s -- in com.taipei.iot.dashboard.service.[1mDashboardLayoutServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dashboard.service.[1mWidgetKpiServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in com.taipei.iot.dashboard.service.[1mWidgetKpiServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dashboard.service.[1mDashboardPushServiceTest[m
+2026-04-26T22:09:31.036+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.d.service.DashboardPushService     : Dashboard push failed for tenant=T1, widget=gis-overview: WS error
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in com.taipei.iot.dashboard.service.[1mDashboardPushServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dashboard.service.[1mWidgetDeviceServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s -- in com.taipei.iot.dashboard.service.[1mWidgetDeviceServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dashboard.service.[1mWidgetOutageServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.060 s -- in com.taipei.iot.dashboard.service.[1mWidgetOutageServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dashboard.service.[1mWidgetMaintenanceServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s -- in com.taipei.iot.dashboard.service.[1mWidgetMaintenanceServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.service.[1mDeviceTemplateServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.918 s -- in com.taipei.iot.device.service.[1mDeviceTemplateServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.service.[1mDeviceExportServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.045 s -- in com.taipei.iot.device.service.[1mDeviceExportServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.service.[1mDeviceServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m14[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.705 s -- in com.taipei.iot.device.service.[1mDeviceServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.service.[1mContractServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.490 s -- in com.taipei.iot.device.service.[1mContractServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.service.[1mCircuitServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.594 s -- in com.taipei.iot.device.service.[1mCircuitServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.controller.[1mContractControllerTest[m
+2026-04-26T22:09:39.085+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.device.controller.ContractControllerTest]: ContractControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:39.223+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.device.controller.ContractControllerTest
+2026-04-26T22:09:39.258+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:39.473+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:39.476+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.c.ContractControllerTest         : Starting ContractControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:39.477+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.c.ContractControllerTest         : The following 1 profile is active: "dev"
+2026-04-26T22:09:43.328+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 485ccc53-9f07-4bc1-bd83-6847a49cb4b6
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:43.332+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:44.004+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:44.004+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:44.006+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:09:44.030+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.c.ContractControllerTest         : Started ContractControllerTest in 4.793 seconds (process running for 123.67)
+2026-04-26T22:09:44.408+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [60020] 契約不存在
+2026-04-26T22:09:44.465+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/contracts user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.392 s -- in com.taipei.iot.device.controller.[1mContractControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.controller.[1mDeviceControllerTest[m
+2026-04-26T22:09:44.482+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.device.controller.DeviceControllerTest]: DeviceControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:44.611+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.device.controller.DeviceControllerTest
+2026-04-26T22:09:44.637+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:44.771+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:44.784+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.controller.DeviceControllerTest  : Starting DeviceControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:44.785+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.controller.DeviceControllerTest  : The following 1 profile is active: "dev"
+2026-04-26T22:09:46.706+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 72cf1a55-d4df-417a-9170-4b32b8a5ed01
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:46.713+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:47.559+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:47.560+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:47.561+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:09:47.591+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.controller.DeviceControllerTest  : Started DeviceControllerTest in 2.966 seconds (process running for 127.231)
+2026-04-26T22:09:47.626+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/devices/export user=user-001
+2026-04-26T22:09:47.798+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/devices user=user-001
+2026-04-26T22:09:47.832+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [60001] 設備不存在
+2026-04-26T22:09:48.050+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/devices user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m12[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.685 s -- in com.taipei.iot.device.controller.[1mDeviceControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.device.controller.[1mCircuitControllerTest[m
+2026-04-26T22:09:48.177+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.device.controller.CircuitControllerTest]: CircuitControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:48.217+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.device.controller.CircuitControllerTest
+2026-04-26T22:09:48.247+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:48.392+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:48.396+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.c.CircuitControllerTest          : Starting CircuitControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:48.397+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.c.CircuitControllerTest          : The following 1 profile is active: "dev"
+2026-04-26T22:09:49.922+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8bd80328-5164-44e9-baf5-eb70196f79e4
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:49.927+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:50.490+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:50.491+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:50.493+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:09:50.538+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.c.CircuitControllerTest          : Started CircuitControllerTest in 2.31 seconds (process running for 130.178)
+2026-04-26T22:09:50.724+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [60010] 回路不存在
+2026-04-26T22:09:50.953+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/circuits user=user-001
+2026-04-26T22:09:50.971+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [60011] 回路下有設備，無法刪除
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m8[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.815 s -- in com.taipei.iot.device.controller.[1mCircuitControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.user.service.[1mUserAdminServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m16[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.909 s -- in com.taipei.iot.user.service.[1mUserAdminServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.user.service.[1mUserSelfServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s -- in com.taipei.iot.user.service.[1mUserSelfServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.user.controller.[1mUserAdminControllerTest[m
+2026-04-26T22:09:51.989+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.user.controller.UserAdminControllerTest]: UserAdminControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:52.115+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.user.controller.UserAdminControllerTest
+2026-04-26T22:09:52.125+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:52.175+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:52.204+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.u.c.UserAdminControllerTest        : Starting UserAdminControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:52.205+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.u.c.UserAdminControllerTest        : The following 1 profile is active: "dev"
+2026-04-26T22:09:53.680+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: abd784dc-7d7f-4d7e-a851-286bd33df1a9
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:53.683+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:54.100+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:54.101+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:54.103+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:09:54.123+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.u.c.UserAdminControllerTest        : Started UserAdminControllerTest in 2.003 seconds (process running for 133.763)
+2026-04-26T22:09:54.186+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/users user=user-viewer-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.232 s -- in com.taipei.iot.user.controller.[1mUserAdminControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.scheduler.[1mNoSignalDetectionJobTest[m
+2026-04-26T22:09:54.833+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.scheduler.NoSignalDetectionJob   : [NoSignalDetection] Rule 'No Signal 120min' (threshold=120min): found 0 stale devices
+2026-04-26T22:09:54.841+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.scheduler.NoSignalDetectionJob   : [NoSignalDetection] Rule 'No Signal 120min' (threshold=120min): found 1 stale devices
+2026-04-26T22:09:55.125+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.scheduler.NoSignalDetectionJob   : [NoSignalDetection] Rule 'No Signal 120min' (threshold=60min): found 2 stale devices
+2026-04-26T22:09:55.131+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.scheduler.NoSignalDetectionJob   : [NoSignalDetection] Rule 'No Signal 120min' (threshold=120min): found 0 stale devices
+2026-04-26T22:09:55.140+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.scheduler.NoSignalDetectionJob   : [NoSignalDetection] Rule 'No Signal 120min' (threshold=120min): found 1 stale devices
+[[1;31mERROR[m] [1;31mTests [0;1mrun: [0;1m8[m, Failures: 0, [1;31mErrors: [0;1;31m1[m, Skipped: 0, Time elapsed: 0.982 s[1;31m <<< FAILURE![m -- in com.taipei.iot.smartiot.scheduler.[1mNoSignalDetectionJobTest[m
+[[1;31mERROR[m] com.taipei.iot.smartiot.scheduler.NoSignalDetectionJobTest.detect_nullLastTelemetryAt_usesThresholdAsIdle -- Time elapsed: 0.047 s <<< ERROR!
+java.lang.ClassCastException: class java.lang.Long cannot be cast to class java.lang.Integer (java.lang.Long and java.lang.Integer are in module java.base of loader 'bootstrap')
+	at com.taipei.iot.smartiot.scheduler.NoSignalDetectionJobTest.detect_nullLastTelemetryAt_usesThresholdAsIdle(NoSignalDetectionJobTest.java:192)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.engine.[1mEventRuleEngineTest[m
+2026-04-26T22:09:55.224+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.iot.smartiot.engine.EventRuleEngine  : [EventRuleEngine] Rule 'Low RSSI OR High Temp' triggered for device=100, values={temperature=85.0}
+2026-04-26T22:09:55.232+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.iot.smartiot.engine.EventRuleEngine  : [EventRuleEngine] Rule 'Low RSSI + Low Voltage' triggered for device=100, values={rssi=-105.0, voltage=150.0}
+2026-04-26T22:09:55.280+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.iot.smartiot.engine.EventRuleEngine  : [EventRuleEngine] Rule 'Low RSSI' triggered for device=100, values={rssi=-105.0}
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.132 s -- in com.taipei.iot.smartiot.engine.[1mEventRuleEngineTest[m
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.engine.[1mAlertSuppressionEngineTest[m
+2026-04-26T22:09:58.104+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.engine.AlertSuppressionEngine    : [AlertSuppression] Alert suppressed for device=100, rule=1, lastTriggered=2026-04-26T21:59:58.100231729, suppressUntil=2026-04-26T22:29:58.100231729
+2026-04-26T22:09:58.117+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.s.engine.AlertSuppressionEngine    : [AlertSuppression] Rule 999 not found, skipping
+2026-04-26T22:09:58.130+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.engine.AlertSuppressionEngine    : [AlertSuppression] Alert suppressed for device=100, rule=1, lastTriggered=2026-04-26T21:49:58.130129617, suppressUntil=2026-04-26T22:19:58.130129617
+2026-04-26T22:09:58.143+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.engine.AlertSuppressionEngine    : [AlertSuppression] Alert suppressed for device=100, rule=1, lastTriggered=2026-04-26T22:06:58.142570048, suppressUntil=2026-04-26T22:11:58.142570048
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.603 s -- in com.taipei.iot.smartiot.engine.[1mAlertSuppressionEngineTest[m
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.controller.[1mAlertHistoryControllerTest[m
+2026-04-26T22:09:58.199+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.smartiot.controller.AlertHistoryControllerTest]: AlertHistoryControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:09:58.320+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.smartiot.controller.AlertHistoryControllerTest
+2026-04-26T22:09:58.333+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:09:58.410+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:09:58.414+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.AlertHistoryControllerTest     : Starting AlertHistoryControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:09:58.414+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.AlertHistoryControllerTest     : The following 1 profile is active: "dev"
+2026-04-26T22:09:59.180+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: da22ec70-8323-4ad8-9264-70b700f0c4af
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:09:59.182+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:09:59.689+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:09:59.690+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:09:59.695+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 5 ms
+2026-04-26T22:09:59.718+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.AlertHistoryControllerTest     : Started AlertHistoryControllerTest in 1.391 seconds (process running for 139.358)
+2026-04-26T22:09:59.749+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88030] 告警不存在
+2026-04-26T22:10:00.040+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88031] 告警狀態不正確
+2026-04-26T22:10:00.063+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88030] 告警不存在
+2026-04-26T22:10:00.082+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/iot/alerts/1/acknowledge user=user-001
+2026-04-26T22:10:00.258+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88031] 告警狀態不正確
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m12[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.088 s -- in com.taipei.iot.smartiot.controller.[1mAlertHistoryControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.controller.[1mTelemetryControllerTest[m
+2026-04-26T22:10:00.291+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.smartiot.controller.TelemetryControllerTest]: TelemetryControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:00.327+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.smartiot.controller.TelemetryControllerTest
+2026-04-26T22:10:00.339+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:00.387+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:00.391+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.TelemetryControllerTest        : Starting TelemetryControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:00.391+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.TelemetryControllerTest        : The following 1 profile is active: "dev"
+2026-04-26T22:10:01.571+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 2d0aa465-414d-470d-acab-daa6ed226432
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:01.574+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:02.231+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:02.231+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:02.232+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-04-26T22:10:02.252+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.TelemetryControllerTest        : Started TelemetryControllerTest in 1.916 seconds (process running for 141.892)
+2026-04-26T22:10:02.418+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/iot/devices/100/telemetry/history user=user-001
+2026-04-26T22:10:02.525+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/iot/devices/100/telemetry/latest user=user-001
+2026-04-26T22:10:02.584+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Missing request parameter: Required request parameter 'from' for method parameter type LocalDateTime is not present
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m8[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.302 s -- in com.taipei.iot.smartiot.controller.[1mTelemetryControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.controller.[1mEventRuleControllerTest[m
+2026-04-26T22:10:02.601+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.smartiot.controller.EventRuleControllerTest]: EventRuleControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:02.650+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.smartiot.controller.EventRuleControllerTest
+2026-04-26T22:10:02.663+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:02.716+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:02.738+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.EventRuleControllerTest        : Starting EventRuleControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:02.739+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.EventRuleControllerTest        : The following 1 profile is active: "dev"
+2026-04-26T22:10:04.372+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 71e9ffb7-b62c-419c-a5e2-394edfdfaab6
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:04.376+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:05.045+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:05.046+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:05.048+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:10:05.078+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.EventRuleControllerTest        : Started EventRuleControllerTest in 2.42 seconds (process running for 144.718)
+2026-04-26T22:10:05.289+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/iot/event-rules/1 user=user-001
+2026-04-26T22:10:05.664+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88020] 事件規則不存在
+2026-04-26T22:10:05.726+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/iot/event-rules user=user-001
+2026-04-26T22:10:05.777+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88020] 事件規則不存在
+2026-04-26T22:10:06.017+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88020] 事件規則不存在
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m13[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.447 s -- in com.taipei.iot.smartiot.controller.[1mEventRuleControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.smartiot.controller.[1mTelemetryFormatControllerTest[m
+2026-04-26T22:10:06.068+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.smartiot.controller.TelemetryFormatControllerTest]: TelemetryFormatControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:06.104+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.smartiot.controller.TelemetryFormatControllerTest
+2026-04-26T22:10:06.119+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:06.190+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:06.196+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.TelemetryFormatControllerTest  : Starting TelemetryFormatControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:06.197+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.TelemetryFormatControllerTest  : The following 1 profile is active: "dev"
+2026-04-26T22:10:07.767+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 61ebc2e6-1a58-4937-b010-4256a16e5e63
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:07.772+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:08.509+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:08.510+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:08.513+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:10:08.597+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.s.c.TelemetryFormatControllerTest  : Started TelemetryFormatControllerTest in 2.484 seconds (process running for 148.237)
+2026-04-26T22:10:08.876+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88011] Format 欄位已被事件規則引用
+2026-04-26T22:10:08.994+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88010] Telemetry Format 不存在
+2026-04-26T22:10:09.027+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [88010] Telemetry Format 不存在
+2026-04-26T22:10:09.074+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/iot/telemetry-formats user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.049 s -- in com.taipei.iot.smartiot.controller.[1mTelemetryFormatControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.gis.service.[1mCoordinateServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m8[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s -- in com.taipei.iot.gis.service.[1mCoordinateServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.gis.service.[1mMapZoneServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.077 s -- in com.taipei.iot.gis.service.[1mMapZoneServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.gis.service.[1mGmlImportServiceTest[m
+[Fatal Error] :1:10: XML document structures must start and end within the same entity.
+2026-04-26T22:10:09.428+08:00 ERROR 580092 --- [taipei-iot] [           main] c.t.iot.gis.service.GmlImportService     : Failed to parse GML
+
+org.xml.sax.SAXParseException: XML document structures must start and end within the same entity.
+	at org.apache.xerces.parsers.DOMParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.DocumentBuilderImpl.parse(Unknown Source)
+	at com.taipei.iot.gis.service.GmlImportService.parseGml(GmlImportService.java:120)
+	at com.taipei.iot.gis.service.GmlImportServiceTest.lambda$parseGml_invalidXml_throwsException$0(GmlImportServiceTest.java:87)
+	at org.assertj.core.api.ThrowableAssert.catchThrowable(ThrowableAssert.java:63)
+	at org.assertj.core.api.AssertionsForClassTypes.catchThrowable(AssertionsForClassTypes.java:904)
+	at org.assertj.core.api.Assertions.catchThrowable(Assertions.java:1470)
+	at org.assertj.core.api.Assertions.assertThatThrownBy(Assertions.java:1313)
+	at com.taipei.iot.gis.service.GmlImportServiceTest.parseGml_invalidXml_throwsException(GmlImportServiceTest.java:87)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:767)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$8(TestMethodTestDescriptor.java:217)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:213)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:138)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:156)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.171 s -- in com.taipei.iot.gis.service.[1mGmlImportServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.gis.service.[1mGmlExportServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s -- in com.taipei.iot.gis.service.[1mGmlExportServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.gis.controller.[1mGisControllerTest[m
+2026-04-26T22:10:09.578+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.gis.controller.GisControllerTest]: GisControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:09.750+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.gis.controller.GisControllerTest
+2026-04-26T22:10:09.792+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:09.935+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:09.940+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.gis.controller.GisControllerTest   : Starting GisControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:09.940+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.gis.controller.GisControllerTest   : The following 1 profile is active: "dev"
+2026-04-26T22:10:11.853+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 108f20de-065d-4a1b-b4f3-749078c70621
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:11.858+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:12.431+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:12.432+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:12.435+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-04-26T22:10:12.456+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.gis.controller.GisControllerTest   : Started GisControllerTest in 2.686 seconds (process running for 152.096)
+2026-04-26T22:10:12.606+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Missing request parameter: Required request parameter 'lng' for method parameter type BigDecimal is not present
+2026-04-26T22:10:12.696+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/gis/devices/import/gml/confirm user=user-001
+2026-04-26T22:10:12.800+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/gis/devices user=user-001
+2026-04-26T22:10:12.816+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/gis/devices/bounds user=user-001
+2026-04-26T22:10:12.866+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/gis/zones user=user-001
+2026-04-26T22:10:13.061+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/gis/devices/import/gml user=user-001
+2026-04-26T22:10:13.183+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/gis/devices/nearby user=user-001
+2026-04-26T22:10:13.248+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Missing request parameter: Required request parameter 'minLat' for method parameter type BigDecimal is not present
+2026-04-26T22:10:13.291+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Missing request parameter: Required request parameter 'type' for method parameter type ZoneType is not present
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m29[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.773 s -- in com.taipei.iot.gis.controller.[1mGisControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.service.[1mQrCodeServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.353 s -- in com.taipei.iot.replacement.service.[1mQrCodeServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.service.[1mReplacementOrderServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m11[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.468 s -- in com.taipei.iot.replacement.service.[1mReplacementOrderServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.service.[1mLightPoleNumberServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.601 s -- in com.taipei.iot.replacement.service.[1mLightPoleNumberServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.service.[1mReplacementItemServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m8[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.615 s -- in com.taipei.iot.replacement.service.[1mReplacementItemServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.listener.[1mReplacementSelfCheckedListenerTest[m
+2026-04-26T22:10:15.470+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.ReplacementSelfCheckedListener : E11 事件：換裝派工單 1 廠商自主檢核通過
+2026-04-26T22:10:15.476+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.ReplacementSelfCheckedListener : 換裝派工單 RO-001 自主檢核完成，處理 1 項明細
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.041 s -- in com.taipei.iot.replacement.listener.[1mReplacementSelfCheckedListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.listener.[1mReplacementNeedMaterialListenerTest[m
+2026-04-26T22:10:15.719+08:00  INFO 580092 --- [taipei-iot] [           main] .t.i.r.l.ReplacementNeedMaterialListener : E6 事件：換裝派工單 99 已派工，建立領料需求
+2026-04-26T22:10:15.730+08:00  INFO 580092 --- [taipei-iot] [           main] .t.i.r.l.ReplacementNeedMaterialListener : E6 事件：換裝派工單 1 已派工，建立領料需求
+2026-04-26T22:10:15.733+08:00  INFO 580092 --- [taipei-iot] [           main] .t.i.r.l.ReplacementNeedMaterialListener : 已為換裝派工單 RO-001 建立領料需求
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.258 s -- in com.taipei.iot.replacement.listener.[1mReplacementNeedMaterialListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.listener.[1mReplacementClosedListenerTest[m
+2026-04-26T22:10:15.762+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.ReplacementClosedListener      : E10 事件：換裝派工單 1 結案審核通過
+2026-04-26T22:10:15.765+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.ReplacementClosedListener      : 換裝派工單 RO-001 已結案，處理 1 項明細
+2026-04-26T22:10:15.772+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.ReplacementClosedListener      : E10 事件：換裝派工單 2 結案審核通過
+2026-04-26T22:10:15.773+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.l.ReplacementClosedListener      : 換裝派工單 RO-002 已結案，處理 0 項明細
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.taipei.iot.replacement.listener.[1mReplacementClosedListenerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.controller.[1mReplacementOrderControllerTest[m
+2026-04-26T22:10:15.785+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.replacement.controller.ReplacementOrderControllerTest]: ReplacementOrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:15.852+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.replacement.controller.ReplacementOrderControllerTest
+2026-04-26T22:10:15.876+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:15.934+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:15.938+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.ReplacementOrderControllerTest : Starting ReplacementOrderControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:15.939+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.ReplacementOrderControllerTest : The following 1 profile is active: "dev"
+2026-04-26T22:10:17.605+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 93dfe7e1-835e-4c5f-b23a-4a4b16de4798
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:17.608+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:18.429+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:18.431+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:18.434+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:10:18.478+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.ReplacementOrderControllerTest : Started ReplacementOrderControllerTest in 2.609 seconds (process running for 158.118)
+2026-04-26T22:10:18.730+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/replacement/orders user=user-001
+2026-04-26T22:10:19.026+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [80001] 換裝派工單不存在
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.377 s -- in com.taipei.iot.replacement.controller.[1mReplacementOrderControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.replacement.controller.[1mLightPoleNumberControllerTest[m
+2026-04-26T22:10:19.170+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.replacement.controller.LightPoleNumberControllerTest]: LightPoleNumberControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:19.251+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.replacement.controller.LightPoleNumberControllerTest
+2026-04-26T22:10:19.266+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:19.353+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:19.356+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.LightPoleNumberControllerTest  : Starting LightPoleNumberControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:19.357+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.LightPoleNumberControllerTest  : The following 1 profile is active: "dev"
+2026-04-26T22:10:20.707+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 427f6c8c-f726-4471-b461-1460b7be56b1
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:20.710+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:21.572+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:21.572+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:21.574+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-26T22:10:21.599+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.r.c.LightPoleNumberControllerTest  : Started LightPoleNumberControllerTest in 2.337 seconds (process running for 161.238)
+2026-04-26T22:10:21.670+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/replacement/pole-numbers user=user-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.538 s -- in com.taipei.iot.replacement.controller.[1mLightPoleNumberControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dept.aspect.[1mDataPermissionAspectTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.274 s -- in com.taipei.iot.dept.aspect.[1mDataPermissionAspectTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dept.service.[1mDeptServiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m14[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.153 s -- in com.taipei.iot.dept.service.[1mDeptServiceTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dept.service.[1mDataScopeHelperTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.129 s -- in com.taipei.iot.dept.service.[1mDataScopeHelperTest[m
+[[1;34mINFO[m] Running com.taipei.iot.dept.controller.[1mDeptControllerTest[m
+2026-04-26T22:10:22.312+08:00  INFO 580092 --- [taipei-iot] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.taipei.iot.dept.controller.DeptControllerTest]: DeptControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-26T22:10:22.433+08:00  INFO 580092 --- [taipei-iot] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.taipei.iot.Application for test class com.taipei.iot.dept.controller.DeptControllerTest
+2026-04-26T22:10:22.448+08:00  INFO 580092 --- [taipei-iot] [           main] m.p.springdotenv.DotenvPropertySource    : Initialized Dotenv with DotenvConfig{directory=null, filename=null, ignoreIfMalformed=false, ignoreIfMissing=true, systemProperties=false, prefix=null}
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-04-26T22:10:22.533+08:00  WARN 580092 --- [taipei-iot] [           main] ory$DuplicateJsonObjectContextCustomizer : 
+
+Found multiple occurrences of org.json.JSONObject on the class path:
+
+	jar:file:/home/keivn/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+	jar:file:/home/keivn/.m2/repository/org/json/json/20231013/json-20231013.jar!/org/json/JSONObject.class
+
+You may wish to exclude one of them to ensure predictable runtime behavior
+
+2026-04-26T22:10:22.536+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.controller.DeptControllerTest    : Starting DeptControllerTest using Java 21.0.11-ea with PID 580092 (started by keivn in /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend)
+2026-04-26T22:10:22.538+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.controller.DeptControllerTest    : The following 1 profile is active: "dev"
+2026-04-26T22:10:23.709+08:00  WARN 580092 --- [taipei-iot] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: e603f5c6-6482-465b-99ea-a1bcf7d86cb8
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-26T22:10:23.714+08:00  INFO 580092 --- [taipei-iot] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-26T22:10:24.454+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-26T22:10:24.455+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-26T22:10:24.467+08:00  INFO 580092 --- [taipei-iot] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 11 ms
+2026-04-26T22:10:24.502+08:00  INFO 580092 --- [taipei-iot] [           main] c.t.i.d.controller.DeptControllerTest    : Started DeptControllerTest in 2.061 seconds (process running for 164.142)
+2026-04-26T22:10:24.570+08:00  WARN 580092 --- [taipei-iot] [           main] c.t.i.c.e.GlobalExceptionHandler         : Business exception [40001] 部門不存在
+2026-04-26T22:10:24.765+08:00  WARN 580092 --- [taipei-iot] [           main] SECURITY                                 : [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/dept user=user-viewer-001
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.559 s -- in com.taipei.iot.dept.controller.[1mDeptControllerTest[m
+[[1;34mINFO[m] Running com.taipei.iot.[1mApplicationTests[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.taipei.iot.[1mApplicationTests[m
+[[1;34mINFO[m] Running com.taipei.iot.tenant.[1mTenantInterceptorTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s -- in com.taipei.iot.tenant.[1mTenantInterceptorTest[m
+[[1;34mINFO[m] Running com.taipei.iot.tenant.[1mTenantContextTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.030 s -- in com.taipei.iot.tenant.[1mTenantContextTest[m
+[[1;34mINFO[m] Running com.taipei.iot.tenant.[1mTenantEntityListenerTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in com.taipei.iot.tenant.[1mTenantEntityListenerTest[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;31mERROR[m] [1;31mErrors: [m
+[[1;31mERROR[m] [1;31m  NoSignalDetectionJobTest.detect_nullLastTelemetryAt_usesThresholdAsIdle:192 ClassCast class java.lang.Long cannot be cast to class java.lang.Integer (java.lang.Long and java.lang.Integer are in module java.base of loader 'bootstrap')[m
+[[1;34mINFO[m] 
+[[1;31mERROR[m] [1;31mTests run: 751, Failures: 0, Errors: 1, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;31mBUILD FAILURE[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  03:08 min
+[[1;34mINFO[m] Finished at: 2026-04-26T22:10:25+08:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;31mERROR[m] Failed to execute goal [32morg.apache.maven.plugins:maven-surefire-plugin:3.5.2:test[m [1m(default-test)[m on project [36mtaipei-streetlight[m: [1;31m[m
+[[1;31mERROR[m] [1;31m[m
+[[1;31mERROR[m] [1;31mSee /home/keivn/workspace/kevin-projects/taipei-streetlight/project/backend/target/surefire-reports for the individual test results.[m
+[[1;31mERROR[m] [1;31mSee dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.[m
+[[1;31mERROR[m] -> [1m[Help 1][m
+[[1;31mERROR[m] 
+[[1;31mERROR[m] To see the full stack trace of the errors, re-run Maven with the [1m-e[m switch.
+[[1;31mERROR[m] Re-run Maven using the [1m-X[m switch to enable full debug logging.
+[[1;31mERROR[m] 
+[[1;31mERROR[m] For more information about the errors and possible solutions, please read the following articles:
+[[1;31mERROR[m] [1m[Help 1][m http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
