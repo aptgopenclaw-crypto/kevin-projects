@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.taipei.iot.rbac.service.MenuServiceTest
--------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.528 s -- in com.taipei.iot.rbac.service.MenuServiceTest

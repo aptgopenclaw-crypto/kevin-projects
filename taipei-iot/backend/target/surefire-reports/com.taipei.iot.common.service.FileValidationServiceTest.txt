@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.taipei.iot.common.service.FileValidationServiceTest
--------------------------------------------------------------------------------
-Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.763 s -- in com.taipei.iot.common.service.FileValidationServiceTest
