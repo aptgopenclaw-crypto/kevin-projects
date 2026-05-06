@@ -1,0 +1,17 @@
+2026-05-06 10:45:36.515 [http-nio-8080-exec-7] WARN  - [SECURITY] CAPTCHA_FAILED ip=0:0:0:0:0:0:0:1 type=image
+2026-05-06 10:49:49.496 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/system-settings/idle-timeout user=user-viewer-001
+2026-05-06 10:49:50.185 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/system-settings/idle_timeout_minutes user=user-viewer-001
+2026-05-06 10:49:50.229 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/system-settings user=user-viewer-001
+2026-05-06 10:50:00.346 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/audit/user/usage/history user=user-viewer-001
+2026-05-06 10:50:00.355 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/audit/user/usage/history/export user=user-viewer-001
+2026-05-06 10:50:04.406 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/users user=user-viewer-001
+2026-05-06 10:50:06.967 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/menus user=user-admin-001
+2026-05-06 10:50:07.957 [main] WARN  - [SECURITY] LOGIN_FAILED ip=null email=nonexistent@test.com reason=user_not_found
+2026-05-06 10:50:07.980 [main] WARN  - [SECURITY] LOGIN_FAILED ip=null email=locked@test.com reason=account_locked
+2026-05-06 10:50:08.081 [main] WARN  - [SECURITY] LOGIN_FAILED ip=null email=disabled@test.com reason=account_disabled
+2026-05-06 10:50:08.116 [main] WARN  - [SECURITY] LOGIN_FAILED ip=null email=admin@test.com reason=bad_password failCount=1
+2026-05-06 10:50:10.078 [main] WARN  - [SECURITY] JWT_INVALID ip=127.0.0.1 reason=malformed uri=/v1/auth/select-tenant
+2026-05-06 10:50:11.344 [main] WARN  - [SECURITY] RATE_LIMITED ip=10.0.0.1 endpoint=captcha count=21/20 period=60s
+2026-05-06 10:50:11.391 [main] WARN  - [SECURITY] RATE_LIMITED ip=192.168.1.100 endpoint=login count=11/10 period=60s
+2026-05-06 10:50:15.098 [main] WARN  - [SECURITY] ACCESS_DENIED ip=127.0.0.1 path=/v1/auth/dept user=user-viewer-001
+2026-05-06 13:10:50.325 [http-nio-8080-exec-5] WARN  - [SECURITY] CAPTCHA_FAILED ip=0:0:0:0:0:0:0:1 type=image
