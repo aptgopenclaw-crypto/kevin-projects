@@ -96,7 +96,7 @@ async function handleSaveEdit() {
         </div>
         <div class="form-row">
           <label class="form-label">{{ t('setting.colValue') }}</label>
-          <el-input v-model="editValue" />
+          <el-input v-model="editValue" maxlength="500" show-word-limit />
         </div>
       </div>
       <template #footer>

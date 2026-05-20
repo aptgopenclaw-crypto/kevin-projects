@@ -10,7 +10,7 @@ import com.taipei.iot.notification.entity.NotificationEntity;
 import com.taipei.iot.notification.enums.NotificationRefType;
 import com.taipei.iot.notification.enums.NotificationType;
 import com.taipei.iot.notification.repository.NotificationRepository;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

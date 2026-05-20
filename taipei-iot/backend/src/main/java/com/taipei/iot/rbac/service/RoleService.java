@@ -16,11 +16,16 @@ import com.taipei.iot.rbac.dto.response.RolePermissionListDto;
 import com.taipei.iot.rbac.entity.RolePermissionEntity;
 import com.taipei.iot.rbac.repository.PermissionRepository;
 import com.taipei.iot.rbac.repository.RolePermissionRepository;
+import com.taipei.iot.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,12 +34,15 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class RoleService {
 
+    private static final String SUPER_ADMIN_ROLE_ID = "ROLE_SUPER_ADMIN";
+
     private final RoleRepository roleRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final PermissionRepository permissionRepository;
 
     public List<RoleDto> listRoles() {
         return roleRepository.findAllByOrderByBuiltInDescCodeAsc().stream()
+                .filter(role -> !SUPER_ADMIN_ROLE_ID.equals(role.getRoleId()))
                 .map(this::toRoleDto)
                 .collect(Collectors.toList());
     }
@@ -51,6 +59,7 @@ public class RoleService {
 
         return roleRepository.findAllByOrderByBuiltInDescCodeAsc().stream()
                 .filter(RoleEntity::getEnabled)
+                .filter(role -> !SUPER_ADMIN_ROLE_ID.equals(role.getRoleId()))
                 .filter(role -> {
                     if (callerScope == DataScopeEnum.ALL) {
                         return true;
@@ -67,8 +76,14 @@ public class RoleService {
      * 檢查目標 roleId 是否為當前使用者可指派的角色。
      */
     public boolean isRoleAssignable(String roleId) {
-        return listAssignableRoles().stream()
-                .anyMatch(r -> r.getRoleId().equals(roleId));
+        if (SUPER_ADMIN_ROLE_ID.equals(roleId)) return false;
+        RoleEntity role = roleRepository.findById(roleId).orElse(null);
+        if (role == null || !role.getEnabled()) return false;
+        UserInfo user = SecurityContextUtils.getUserInfo();
+        DataScopeEnum callerScope = (user != null && user.getDataScope() != null)
+                ? DataScopeEnum.fromString(user.getDataScope()) : DataScopeEnum.ALL;
+        if (callerScope == DataScopeEnum.ALL) return true;
+        return DataScopeEnum.fromString(role.getDataScope()) != DataScopeEnum.ALL;
     }
 
     @Transactional
@@ -78,7 +93,7 @@ public class RoleService {
         }
 
         RoleEntity entity = RoleEntity.builder()
-                .roleId("ROLE_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase())
+                .roleId("ROLE_" + UUID.randomUUID().toString().replace("-", "").toUpperCase())
                 .code(request.getCode())
                 .name(request.getName())
                 .description(request.getDescription())
@@ -96,6 +111,10 @@ public class RoleService {
         RoleEntity entity = roleRepository.findById(roleId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
 
+        if (Boolean.TRUE.equals(entity.getBuiltIn())) {
+            throw new BusinessException(ErrorCode.ROLE_BUILTIN_READONLY);
+        }
+
         entity.setName(request.getName());
         entity.setDescription(request.getDescription());
         entity.setEnabled(request.isEnabled());
@@ -111,6 +130,9 @@ public class RoleService {
     public void toggleEnabled(String roleId, boolean enabled) {
         RoleEntity entity = roleRepository.findById(roleId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
+        if (Boolean.TRUE.equals(entity.getBuiltIn())) {
+            throw new BusinessException(ErrorCode.ROLE_BUILTIN_READONLY);
+        }
         entity.setEnabled(enabled);
         roleRepository.save(entity);
     }
@@ -119,6 +141,32 @@ public class RoleService {
     public RolePermissionListDto assignPermissions(String roleId, AssignRolePermissionsRequest request) {
         RoleEntity role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
+
+        if (SUPER_ADMIN_ROLE_ID.equals(roleId)) {
+            throw new BusinessException(ErrorCode.ROLE_BUILTIN_READONLY);
+        }
+
+        // 非 SUPER_ADMIN 呼叫者不可指派超越自身擁有的權限
+        if (!isCurrentUserSuperAdmin()) {
+            Set<String> callerPermIds = resolveCallerPermissionIds();
+            List<String> unauthorized = request.getPermissionIds().stream()
+                    .filter(id -> !callerPermIds.contains(id))
+                    .toList();
+            if (!unauthorized.isEmpty()) {
+                throw new BusinessException(ErrorCode.PERMISSION_DENIED);
+            }
+        }
+
+        // 驗證所有 permissionId 皆存在
+        Set<String> validPermIds = permissionRepository.findAllById(request.getPermissionIds()).stream()
+                .map(com.taipei.iot.rbac.entity.PermissionEntity::getPermissionId)
+                .collect(Collectors.toSet());
+        List<String> invalidIds = request.getPermissionIds().stream()
+                .filter(id -> !validPermIds.contains(id))
+                .toList();
+        if (!invalidIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.VALIDATION_ERROR);
+        }
 
         // Remove all existing permissions for this role (global scope only)
         rolePermissionRepository.deleteByRoleId(roleId);
@@ -146,30 +194,16 @@ public class RoleService {
     }
 
     public RolePermissionListDto getRolePermissions(String roleId) {
-        RoleEntity role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
-
-        List<RolePermissionEntity> rps = rolePermissionRepository.findByRoleId(roleId);
-        List<String> permIds = rps.stream()
-                .map(RolePermissionEntity::getPermissionId)
-                .collect(Collectors.toList());
-
-        List<PermissionDto> permissions = permissionRepository.findAllById(permIds).stream()
-                .map(this::toPermissionDto)
-                .collect(Collectors.toList());
-
-        return RolePermissionListDto.builder()
-                .roleId(role.getRoleId())
-                .roleCode(role.getCode())
-                .permissions(permissions)
-                .build();
+        return getRolePermissions(roleId, null);
     }
 
     public RolePermissionListDto getRolePermissions(String roleId, String tenantId) {
         RoleEntity role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
 
-        List<RolePermissionEntity> rps = rolePermissionRepository.findByRoleIdAndTenantScope(roleId, tenantId);
+        List<RolePermissionEntity> rps = (tenantId != null)
+                ? rolePermissionRepository.findByRoleIdAndTenantScope(roleId, tenantId)
+                : rolePermissionRepository.findByRoleId(roleId);
         List<String> permIds = rps.stream()
                 .map(RolePermissionEntity::getPermissionId)
                 .collect(Collectors.toList());
@@ -204,5 +238,25 @@ public class RoleService {
                 .name(entity.getName())
                 .groupName(entity.getGroupName())
                 .build();
+    }
+
+    private boolean isCurrentUserSuperAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return false;
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_SUPER_ADMIN"::equals);
+    }
+
+    private Set<String> resolveCallerPermissionIds() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return Set.of();
+        List<String> callerRoleIds = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        String tenantId = TenantContext.getCurrentTenantId();
+        return rolePermissionRepository.findByRoleIdInAndTenantScope(callerRoleIds, tenantId).stream()
+                .map(RolePermissionEntity::getPermissionId)
+                .collect(Collectors.toSet());
     }
 }

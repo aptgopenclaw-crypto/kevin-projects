@@ -1,0 +1,1 @@
+import{d as s,b as o,e as t,l as a}from"./index-Blqy8_z0.js";const n={class:"p-4"},m=s({__name:"DimmingScheduleView",setup(l){return(r,e)=>(a(),o("div",n,[...e[0]||(e[0]=[t("h2",{class:"text-xl font-semibold"},"調光排程管理",-1),t("p",{class:"text-gray-500 mt-2"},"此頁面尚在開發中",-1)])]))}});export{m as default};

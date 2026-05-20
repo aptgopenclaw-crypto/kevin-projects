@@ -1,5 +1,6 @@
 import axiosIns from '@/api/axios/axiosIns'
 import type { BaseResponse, UserInfoDto } from '@/types/auth'
+import type { PageResponse } from '@/types/common'
 import type {
   UpdateOwnProfileRequest,
   UserChangePasswordRequest,
@@ -9,7 +10,6 @@ import type {
   AddTenantRoleRequest,
   UserListItemDto,
   UserTenantMappingDto,
-  PageResponse,
 } from '@/types/user'
 
 // ===== Self-service =====
@@ -24,6 +24,9 @@ export const changePassword = (payload: UserChangePasswordRequest) =>
 
 export const listUsers = (params: UserListQuery) =>
   axiosIns.get<unknown, BaseResponse<PageResponse<UserListItemDto>>>('/auth/users', { params })
+
+export const getUser = (userId: string) =>
+  axiosIns.get<unknown, BaseResponse<UserListItemDto>>(`/auth/users/${encodeURIComponent(userId)}`)
 
 export const createUser = (payload: CreateUserRequest) =>
   axiosIns.post<unknown, BaseResponse<UserListItemDto>>('/auth/users', payload)

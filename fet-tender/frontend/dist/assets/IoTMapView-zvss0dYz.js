@@ -1,0 +1,1 @@
+import{d as s,b as o,e as t,l as a}from"./index-Blqy8_z0.js";const n={class:"p-4"},c=s({__name:"IoTMapView",setup(r){return(l,e)=>(a(),o("div",n,[...e[0]||(e[0]=[t("h2",{class:"text-xl font-semibold"},"IoT 地圖狀態",-1),t("p",{class:"text-gray-500 mt-2"},"此頁面尚在開發中",-1)])]))}});export{c as default};

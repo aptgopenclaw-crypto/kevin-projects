@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.taipei.iot.common.interceptor.RateLimitInterceptor;
 import com.taipei.iot.tenant.TenantInterceptor;
+import com.taipei.iot.tenant.TenantEnabledCache;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -48,15 +49,24 @@ class AuditControllerTest {
     @MockitoBean
     private StringRedisTemplate stringRedisTemplate;
 
+    @MockitoBean
+    private TenantEnabledCache tenantEnabledCache;
+
     private String validToken() {
         return "valid.jwt.token";
     }
 
     private void mockJwtValid(String token, String userId, String tenantId, List<String> roles) {
+        mockJwtValid(token, userId, tenantId, roles, List.of());
+    }
+
+    private void mockJwtValid(String token, String userId, String tenantId,
+                               List<String> roles, List<String> permissions) {
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("uid", userId);
         claimsMap.put("tenantId", tenantId);
         claimsMap.put("roles", roles);
+        claimsMap.put("permissions", permissions);
         claimsMap.put("sub", "test@test.com");
         claimsMap.put("exp", new Date(System.currentTimeMillis() + 3600000));
         claimsMap.put("iat", new Date());
@@ -66,7 +76,8 @@ class AuditControllerTest {
 
     @Test
     void getUserUsageHistory_shouldReturn200ForAdmin() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"));
+        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+                List.of("AUDIT_LIST", "LOGIN_LOG_LIST"));
 
         UserEventLogDto dto = buildDto("LOGIN", "USER_AUTH");
         Page<UserEventLogDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 20), 1);
@@ -84,7 +95,8 @@ class AuditControllerTest {
 
     @Test
     void getUserUsageHistory_shouldReturn200ForSuperAdmin() throws Exception {
-        mockJwtValid(validToken(), "user-super-001", null, List.of("SUPER_ADMIN"));
+        mockJwtValid(validToken(), "user-super-001", null, List.of("SUPER_ADMIN"),
+                List.of("AUDIT_LIST", "LOGIN_LOG_LIST"));
 
         Page<UserEventLogDto> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
         when(auditService.getUserUsageHistory(any(AuditQueryRequest.class), anyBoolean(), any()))
@@ -156,7 +168,8 @@ class AuditControllerTest {
 
     @Test
     void exportCsv_shouldReturn200ForAdmin() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"));
+        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+                List.of("AUDIT_LIST", "LOGIN_LOG_LIST"));
 
         UserEventLogDto dto = buildDto("LOGIN", "USER_AUTH");
         when(auditService.queryForExport(any(AuditQueryRequest.class), anyBoolean()))
@@ -172,7 +185,8 @@ class AuditControllerTest {
 
     @Test
     void exportXlsx_shouldReturn200ForAdmin() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"));
+        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+                List.of("AUDIT_LIST", "LOGIN_LOG_LIST"));
 
         when(auditService.queryForExport(any(AuditQueryRequest.class), anyBoolean()))
                 .thenReturn(List.of());

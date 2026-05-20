@@ -7,6 +7,7 @@ import com.taipei.iot.common.response.BaseResponse;
 import com.taipei.iot.common.util.SecurityLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -32,6 +33,21 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
+
+    /**
+     * Swagger/OpenAPI 專用 FilterChain — 僅在 springdoc 啟用時註冊，
+     * 確保生產環境不會意外暴露 API 文件。
+     */
+    @Bean
+    @Order(1)
+    @ConditionalOnProperty(name = "springdoc.api-docs.enabled", havingValue = "true")
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .build();
+    }
 
     @Bean
     @Order(2)
@@ -88,37 +104,42 @@ public class SecurityConfig {
                         }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/noauth/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // WebSocket handshake (auth via STOMP headers)
                         .requestMatchers("/ws/**").permitAll()
                         // USER: self-service (authenticated)
                         .requestMatchers("/v1/auth/user/my", "/v1/auth/user/change-password").authenticated()
-                        // USER: admin — role or permission-based
-                        // 細部權限由各方法的 @PreAuthorize 控制（如 tenant-roles 限 SUPER_ADMIN）
-                        .requestMatchers("/v1/auth/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPER_ADMIN", "ROLE_DEPT_ADMIN", "USER_LIST")
-                        // RBAC: roles/permissions query (ADMIN, SUPER_ADMIN, or DEPT_ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/v1/auth/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "DEPT_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/v1/auth/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        // USER: admin — permission-based (細部由 @PreAuthorize 控制)
+                        .requestMatchers("/v1/auth/users/**").hasAnyAuthority("USER_LIST", "USER_CREATE", "USER_UPDATE", "USER_DISABLE", "USER_DELETE")
+                        // RBAC: roles query
+                        .requestMatchers(HttpMethod.GET, "/v1/auth/roles/**").hasAuthority("ROLE_LIST")
+                        // RBAC: roles mutation
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/roles").hasAuthority("ROLE_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/v1/auth/roles/**").hasAnyAuthority("ROLE_UPDATE", "ROLE_ASSIGN_PERM")
+                        .requestMatchers(HttpMethod.PATCH, "/v1/auth/roles/**").hasAuthority("ROLE_UPDATE")
+                        // RBAC: permissions query (same gate as role list)
+                        .requestMatchers(HttpMethod.GET, "/v1/auth/permissions/**").hasAuthority("ROLE_LIST")
                         // RBAC: menus — user visible menus (authenticated)
                         .requestMatchers(HttpMethod.GET, "/v1/auth/menus/my").authenticated()
-                        // RBAC: menus — admin tree view (ADMIN or SUPER_ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/v1/auth/menus/tree").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        // RBAC: menus CRUD (SUPER_ADMIN only)
-                        .requestMatchers(HttpMethod.POST, "/v1/auth/menus/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/v1/auth/menus/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/v1/auth/menus/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/v1/auth/menus/**").hasRole("SUPER_ADMIN")
+                        // RBAC: menus — admin tree view
+                        .requestMatchers(HttpMethod.GET, "/v1/auth/menus/tree").hasAuthority("MENU_LIST")
+                        // RBAC: menus CRUD
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/menus/**").hasAuthority("MENU_CREATE")
+                        .requestMatchers(HttpMethod.PUT, "/v1/auth/menus/**").hasAuthority("MENU_UPDATE")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/auth/menus/**").hasAuthority("MENU_DELETE")
+                        .requestMatchers(HttpMethod.PATCH, "/v1/auth/menus/**").hasAuthority("MENU_UPDATE")
                         // AUDIT: personal log (authenticated)
                         .requestMatchers("/v1/auth/audit/user/login/my").authenticated()
-                        // AUDIT: admin queries — role or permission-based
-                        .requestMatchers("/v1/auth/audit/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPER_ADMIN", "AUDIT_LIST")
-                        // DEPT: tree list requires DEPT_LIST or admin role
-                        .requestMatchers(HttpMethod.GET, "/v1/auth/dept/list").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPER_ADMIN", "ROLE_DEPT_ADMIN", "DEPT_LIST")
+                        // AUDIT: admin queries
+                        .requestMatchers("/v1/auth/audit/**").hasAnyAuthority("AUDIT_LIST", "LOGIN_LOG_LIST")
+                        // DEPT: tree list
+                        .requestMatchers(HttpMethod.GET, "/v1/auth/dept/list").hasAuthority("DEPT_LIST")
                         // DEPT: options / single dept (authenticated — used by dropdowns)
                         .requestMatchers(HttpMethod.GET, "/v1/auth/dept/options").authenticated()
                         .requestMatchers(HttpMethod.GET, "/v1/auth/dept/scope-options").authenticated()
                         .requestMatchers(HttpMethod.GET, "/v1/auth/dept/{deptId}").authenticated()
                         // DEPT: CRUD is controlled by @PreAuthorize on controller
+                        // TENANT ADMIN: SUPER_ADMIN only — 跨場域管理不開放給動態角色
+                        .requestMatchers("/v1/admin/tenants/**").hasRole("SUPER_ADMIN")
                         // LOG-SUMMARY: all GET endpoints (authenticated)
                         .requestMatchers(HttpMethod.GET, "/v1/log/**").authenticated()
                         .anyRequest().authenticated())

@@ -2,8 +2,8 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
-import { updateUser } from '@/api/user'
-import { listRoles } from '@/api/rbac'
+import { updateUser, getUser } from '@/api/user'
+import { listAssignableRoles } from '@/api/rbac'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { User, Phone, Shield } from 'lucide-vue-next'
@@ -49,13 +49,13 @@ const errorCodeMessages = computed<Record<string, string>>(() => ({
 
 onMounted(async () => {
   try {
-    // Load roles list
-    const rolesRes = await listRoles()
+    // Load assignable roles list
+    const rolesRes = await listAssignableRoles()
     roles.value = rolesRes.body.filter((r: RoleDto) => r.enabled)
 
-    // Load user list to find this user's data
-    await userStore.fetchUserList({ page: 0, size: 9999, keyword: undefined })
-    const found = userStore.userList.find(u => u.userId === userId)
+    // Load single user data
+    const userRes = await getUser(userId)
+    const found = userRes.body
     if (found) {
       userBasic.value = found
       form.displayName = found.displayName || ''

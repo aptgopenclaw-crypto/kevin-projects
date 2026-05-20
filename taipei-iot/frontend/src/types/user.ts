@@ -1,5 +1,3 @@
-import type { BaseResponse } from '@/types/auth'
-
 // ===== Request Types =====
 
 export interface UpdateOwnProfileRequest {
@@ -10,6 +8,7 @@ export interface UpdateOwnProfileRequest {
 }
 
 export interface UserChangePasswordRequest {
+  oldPassword: string
   newPassword: string
 }
 
@@ -72,13 +71,5 @@ export interface UserTenantMappingDto {
   enabled: boolean
 }
 
-export interface PageResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  page: number
-  size: number
-}
-
-// Re-export for convenience
-export type { BaseResponse }
+// Re-export common types for convenience
+export type { PageResponse, BaseResponse } from '@/types/common'

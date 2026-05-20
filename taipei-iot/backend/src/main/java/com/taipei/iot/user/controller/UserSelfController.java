@@ -1,6 +1,7 @@
 package com.taipei.iot.user.controller;
 
 import com.taipei.iot.auth.entity.UserEntity;
+import com.taipei.iot.common.annotation.RateLimit;
 import com.taipei.iot.common.response.BaseResponse;
 import com.taipei.iot.user.dto.request.ChangePasswordRequest;
 import com.taipei.iot.user.dto.request.UpdateOwnProfileRequest;
@@ -30,6 +31,7 @@ public class UserSelfController {
     }
 
     @PostMapping("/change-password")
+    @RateLimit(key = "change-password", limit = 5, period = 300)
     public BaseResponse<Void> changePassword(Authentication authentication,
                                               @Valid @RequestBody ChangePasswordRequest req) {
         String userId = (String) authentication.getPrincipal();

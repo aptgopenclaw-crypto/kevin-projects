@@ -13,7 +13,9 @@ import static org.mockito.Mockito.*;
 
 class FileValidationServiceTest {
 
-    private final FileValidationService service = new FileValidationService(10 * 1024 * 1024); // 10MB
+    // 圖片 5MB, 文件 20MB, 影音 100MB
+    private final FileValidationService service = new FileValidationService(
+            5 * 1024 * 1024, 20 * 1024 * 1024, 100 * 1024 * 1024);
 
     // ── 副檔名白名單 ──
 
@@ -69,23 +71,54 @@ class FileValidationServiceTest {
         assertEquals("png", service.validateExtension("image.PNG"));
     }
 
-    // ── 檔案大小 ──
+    // ── 檔案大小（按類別） ──
 
     @Test
-    void validateSize_withinLimit_ok() {
-        assertDoesNotThrow(() -> service.validateSize(5 * 1024 * 1024)); // 5MB
+    void validateSize_imageWithinLimit_ok() {
+        assertDoesNotThrow(() -> service.validateSize(4 * 1024 * 1024, "jpg")); // 4MB < 5MB
     }
 
     @Test
-    void validateSize_exceedsLimit_throws() {
+    void validateSize_imageExceedsLimit_throws() {
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> service.validateSize(11 * 1024 * 1024)); // 11MB
+                () -> service.validateSize(6 * 1024 * 1024, "png")); // 6MB > 5MB
         assertEquals(ErrorCode.FILE_SIZE_EXCEEDED, ex.getErrorCode());
     }
 
     @Test
-    void validateSize_exactlyAtLimit_ok() {
-        assertDoesNotThrow(() -> service.validateSize(10 * 1024 * 1024)); // 10MB exact
+    void validateSize_imageExactlyAtLimit_ok() {
+        assertDoesNotThrow(() -> service.validateSize(5 * 1024 * 1024, "webp")); // 5MB == 5MB
+    }
+
+    @Test
+    void validateSize_documentWithinLimit_ok() {
+        assertDoesNotThrow(() -> service.validateSize(15 * 1024 * 1024, "pdf")); // 15MB < 20MB
+    }
+
+    @Test
+    void validateSize_documentExceedsLimit_throws() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> service.validateSize(21 * 1024 * 1024, "xlsx")); // 21MB > 20MB
+        assertEquals(ErrorCode.FILE_SIZE_EXCEEDED, ex.getErrorCode());
+    }
+
+    @Test
+    void validateSize_mediaWithinLimit_ok() {
+        assertDoesNotThrow(() -> service.validateSize(80 * 1024 * 1024, "mp4")); // 80MB < 100MB
+    }
+
+    @Test
+    void validateSize_mediaExceedsLimit_throws() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> service.validateSize(101L * 1024 * 1024, "mp4")); // 101MB > 100MB
+        assertEquals(ErrorCode.FILE_SIZE_EXCEEDED, ex.getErrorCode());
+    }
+
+    @Test
+    void validateSize_nullExtension_usesDocumentLimit() {
+        assertDoesNotThrow(() -> service.validateSize(19 * 1024 * 1024, null)); // 19MB < 20MB
+        assertThrows(BusinessException.class,
+                () -> service.validateSize(21 * 1024 * 1024, null)); // 21MB > 20MB
     }
 
     // ── Magic bytes ──

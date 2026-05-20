@@ -1,6 +1,7 @@
 package com.taipei.iot.rbac.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class CreateMenuRequest {
     private String name;
 
     @NotBlank
+    @Pattern(regexp = "DIRECTORY|PAGE|BUTTON", message = "menuType 必須為 DIRECTORY、PAGE 或 BUTTON")
     private String menuType;
 
     private String routeName;

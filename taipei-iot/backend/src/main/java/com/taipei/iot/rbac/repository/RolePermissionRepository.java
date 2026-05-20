@@ -3,6 +3,7 @@ package com.taipei.iot.rbac.repository;
 import com.taipei.iot.rbac.entity.RolePermissionEntity;
 import com.taipei.iot.rbac.entity.RolePermissionId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,5 +20,7 @@ public interface RolePermissionRepository extends JpaRepository<RolePermissionEn
 
     List<RolePermissionEntity> findByRoleId(String roleId);
 
-    void deleteByRoleId(String roleId);
+    @Modifying
+    @Query("DELETE FROM RolePermissionEntity rp WHERE rp.roleId = :roleId")
+    void deleteByRoleId(@Param("roleId") String roleId);
 }

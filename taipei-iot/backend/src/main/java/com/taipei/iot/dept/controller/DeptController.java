@@ -50,21 +50,21 @@ public class DeptController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('DEPT_CREATE')")
+    @PreAuthorize("hasAuthority('DEPT_CREATE')")
     @AuditEvent(AuditEventType.CREATE_DEPT)
     public BaseResponse<DeptDto> createDept(@Valid @RequestBody CreateDeptRequest request) {
         return BaseResponse.success(deptService.createDept(request));
     }
 
     @PutMapping
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('DEPT_UPDATE')")
+    @PreAuthorize("hasAuthority('DEPT_UPDATE')")
     @AuditEvent(AuditEventType.UPDATE_DEPT)
     public BaseResponse<DeptDto> updateDept(@Valid @RequestBody UpdateDeptRequest request) {
         return BaseResponse.success(deptService.updateDept(request));
     }
 
     @DeleteMapping("/{deptId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('DEPT_DELETE')")
+    @PreAuthorize("hasAuthority('DEPT_DELETE')")
     @AuditEvent(AuditEventType.DELETE_DEPT)
     public BaseResponse<Void> deleteDept(@PathVariable Long deptId) {
         deptService.deleteDept(deptId);

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
 import { useDeptStore } from '@/stores/deptStore'
 import {
-  listAnnouncements,
+  listAnnouncementsAdmin,
   createAnnouncement,
   updateAnnouncement,
   deleteAnnouncement,
@@ -41,8 +41,7 @@ const keyword = ref('')
 async function fetchList() {
   loading.value = true
   try {
-    const res = await listAnnouncements({
-      admin: true,
+    const res = await listAnnouncementsAdmin({
       statusFilter: statusFilter.value,
       keyword: keyword.value || undefined,
       page: pagination.page,

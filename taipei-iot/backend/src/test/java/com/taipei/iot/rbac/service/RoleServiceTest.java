@@ -13,11 +13,15 @@ import com.taipei.iot.rbac.entity.PermissionEntity;
 import com.taipei.iot.rbac.entity.RolePermissionEntity;
 import com.taipei.iot.rbac.repository.PermissionRepository;
 import com.taipei.iot.rbac.repository.RolePermissionRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +41,20 @@ class RoleServiceTest {
     @Mock private RolePermissionRepository rolePermissionRepository;
     @Mock private PermissionRepository permissionRepository;
 
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void mockSuperAdmin() {
+        var auth = new UsernamePasswordAuthenticationToken(
+                "super-admin", null,
+                List.of(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN")));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
     @Test
-    void listRoles_shouldReturn6BuiltInRoles() {
+    void listRoles_shouldReturn5RolesExcludingSuperAdmin() {
         List<RoleEntity> roles = List.of(
                 RoleEntity.builder().roleId("ROLE_SUPER_ADMIN").code("SUPER_ADMIN").name("Super Admin").builtIn(true).enabled(true).build(),
                 RoleEntity.builder().roleId("ROLE_ADMIN").code("ADMIN").name("Admin").builtIn(true).enabled(true).build(),
@@ -51,8 +67,8 @@ class RoleServiceTest {
 
         List<RoleDto> result = roleService.listRoles();
 
-        assertEquals(6, result.size());
-        assertEquals("SUPER_ADMIN", result.get(0).getCode());
+        assertEquals(5, result.size());
+        assertTrue(result.stream().noneMatch(r -> "SUPER_ADMIN".equals(r.getCode())));
         assertTrue(result.stream().allMatch(RoleDto::isBuiltIn));
     }
 
@@ -126,6 +142,8 @@ class RoleServiceTest {
 
     @Test
     void assignPermissions_shouldReplaceAllPermissions() {
+        mockSuperAdmin();
+
         RoleEntity role = RoleEntity.builder()
                 .roleId("ROLE_ADMIN").code("ADMIN").name("Admin").builtIn(true).enabled(true).build();
         when(roleRepository.findById("ROLE_ADMIN")).thenReturn(Optional.of(role));

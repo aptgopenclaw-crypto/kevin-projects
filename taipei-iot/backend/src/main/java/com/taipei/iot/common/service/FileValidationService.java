@@ -18,20 +18,30 @@ import java.util.Set;
  * <ul>
  *   <li>副檔名白名單</li>
  *   <li>Magic bytes 驗證（Apache Tika）</li>
- *   <li>檔案大小限制</li>
+ *   <li>按類別檔案大小限制（圖片 / 文件 / 影音）</li>
  * </ul>
  */
 @Slf4j
 @Service
 public class FileValidationService {
 
-    private final long maxFileSize;
+    private final long maxImageSize;
+    private final long maxDocumentSize;
+    private final long maxMediaSize;
     private final Tika tika = new Tika();
 
     /** 允許的副檔名（小寫） */
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
             "jpg", "jpeg", "png", "gif", "bmp", "webp",
             "pdf", "xlsx", "docx", "csv",
+            "mp4", "wav", "mp3"
+    );
+
+    private static final Set<String> IMAGE_EXTENSIONS = Set.of(
+            "jpg", "jpeg", "png", "gif", "bmp", "webp"
+    );
+
+    private static final Set<String> MEDIA_EXTENSIONS = Set.of(
             "mp4", "wav", "mp3"
     );
 
@@ -55,8 +65,12 @@ public class FileValidationService {
     );
 
     public FileValidationService(
-            @Value("${file.validation.max-size:10485760}") long maxFileSize) {
-        this.maxFileSize = maxFileSize;
+            @Value("${file.validation.max-image-size:5242880}") long maxImageSize,
+            @Value("${file.validation.max-document-size:20971520}") long maxDocumentSize,
+            @Value("${file.validation.max-media-size:104857600}") long maxMediaSize) {
+        this.maxImageSize = maxImageSize;
+        this.maxDocumentSize = maxDocumentSize;
+        this.maxMediaSize = maxMediaSize;
     }
 
     /**
@@ -69,19 +83,46 @@ public class FileValidationService {
         if (file.isEmpty()) {
             throw new BusinessException(ErrorCode.VALIDATION_ERROR, "上傳檔案不可為空");
         }
-        validateSize(file.getSize());
         String ext = validateExtension(file.getOriginalFilename());
+        validateSize(file.getSize(), ext);
         validateMagicBytes(file, ext);
     }
 
     /**
-     * 驗證檔案大小。
+     * 依副檔名類別驗證檔案大小。
      */
-    public void validateSize(long size) {
-        if (size > maxFileSize) {
+    public void validateSize(long size, String extension) {
+        long limit = getMaxSizeForExtension(extension);
+        if (size > limit) {
             throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDED,
-                    String.format("檔案大小 %d bytes 超過 %d bytes 限制", size, maxFileSize));
+                    String.format("檔案大小 %d bytes 超過 %d bytes 限制", size, limit));
         }
+    }
+
+    /**
+     * 驗證檔案大小（使用圖片類別上限作為通用限制）。
+     * @deprecated 建議使用 {@link #validateSize(long, String)} 搭配副檔名
+     */
+    @Deprecated
+    public void validateSize(long size) {
+        long limit = maxDocumentSize;
+        if (size > limit) {
+            throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDED,
+                    String.format("檔案大小 %d bytes 超過 %d bytes 限制", size, limit));
+        }
+    }
+
+    private long getMaxSizeForExtension(String extension) {
+        if (extension == null) {
+            return maxDocumentSize;
+        }
+        if (IMAGE_EXTENSIONS.contains(extension)) {
+            return maxImageSize;
+        }
+        if (MEDIA_EXTENSIONS.contains(extension)) {
+            return maxMediaSize;
+        }
+        return maxDocumentSize;
     }
 
     /**
@@ -120,7 +161,7 @@ public class FileValidationService {
      * 判斷是否為圖片類型。
      */
     public boolean isImage(String extension) {
-        return extension != null && Set.of("jpg", "jpeg", "png", "gif", "bmp", "webp").contains(extension);
+        return extension != null && IMAGE_EXTENSIONS.contains(extension);
     }
 
     private String extractExtension(String filename) {

@@ -1,21 +1,27 @@
 import axiosIns from '@/api/axios/axiosIns'
 import type { BaseResponse } from '@/types/auth'
+import type { PageResponse } from '@/types/common'
 import type {
   AnnouncementRequest,
   AnnouncementResponse,
-  AnnouncementPageResponse,
   UnreadCountResponse,
 } from '@/types/announcement'
 
-// 查詢公告（前台 / 管理頁面）
+// 前台查詢（已發佈 + 未過期 + 受眾符合）
 export const listAnnouncements = (params: {
-  admin?: boolean
+  page?: number
+  size?: number
+}) =>
+  axiosIns.get<unknown, BaseResponse<PageResponse<AnnouncementResponse>>>('/auth/announcements', { params })
+
+// 管理端查詢（需 ANNOUNCEMENT_MANAGE 權限）
+export const listAnnouncementsAdmin = (params: {
   statusFilter?: string
   keyword?: string
   page?: number
   size?: number
 }) =>
-  axiosIns.get<unknown, BaseResponse<AnnouncementPageResponse>>('/auth/announcements', { params })
+  axiosIns.get<unknown, BaseResponse<PageResponse<AnnouncementResponse>>>('/auth/announcements/admin', { params })
 
 // 單筆公告詳情
 export const getAnnouncement = (id: number) =>

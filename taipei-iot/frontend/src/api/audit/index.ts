@@ -1,6 +1,7 @@
 import axiosIns from '@/api/axios/axiosIns'
 import type { BaseResponse } from '@/types/auth'
-import type { UserEventLogDto, PageData } from '@/types/audit'
+import type { PageResponse } from '@/types/common'
+import type { UserEventLogDto } from '@/types/audit'
 
 export const getAuditCategories = () =>
   axiosIns.get<unknown, BaseResponse<string[]>>('/auth/audit/categories')
@@ -15,7 +16,7 @@ export const getUserUsageHistory = (params: {
   pageSize: number
   page: number
 }) =>
-  axiosIns.get<unknown, BaseResponse<PageData<UserEventLogDto>>>('/auth/audit/user/usage/history', { params })
+  axiosIns.get<unknown, BaseResponse<PageResponse<UserEventLogDto>>>('/auth/audit/user/usage/history', { params })
 
 export const getMyLoginLog = (params: {
   eventType?: string
@@ -25,7 +26,7 @@ export const getMyLoginLog = (params: {
   pageSize: number
   page: number
 }) =>
-  axiosIns.get<unknown, BaseResponse<PageData<UserEventLogDto>>>('/auth/audit/user/login/my', { params })
+  axiosIns.get<unknown, BaseResponse<PageResponse<UserEventLogDto>>>('/auth/audit/user/login/my', { params })
 
 export const exportAuditLogs = (params: {
   format: 'csv' | 'xlsx'

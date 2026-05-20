@@ -1,0 +1,1 @@
+import{d as s,b as a,e as t,l as o}from"./index-Blqy8_z0.js";const n={class:"p-4"},p=s({__name:"MeterStatusView",setup(r){return(l,e)=>(o(),a("div",n,[...e[0]||(e[0]=[t("h2",{class:"text-xl font-semibold"},"智慧電表",-1),t("p",{class:"text-gray-500 mt-2"},"此頁面尚在開發中",-1)])]))}});export{p as default};

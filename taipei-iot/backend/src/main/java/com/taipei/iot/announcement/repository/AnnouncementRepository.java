@@ -38,7 +38,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
                (:statusFilter = 'DRAFT' AND a.status = 'DRAFT') OR
                (:statusFilter = 'PUBLISHED' AND a.status = 'PUBLISHED' AND (a.expireAt IS NULL OR a.expireAt > :now)) OR
                (:statusFilter = 'EXPIRED' AND a.status = 'PUBLISHED' AND a.expireAt IS NOT NULL AND a.expireAt < :now))
-          AND (:keyword IS NULL OR a.title LIKE :keyword)
+          AND (:keyword IS NULL OR a.title LIKE :keyword ESCAPE '\\')
         """)
     Page<Announcement> findAdminAnnouncements(
             @Param("statusFilter") String statusFilter,
@@ -61,7 +61,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
                    AND (a.expireAt IS NULL OR a.expireAt > :now)) OR
                (:statusFilter = 'EXPIRED' AND a.status = 'PUBLISHED'
                    AND a.expireAt IS NOT NULL AND a.expireAt < :now))
-          AND (:keyword IS NULL OR a.title LIKE :keyword)
+          AND (:keyword IS NULL OR a.title LIKE :keyword ESCAPE '\\')
         """)
     Page<Announcement> findDeptAdminAnnouncements(
             @Param("userId") String userId,

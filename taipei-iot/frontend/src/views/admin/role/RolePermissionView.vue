@@ -68,7 +68,7 @@ async function loadRoles() {
   loading.value = true
   try {
     const res = await listRoles()
-    roles.value = res.body
+    roles.value = (res.body as RoleDto[]).filter(r => r.code !== 'SUPER_ADMIN')
   } catch {
     ElMessage.error(t('role.loadRolesFailed'))
   } finally {

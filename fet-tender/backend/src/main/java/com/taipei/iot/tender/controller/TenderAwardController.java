@@ -1,0 +1,57 @@
+package com.taipei.iot.tender.controller;
+
+import com.taipei.iot.common.response.BaseResponse;
+import com.taipei.iot.tender.dto.AwardScrapeResult;
+import com.taipei.iot.tender.dto.TenderAwardQueryRequest;
+import com.taipei.iot.tender.dto.TenderAwardResponse;
+import com.taipei.iot.tender.service.TenderAwardScraperService;
+import com.taipei.iot.tender.service.TenderAwardService;
+import com.taipei.iot.user.dto.response.PageResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+
+@RestController
+@RequestMapping("/v1/tender/awards")
+@RequiredArgsConstructor
+public class TenderAwardController {
+
+    private final TenderAwardService service;
+    private final TenderAwardScraperService scraperService;
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('tender:award:view')")
+    public BaseResponse<PageResponse<TenderAwardResponse>> search(TenderAwardQueryRequest req) {
+        return BaseResponse.success(service.search(req));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('tender:award:view')")
+    public BaseResponse<TenderAwardResponse> getById(@PathVariable Long id) {
+        return BaseResponse.success(service.getById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('tender:award:delete')")
+    public BaseResponse<Void> delete(@PathVariable Long id) {
+        service.deleteById(id);
+        return BaseResponse.success(null);
+    }
+
+    /**
+     * 手動補充歷史決標資料。
+     * 指定日期區間，逐日重新爬取政府採購網並 upsert 至 DB。
+     *
+     * 範例：POST /v1/tender/awards/scrape/history?from=2026-01-01&to=2026-05-13
+     */
+    @PostMapping("/scrape/history")
+    @PreAuthorize("hasAuthority('tender:award:scrape:run')")
+    public BaseResponse<AwardScrapeResult> scrapeHistory(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return BaseResponse.success(scraperService.runAndImport(from, to));
+    }
+}

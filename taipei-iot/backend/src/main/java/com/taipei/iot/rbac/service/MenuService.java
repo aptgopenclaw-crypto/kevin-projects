@@ -30,9 +30,24 @@ public class MenuService {
     private final RolePermissionRepository rolePermissionRepository;
     private final PermissionRepository permissionRepository;
 
+    /** 全域選單快取（選單為全域資料，僅 SUPER_ADMIN 可修改，適合記憶體快取） */
+    private volatile List<MenuEntity> allMenusCache;
+
+    private List<MenuEntity> getAllMenusCached() {
+        List<MenuEntity> cached = allMenusCache;
+        if (cached != null) return cached;
+        cached = menuRepository.findAllByOrderBySortOrder();
+        allMenusCache = cached;
+        return cached;
+    }
+
+    private void invalidateMenuCache() {
+        allMenusCache = null;
+    }
+
     @Transactional(readOnly = true)
     public List<MenuDto> getMenuTree() {
-        List<MenuEntity> allMenus = menuRepository.findAllByOrderBySortOrder();
+        List<MenuEntity> allMenus = getAllMenusCached();
         return buildMenuTree(allMenus);
     }
 
@@ -40,7 +55,7 @@ public class MenuService {
     public List<UserMenuDto> getMyMenus(List<String> roleIds, String tenantId) {
         // SUPER_ADMIN bypass: return all visible menus
         if (roleIds.stream().anyMatch(r -> r.equals("ROLE_SUPER_ADMIN"))) {
-            List<MenuEntity> allVisible = menuRepository.findAllByOrderBySortOrder().stream()
+            List<MenuEntity> allVisible = getAllMenusCached().stream()
                     .filter(m -> Boolean.TRUE.equals(m.getVisible()))
                     .collect(Collectors.toList());
             return buildUserMenuTree(allVisible);
@@ -70,7 +85,7 @@ public class MenuService {
         List<MenuEntity> permittedMenus = menuRepository.findByPermissionCodeInAndVisibleTrue(permissionCodes);
 
         // 4. Also include DIRECTORY parents that have visible children
-        List<MenuEntity> allMenus = menuRepository.findAllByOrderBySortOrder();
+        List<MenuEntity> allMenus = getAllMenusCached();
         List<Long> permittedMenuIds = permittedMenus.stream()
                 .map(MenuEntity::getMenuId)
                 .collect(Collectors.toList());
@@ -108,6 +123,7 @@ public class MenuService {
                 .build();
 
         MenuEntity saved = menuRepository.save(entity);
+        invalidateMenuCache();
         return toMenuDto(saved);
     }
 
@@ -131,6 +147,7 @@ public class MenuService {
         entity.setUpdateTime(LocalDateTime.now());
 
         MenuEntity saved = menuRepository.save(entity);
+        invalidateMenuCache();
         return toMenuDto(saved);
     }
 
@@ -143,6 +160,7 @@ public class MenuService {
             throw new BusinessException(ErrorCode.MENU_HAS_CHILDREN);
         }
         menuRepository.deleteById(menuId);
+        invalidateMenuCache();
     }
 
     @Transactional
@@ -152,6 +170,7 @@ public class MenuService {
         entity.setVisible(visible);
         entity.setUpdateTime(LocalDateTime.now());
         menuRepository.save(entity);
+        invalidateMenuCache();
     }
 
     // ---- private helpers ----

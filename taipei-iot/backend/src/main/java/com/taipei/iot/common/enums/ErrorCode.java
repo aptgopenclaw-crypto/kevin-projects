@@ -28,6 +28,8 @@ public enum ErrorCode {
     TENANT_NOT_FOUND("10020", 404, "場域不存在"),
     TENANT_ACCESS_DENIED("10021", 403, "無此場域存取權限"),
     TENANT_SELECTION_REQUIRED("10022", 403, "需先選擇場域"),
+    TENANT_CODE_DUPLICATE("10023", 409, "場域代碼已存在"),
+    TENANT_DISABLED("10024", 403, "場域已停用"),
 
     // 20xxx: 使用者管理
     // 20001-20002: 預留（批次建立帳號 / 匯入，尚未實作）
@@ -42,6 +44,7 @@ public enum ErrorCode {
     PASSWORD_EXPIRED("20016", 403, "密碼已過期"),
     PASSWORD_RECENTLY_USED("20017", 400, "密碼與近期相同"),
     MAPPING_NOT_FOUND("20018", 404, "場域存取不存在"),
+    OLD_PASSWORD_INCORRECT("20019", 400, "舊密碼錯誤"),
 
     // 30xxx: RBAC
     ROLE_CODE_DUPLICATE("30001", 409, "角色代碼已存在"),
@@ -62,6 +65,10 @@ public enum ErrorCode {
 
     // 55xxx: 通知
     NOTIFICATION_NOT_FOUND("55001", 404, "通知不存在"),
+
+    // 56xxx: 系統設定
+    SETTING_NOT_FOUND("56001", 404, "系統設定不存在"),
+    SETTING_INVALID_VALUE("56002", 400, "設定值不合法"),
 
     // 60xxx: 資產管理
     DEVICE_NOT_FOUND("60001", 404, "設備不存在"),

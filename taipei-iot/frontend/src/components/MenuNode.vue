@@ -15,6 +15,13 @@ import {
   Wrench,
   Eye,
   FolderOpen,
+  UserPlus,
+  LayoutList,
+  BarChart2,
+  ScrollText,
+  Megaphone,
+  Bell,
+  ClipboardList,
 } from 'lucide-vue-next'
 
 defineProps<{
@@ -26,6 +33,7 @@ const router = useRouter()
 const iconMap: Record<string, Component> = {
   user: Users,
   users: Users,
+  userplus: UserPlus,
   setting: Settings,
   settings: Settings,
   file: FileText,
@@ -35,11 +43,20 @@ const iconMap: Record<string, Component> = {
   menu: MenuIcon,
   building: Building2,
   activity: Activity,
-  audit: FileText,
+  audit: ClipboardList,
   wrench: Wrench,
   device: Monitor,
   eye: Eye,
   folder: FolderOpen,
+  layoutlist: LayoutList,
+  barchart: BarChart2,
+  scrolltext: ScrollText,
+  megaphone: Megaphone,
+  bell: Bell,
+  clipboardlist: ClipboardList,
+  // backward compat for existing DB values
+  notification: Bell,
+  chatdotround: Megaphone,
 }
 
 function getIcon(iconName: string | null): Component {

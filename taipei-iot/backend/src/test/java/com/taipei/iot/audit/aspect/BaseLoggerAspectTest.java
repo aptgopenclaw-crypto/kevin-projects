@@ -118,9 +118,10 @@ class BaseLoggerAspectTest {
     }
 
     @Test
-    void logApiCall_shouldExtractClientIpFromXForwardedFor() throws Throwable {
+    void logApiCall_shouldUseRemoteAddrIgnoringXForwardedFor() throws Throwable {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/v1/auth/user");
+        request.setRemoteAddr("192.168.1.100");
         request.addHeader("X-Forwarded-For", "10.0.0.1, 172.16.0.1");
         request.addHeader("User-Agent", "TestAgent/1.0");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -135,7 +136,7 @@ class BaseLoggerAspectTest {
                 anyString(), anyString(), anyString(),
                 anyString(), anyString(),
                 anyString(), any(), anyString(),
-                eq("10.0.0.1"), anyString(), anyLong(), isNull()
+                eq("192.168.1.100"), anyString(), anyLong(), isNull()
         );
     }
 }

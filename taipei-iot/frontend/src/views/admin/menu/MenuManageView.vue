@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useMenuStore } from '@/stores/menuStore'
+import { useAuthStore } from '@/stores/authStore'
 import { deleteMenu, toggleMenuVisible } from '@/api/rbac'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Pencil, Trash2, Eye, EyeOff, LayoutList } from 'lucide-vue-next'
@@ -11,12 +12,14 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const menuStore = useMenuStore()
+const authStore = useAuthStore()
 const loading = ref(false)
 const dialogVisible = ref(false)
 const editingMenu = ref<MenuDto | null>(null)
 const editParentId = ref<number | null>(null)
 
 const treeData = computed(() => menuStore.menuTree)
+const canWrite = computed(() => authStore.userInfo?.isSuperAdmin === true)
 
 onMounted(() => {
   loadMenuTree()
@@ -149,7 +152,7 @@ function getVisibleLabel(visible: boolean) {
             <p class="page-subtitle">{{ t('menu.subtitle') }}</p>
           </div>
         </div>
-        <el-button class="add-btn" @click="handleAddRoot">
+        <el-button v-if="canWrite" class="add-btn" @click="handleAddRoot">
           <Plus :size="14" style="margin-right: 6px" />
           {{ t('menu.addRootBtn') }}
         </el-button>
@@ -204,19 +207,22 @@ function getVisibleLabel(visible: boolean) {
         <el-table-column :label="t('menu.colActions')" width="200" align="center">
           <template #default="{ row }">
             <div class="action-btns">
-              <el-button class="action-btn action-add" size="small" :title="t('menu.addChildTooltip')" @click="handleAddChild(row)">
-                <Plus :size="14" />
-              </el-button>
-              <el-button class="action-btn action-edit" size="small" :title="t('menu.editTooltip')" @click="handleEdit(row)">
-                <Pencil :size="14" />
-              </el-button>
-              <el-button class="action-btn action-visible" size="small" :title="row.visible ? t('menu.hideTooltip') : t('menu.showTooltip')" @click="handleToggleVisible(row)">
-                <Eye v-if="row.visible" :size="14" />
-                <EyeOff v-else :size="14" />
-              </el-button>
-              <el-button class="action-btn action-delete" size="small" :title="t('menu.deleteTooltip')" @click="handleDelete(row)">
-                <Trash2 :size="14" />
-              </el-button>
+              <template v-if="canWrite">
+                <el-button class="action-btn action-add" size="small" :title="t('menu.addChildTooltip')" @click="handleAddChild(row)">
+                  <Plus :size="14" />
+                </el-button>
+                <el-button class="action-btn action-edit" size="small" :title="t('menu.editTooltip')" @click="handleEdit(row)">
+                  <Pencil :size="14" />
+                </el-button>
+                <el-button class="action-btn action-visible" size="small" :title="row.visible ? t('menu.hideTooltip') : t('menu.showTooltip')" @click="handleToggleVisible(row)">
+                  <Eye v-if="row.visible" :size="14" />
+                  <EyeOff v-else :size="14" />
+                </el-button>
+                <el-button class="action-btn action-delete" size="small" :title="t('menu.deleteTooltip')" @click="handleDelete(row)">
+                  <Trash2 :size="14" />
+                </el-button>
+              </template>
+              <span v-else class="read-only-hint">{{ t('common.readOnly') }}</span>
             </div>
           </template>
         </el-table-column>
@@ -380,6 +386,12 @@ function getVisibleLabel(visible: boolean) {
   display: flex;
   gap: 6px;
   justify-content: center;
+}
+
+.read-only-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .action-btn {

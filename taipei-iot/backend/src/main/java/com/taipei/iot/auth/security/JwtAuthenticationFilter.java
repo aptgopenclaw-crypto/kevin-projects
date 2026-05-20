@@ -4,6 +4,7 @@ import com.taipei.iot.common.enums.SecurityEvent;
 import com.taipei.iot.common.util.JwtClaimKeys;
 import com.taipei.iot.common.util.SecurityLogger;
 import com.taipei.iot.tenant.TenantContext;
+import com.taipei.iot.tenant.TenantEnabledCache;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TenantEnabledCache tenantEnabledCache;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -78,6 +80,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Set TenantContext
                 if (tenantId != null) {
+                    // 即時拒絕已停用場域的請求（不等 access token 自然過期）
+                    if (tenantEnabledCache.isTenantDisabled(tenantId)) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write("{\"errorCode\":\"10024\",\"message\":\"場域已停用\"}");
+                        return;
+                    }
                     TenantContext.setCurrentTenantId(tenantId);
                 } else if (roles.contains("SUPER_ADMIN")) {
                     TenantContext.setSystemContext();

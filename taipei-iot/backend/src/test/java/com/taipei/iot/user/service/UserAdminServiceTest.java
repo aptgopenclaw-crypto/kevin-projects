@@ -15,7 +15,7 @@ import com.taipei.iot.tenant.TenantContext;
 import com.taipei.iot.user.dto.request.AddTenantRoleRequest;
 import com.taipei.iot.user.dto.request.CreateUserRequest;
 import com.taipei.iot.user.dto.request.UpdateUserRequest;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import com.taipei.iot.user.dto.response.UserListItemDto;
 import com.taipei.iot.user.dto.response.UserTenantMappingDto;
 import com.taipei.iot.user.entity.PasswordHistoryEntity;

@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
+import './assets/styles/page-layout.css'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
@@ -20,7 +20,6 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
-app.use(ElementPlus)
 app.use(i18n)
 
 // Initialize theme and locale before mounting

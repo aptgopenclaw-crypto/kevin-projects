@@ -32,10 +32,4 @@ export interface PaginationState {
   total: number
 }
 
-export interface PageData<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Use PageResponse<T> from @/types/common instead of PageData

@@ -58,6 +58,12 @@ const staticAdminRoutes = [
     component: () => import('@/views/admin/menu/MenuManageView.vue'),
   },
   {
+    path: '/admin/system/tenants',
+    name: 'TenantManage',
+    component: () => import('@/views/admin/tenant/TenantManageView.vue'),
+    meta: { superAdminOnly: true },
+  },
+  {
     path: '/admin/system/roles',
     name: 'RolePermission',
     component: () => import('@/views/admin/role/RolePermissionView.vue'),
@@ -381,7 +387,15 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
-  // 5. private routes → check menu-based access
+  // 5. super-admin-only routes (not in backend menu system)
+  if (to.meta.superAdminOnly) {
+    const isSuperAdmin = authStore.userInfo?.isSuperAdmin === true
+    if (!isSuperAdmin) next('/')
+    else next()
+    return
+  }
+
+  // 6. private routes → check menu-based access
   if (!menuStore.hasRouteAccess(to.name as string)) {
     next('/')
     return

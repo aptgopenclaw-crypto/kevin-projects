@@ -21,6 +21,7 @@ public enum AuditCategory {
     KPI("KPI"),
     DASHBOARD("DASHBOARD"),
     IOT("IOT"),
+    TENANT("TENANT"),
     ;
 
     private final String value;

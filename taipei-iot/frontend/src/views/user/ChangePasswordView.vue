@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { changePassword } from '@/api/user'
 import { useAuthStore } from '@/stores/authStore'
 import { ElMessage } from 'element-plus'
@@ -9,18 +10,23 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
+const router = useRouter()
 const authStore = useAuthStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 
 const form = reactive({
+  oldPassword: '',
   newPassword: '',
   confirmPassword: '',
 })
 
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|;':,.<>?/~`]).{8,}$/
 
 const rules = computed<FormRules>(() => ({
+  oldPassword: [
+    { required: true, message: t('password.errors.oldPassRequired'), trigger: 'blur' },
+  ],
   newPassword: [
     { required: true, message: t('password.errors.newPassRequired'), trigger: 'blur' },
     { min: 8, message: t('password.errors.newPassMinLen'), trigger: 'blur' },
@@ -54,6 +60,7 @@ const errorCodeMessages = computed<Record<string, string>>(() => ({
   '10001': t('password.errors.10001'),
   '20003': t('password.errors.20003'),
   '20017': t('password.errors.20017'),
+  '20019': t('password.errors.20019'),
 }))
 
 async function handleSubmit() {
@@ -62,7 +69,7 @@ async function handleSubmit() {
 
   loading.value = true
   try {
-    await changePassword({ newPassword: form.newPassword })
+    await changePassword({ oldPassword: form.oldPassword, newPassword: form.newPassword })
     ElMessage.success(t('password.updatedSuccess'))
     setTimeout(() => {
       authStore.doLogout()
@@ -94,6 +101,19 @@ async function handleSubmit() {
         size="large"
         @submit.prevent="handleSubmit"
       >
+        <el-form-item :label="t('password.oldPassLabel')" prop="oldPassword">
+          <el-input
+            v-model="form.oldPassword"
+            type="password"
+            :placeholder="t('password.oldPassPlaceholder')"
+            show-password
+          >
+            <template #prefix>
+              <Lock :size="18" class="input-icon" />
+            </template>
+          </el-input>
+        </el-form-item>
+
         <el-form-item :label="t('password.newPassLabel')" prop="newPassword">
           <el-input
             v-model="form.newPassword"
@@ -121,6 +141,9 @@ async function handleSubmit() {
         </el-form-item>
 
         <el-form-item class="submit-row">
+          <el-button class="cancel-btn" @click="router.back()">
+            {{ t('common.cancel') }}
+          </el-button>
           <el-button
             class="submit-btn"
             :loading="loading"
@@ -184,8 +207,23 @@ async function handleSubmit() {
   margin-top: 8px;
 }
 
+.submit-row :deep(.el-form-item__content) {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel-btn {
+  flex: 1;
+  border-radius: 86px;
+  padding: 8px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 .submit-btn {
-  width: 100%;
+  flex: 1;
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   border: none;

@@ -32,8 +32,16 @@ public enum AuditEventType {
     UPDATE_DEPT("UPDATE_DEPT", AuditCategory.SYSTEM, true),
     DELETE_DEPT("DELETE_DEPT", AuditCategory.SYSTEM, true),
     CREATE_MENU("CREATE_MENU", AuditCategory.SYSTEM, true),
+    UPDATE_MENU("UPDATE_MENU", AuditCategory.SYSTEM, true),
     DELETE_MENU("DELETE_MENU", AuditCategory.SYSTEM, true),
     TOGGLE_VISIBLE("TOGGLE_VISIBLE", AuditCategory.SYSTEM, true),
+    CREATE_ROLE("CREATE_ROLE", AuditCategory.SYSTEM, true),
+    UPDATE_ROLE("UPDATE_ROLE", AuditCategory.SYSTEM, true),
+    TOGGLE_ROLE_ENABLED("TOGGLE_ROLE_ENABLED", AuditCategory.SYSTEM, true),
+    ASSIGN_ROLE_PERMISSIONS("ASSIGN_ROLE_PERMISSIONS", AuditCategory.SYSTEM, true),
+
+    // ── SETTING ──
+    UPDATE_SETTING("UPDATE_SETTING", AuditCategory.SYSTEM, true),
 
     // ── ANNOUNCEMENT ──
     CREATE_ANNOUNCEMENT("CREATE_ANNOUNCEMENT", AuditCategory.SYSTEM, true),
@@ -113,6 +121,11 @@ public enum AuditEventType {
     ACKNOWLEDGE_ALERT("ACKNOWLEDGE_ALERT", AuditCategory.IOT, true),
     RESOLVE_ALERT("RESOLVE_ALERT", AuditCategory.IOT, true),
     EXPORT_ALERTS("EXPORT_ALERTS", AuditCategory.IOT, true),
+
+    // ── TENANT（場域管理） ──
+    CREATE_TENANT("CREATE_TENANT", AuditCategory.TENANT, true),
+    UPDATE_TENANT("UPDATE_TENANT", AuditCategory.TENANT, true),
+    TOGGLE_TENANT_ENABLED("TOGGLE_TENANT_ENABLED", AuditCategory.TENANT, true),
     ;
 
     /** 存入 DB 的字串值 */

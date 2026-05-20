@@ -6,6 +6,7 @@ import com.taipei.iot.audit.enums.AuditCategory;
 import com.taipei.iot.audit.enums.AuditEventType;
 import com.taipei.iot.audit.service.AuditService;
 import com.taipei.iot.audit.annotation.AuditEvent;
+import com.taipei.iot.common.dto.PageResponse;
 import com.taipei.iot.common.response.BaseResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class AuditController {
     }
 
     @GetMapping("/user/usage/history/export")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DEPT_ADMIN') or hasAuthority('AUDIT_EXPORT')")
+    @PreAuthorize("hasAuthority('AUDIT_LIST')")
     @AuditEvent(AuditEventType.EXPORT_AUDIT)
     public void exportUsageHistory(
             @RequestParam(required = false) String userName,
@@ -76,8 +77,8 @@ public class AuditController {
     }
 
     @GetMapping("/user/usage/history")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DEPT_ADMIN') or hasAuthority('AUDIT_LIST')")
-    public BaseResponse<Page<UserEventLogDto>> getUserUsageHistory(
+    @PreAuthorize("hasAuthority('AUDIT_LIST')")
+    public BaseResponse<PageResponse<UserEventLogDto>> getUserUsageHistory(
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String eventDesc,
             @RequestParam(required = false) String startTimestamp,
@@ -99,11 +100,11 @@ public class AuditController {
 
         Page<UserEventLogDto> result = auditService.getUserUsageHistory(
                 request, isAdmin, PageRequest.of(page, pageSize));
-        return BaseResponse.success(result);
+        return BaseResponse.success(toPageResponse(result));
     }
 
     @GetMapping("/user/login/my")
-    public BaseResponse<Page<UserEventLogDto>> getMyLoginLog(
+    public BaseResponse<PageResponse<UserEventLogDto>> getMyLoginLog(
             @RequestParam(required = false) String eventType,
             @RequestParam(required = false) String startTimestamp,
             @RequestParam(required = false) String endTimestamp,
@@ -122,7 +123,7 @@ public class AuditController {
         Page<UserEventLogDto> result = auditService.getMyEventLogs(
                 eventType, start, end,
                 PageRequest.of(page, pageSize, Sort.by(direction, "createTime")));
-        return BaseResponse.success(result);
+        return BaseResponse.success(toPageResponse(result));
     }
 
     private static final Set<String> ADMIN_ROLES = Set.of(
@@ -134,5 +135,15 @@ public class AuditController {
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(ADMIN_ROLES::contains);
+    }
+
+    private <T> PageResponse<T> toPageResponse(Page<T> page) {
+        return PageResponse.<T>builder()
+                .content(page.getContent())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .page(page.getNumber())
+                .size(page.getSize())
+                .build();
     }
 }

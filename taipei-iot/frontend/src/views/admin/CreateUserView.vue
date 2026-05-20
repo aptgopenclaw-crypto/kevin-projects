@@ -62,7 +62,7 @@ const form = reactive({
   deptId: null as number | null,
 })
 
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|;':,.<>?/~`]).{8,}$/
 
 const rules = computed<FormRules>(() => ({
   email: [

@@ -32,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.taipei.iot.common.interceptor.RateLimitInterceptor;
 import com.taipei.iot.tenant.TenantInterceptor;
+import com.taipei.iot.tenant.TenantEnabledCache;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -57,6 +58,7 @@ class AuthControllerTest {
     @MockitoBean private TurnstileService turnstileService;
     @MockitoBean private JwtUtil jwtUtil;
     @MockitoBean private StringRedisTemplate stringRedisTemplate;
+    @MockitoBean private TenantEnabledCache tenantEnabledCache;
 
     private String validToken() {
         return "valid.jwt.token";

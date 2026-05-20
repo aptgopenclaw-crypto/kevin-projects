@@ -62,10 +62,8 @@ public class DataScopeHelper {
             return List.of(deptId);
         }
 
-        // 找出所有 hierarchy_path 以此為前綴的部門
-        List<DeptInfoEntity> all = deptInfoRepository.findAllByStatusOrderByDeptSortAsc((short) 1);
-        return all.stream()
-                .filter(d -> d.getHierarchyPath() != null && d.getHierarchyPath().startsWith(hierarchyPath))
+        // 找出所有 hierarchy_path 以此為前綴的部門（DB LIKE 查詢）
+        return deptInfoRepository.findByHierarchyPathStartingWith(hierarchyPath).stream()
                 .map(DeptInfoEntity::getDeptId)
                 .collect(Collectors.toList());
     }

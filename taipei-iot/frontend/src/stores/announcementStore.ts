@@ -16,8 +16,8 @@ export const useAnnouncementStore = defineStore('announcement', {
         if (res.errorCode === '00000') {
           this.unreadCount = res.body.count
         }
-      } catch {
-        // silently fail
+      } catch (e) {
+        console.warn('[announcementStore] fetchUnreadCount failed:', e)
       }
     },
 
@@ -27,8 +27,8 @@ export const useAnnouncementStore = defineStore('announcement', {
         if (res.errorCode === '00000') {
           this.popoverItems = res.body.content
         }
-      } catch {
-        // silently fail
+      } catch (e) {
+        console.warn('[announcementStore] fetchPopoverItems failed:', e)
       }
     },
 
@@ -41,8 +41,8 @@ export const useAnnouncementStore = defineStore('announcement', {
           item.isRead = true
           this.unreadCount = Math.max(0, this.unreadCount - 1)
         }
-      } catch {
-        // silently fail
+      } catch (e) {
+        console.warn('[announcementStore] markRead failed:', e)
       }
     },
 
@@ -51,8 +51,8 @@ export const useAnnouncementStore = defineStore('announcement', {
         await markAllAsRead()
         this.unreadCount = 0
         this.popoverItems.forEach(i => { i.isRead = true })
-      } catch {
-        // silently fail
+      } catch (e) {
+        console.warn('[announcementStore] markAllRead failed:', e)
       }
     },
 
