@@ -1,5 +1,6 @@
 package com.taipei.iot.auth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,5 +18,7 @@ public class LoginResult {
     private String accessToken;
     private String refreshToken;
     private boolean needsSelection;
+    @JsonProperty("isSuperAdmin")
+    private boolean isSuperAdmin;
     private List<TenantOption> tenants;
 }

@@ -30,8 +30,13 @@ public class PasswordValidator {
     @Value("${user.password.require-digit:true}")
     private boolean requireDigit;
 
+    @Value("${user.password.require-special:true}")
+    private boolean requireSpecial;
+
     @Value("${user.password.history-count:5}")
     private int historyCount;
+
+    private static final String SPECIAL_CHARS = "!@#$%^&*()_+-=[]{}|;':,.<>?/~`";
 
     public void validate(String newPassword) {
         if (newPassword == null || newPassword.length() < minLength) {
@@ -49,6 +54,10 @@ public class PasswordValidator {
         if (requireDigit && !newPassword.chars().anyMatch(Character::isDigit)) {
             throw new BusinessException(ErrorCode.RESET_PASSWORD_ERROR,
                     "密碼必須包含數字");
+        }
+        if (requireSpecial && newPassword.chars().noneMatch(ch -> SPECIAL_CHARS.indexOf(ch) >= 0)) {
+            throw new BusinessException(ErrorCode.RESET_PASSWORD_ERROR,
+                    "密碼必須包含特殊字元");
         }
     }
 

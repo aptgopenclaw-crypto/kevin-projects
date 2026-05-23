@@ -145,21 +145,6 @@ export const useMenuStore = defineStore('menu', {
       }
     },
 
-    /** 找第一個有 routePath 的 PAGE 選單，作為登入後的預設頁面 */
-    getFirstRoute(): string | null {
-      function findFirst(menus: UserMenuDto[]): string | null {
-        for (const menu of menus) {
-          if (menu.menuType === 'PAGE' && menu.routePath) return menu.routePath
-          if (menu.children?.length) {
-            const found = findFirst(menu.children)
-            if (found) return found
-          }
-        }
-        return null
-      }
-      return findFirst(this.userMenus)
-    },
-
     hasRouteAccess(routeName: string | symbol | null | undefined): boolean {
       if (!routeName || typeof routeName === 'symbol') return false
       const allowedNames = flattenMenuNames(this.userMenus)

@@ -39,6 +39,7 @@ const messages = ref<UiMessage[]>([
 const inputText = ref('')
 const sending = ref(false)
 const chatBodyRef = ref<HTMLElement | null>(null)
+let abortController: AbortController | null = null
 
 async function scrollToBottom() {
   await nextTick()
@@ -73,23 +74,36 @@ async function handleSend() {
     .map((m) => ({ role: m.role, content: m.content }))
 
   try {
-    const res = await tenderChat({ message: text, history })
+    abortController = new AbortController()
+    const res = await tenderChat({ message: text, history }, abortController.signal)
     messages.value.splice(loadingIdx, 1, {
       role: 'assistant',
       content: res.errorCode === '00000' ? res.body.message : t('tender.aiChat.errorResponse'),
       functionCalled: res.errorCode === '00000' ? res.body.functionCalled : null,
       data: res.errorCode === '00000' ? res.body.data : undefined,
     })
-  } catch {
-    messages.value.splice(loadingIdx, 1, {
-      role: 'assistant',
-      content: t('tender.aiChat.errorResponse'),
-    })
-    ElMessage.error(t('common.operationFailed'))
+  } catch (err: any) {
+    if (err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError') {
+      messages.value.splice(loadingIdx, 1, {
+        role: 'assistant',
+        content: t('tender.aiChat.cancelled'),
+      })
+    } else {
+      messages.value.splice(loadingIdx, 1, {
+        role: 'assistant',
+        content: t('tender.aiChat.errorResponse'),
+      })
+      ElMessage.error(t('common.operationFailed'))
+    }
   } finally {
+    abortController = null
     sending.value = false
     await scrollToBottom()
   }
+}
+
+function handleCancel() {
+  abortController?.abort()
 }
 
 function handleKeydown(e: KeyboardEvent) {
@@ -310,8 +324,17 @@ async function handleCopy(msg: UiMessage, idx: number) {
         class="chat-textarea"
       />
       <el-button
+        v-if="sending"
+        type="danger"
+        plain
+        class="send-btn"
+        @click="handleCancel"
+      >
+        {{ $t('common.cancel') }}
+      </el-button>
+      <el-button
+        v-else
         type="primary"
-        :loading="sending"
         :disabled="!inputText.trim()"
         class="send-btn"
         @click="handleSend"

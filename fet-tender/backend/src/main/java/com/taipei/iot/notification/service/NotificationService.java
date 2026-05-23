@@ -9,7 +9,7 @@ import com.taipei.iot.notification.dto.UnreadCountResponse;
 import com.taipei.iot.notification.entity.NotificationEntity;
 import com.taipei.iot.notification.enums.NotificationType;
 import com.taipei.iot.notification.repository.NotificationRepository;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

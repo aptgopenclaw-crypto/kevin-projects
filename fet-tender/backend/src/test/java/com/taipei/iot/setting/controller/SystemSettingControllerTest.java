@@ -7,6 +7,7 @@ import com.taipei.iot.config.SecurityConfig;
 import com.taipei.iot.setting.dto.SystemSettingDto;
 import com.taipei.iot.setting.service.SystemSettingService;
 import com.taipei.iot.tenant.TenantInterceptor;
+import com.taipei.iot.tenant.TenantEnabledCache;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.impl.DefaultClaims;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ class SystemSettingControllerTest {
     @MockitoBean private SystemSettingService settingService;
     @MockitoBean private JwtUtil jwtUtil;
     @MockitoBean private StringRedisTemplate stringRedisTemplate;
+    @MockitoBean private TenantEnabledCache tenantEnabledCache;
 
     private String validToken() {
         return "valid.jwt.token";

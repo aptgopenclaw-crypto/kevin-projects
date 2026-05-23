@@ -2,6 +2,7 @@ package com.taipei.iot.tender.repository;
 
 import com.taipei.iot.tender.dto.VendorProjections;
 import com.taipei.iot.tender.entity.TenderAward;
+import com.taipei.iot.tenant.TenantScopedRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> {
+public interface TenderAwardRepository extends JpaRepository<TenderAward, Long>, TenantScopedRepository {
 
     Optional<TenderAward> findBySolutionAndMatchedKeywordAndTenderNumberAndAwardAnnounceDateAndAwardAnnounceSeqAndVendorOrderSeq(
             String solution,
@@ -34,7 +35,8 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
                 SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                     *
                 FROM tender_award
-                WHERE (:solution   IS NULL OR solution       = :solution)
+                WHERE tenant_id = :tenantId
+                  AND (:solution   IS NULL OR solution       = :solution)
                   AND (:keyword    IS NULL OR matched_keyword ILIKE CONCAT('%', :keyword,    '%'))
                   AND (:agency     IS NULL OR agency_name     ILIKE CONCAT('%', :agency,     '%'))
                   AND (:name       IS NULL OR tender_name     ILIKE CONCAT('%', :name,       '%'))
@@ -51,7 +53,8 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
                 SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                     id
                 FROM tender_award
-                WHERE (:solution   IS NULL OR solution       = :solution)
+                WHERE tenant_id = :tenantId
+                  AND (:solution   IS NULL OR solution       = :solution)
                   AND (:keyword    IS NULL OR matched_keyword ILIKE CONCAT('%', :keyword,    '%'))
                   AND (:agency     IS NULL OR agency_name     ILIKE CONCAT('%', :agency,     '%'))
                   AND (:name       IS NULL OR tender_name     ILIKE CONCAT('%', :name,       '%'))
@@ -63,6 +66,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         """
     )
     Page<TenderAward> search(
+            @Param("tenantId")   String tenantId,
             @Param("solution")   String solution,
             @Param("keyword")    String keyword,
             @Param("agency")     String agency,
@@ -83,12 +87,15 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
                vendor_tax_id,
                COUNT(*) AS win_count
         FROM tender_award
-        WHERE vendor_name ILIKE CONCAT('%', :q, '%')
+        WHERE tenant_id = :tenantId
+          AND vendor_name ILIKE CONCAT('%', :q, '%')
         GROUP BY vendor_name, vendor_tax_id
         ORDER BY win_count DESC
         LIMIT 20
     """)
-    List<VendorProjections.Suggest> suggestVendors(@Param("q") String q);
+    List<VendorProjections.Suggest> suggestVendors(
+            @Param("tenantId") String tenantId,
+            @Param("q") String q);
 
     /**
      * 取得廠商的最早與最晚決標日期（用於自動判斷趨勢時間粒度）。
@@ -98,10 +105,12 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         SELECT MIN(award_announce_date) AS min_date,
                MAX(award_announce_date) AS max_date
         FROM tender_award
-        WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-           OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+        WHERE tenant_id = :tenantId
+          AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+            OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
     """)
     List<VendorProjections.DateRange> getVendorDateRange(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -113,8 +122,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 agency_name, solution, award_announce_date, vendor_award_amount, vendor_name, vendor_tax_id
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT COUNT(*)                      AS total_wins,
@@ -128,6 +138,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         FROM deduped
     """)
     List<VendorProjections.Overview> getVendorOverview(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -137,8 +148,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 award_announce_date, vendor_award_amount
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT TO_CHAR(award_announce_date, 'YYYY-MM-DD') AS period,
@@ -149,6 +161,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY award_announce_date
     """)
     List<VendorProjections.Trend> trendByDay(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -158,8 +171,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 award_announce_date, vendor_award_amount
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT TO_CHAR(DATE_TRUNC('month', award_announce_date), 'YYYY-MM') AS period,
@@ -170,6 +184,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY DATE_TRUNC('month', award_announce_date)
     """)
     List<VendorProjections.Trend> trendByMonth(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -179,8 +194,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 award_announce_date, vendor_award_amount
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT TO_CHAR(DATE_TRUNC('quarter', award_announce_date), 'YYYY-"Q"Q') AS period,
@@ -191,6 +207,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY DATE_TRUNC('quarter', award_announce_date)
     """)
     List<VendorProjections.Trend> trendByQuarter(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -200,8 +217,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 solution, vendor_award_amount
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT solution,
@@ -213,6 +231,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY total_amount DESC
     """)
     List<VendorProjections.SolutionRow> getSolutionBreakdown(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -222,8 +241,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 agency_name, agency_code, vendor_award_amount
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT agency_name,
@@ -236,6 +256,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         LIMIT :lim
     """)
     List<VendorProjections.Agency> getTopAgencies(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName,
             @Param("lim") int limit);
@@ -246,8 +267,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 tender_method
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT COALESCE(NULLIF(tender_method, ''), '未填') AS type_name,
@@ -257,6 +279,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY count DESC
     """)
     List<VendorProjections.TypeCount> countByTenderMethod(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -266,8 +289,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 procurement_type
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT COALESCE(NULLIF(procurement_type, ''), '未填') AS type_name,
@@ -277,6 +301,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY count DESC
     """)
     List<VendorProjections.TypeCount> countByProcurementType(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -286,8 +311,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 award_method
             FROM tender_award
-            WHERE (NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
-               OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName)
+            WHERE tenant_id = :tenantId
+              AND ((NULLIF(:taxId, '') IS NOT NULL AND vendor_tax_id = :taxId)
+                OR (NULLIF(:taxId, '') IS NULL AND vendor_name = :vendorName))
             ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
         )
         SELECT COALESCE(NULLIF(award_method, ''), '未填') AS type_name,
@@ -297,6 +323,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         ORDER BY count DESC
     """)
     List<VendorProjections.TypeCount> countByAwardMethod(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -312,7 +339,9 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         JOIN tender_award b
           ON a.tender_number = b.tender_number
          AND a.award_announce_seq = b.award_announce_seq
-        WHERE ((NULLIF(:taxId, '') IS NOT NULL AND a.vendor_tax_id = :taxId)
+         AND a.tenant_id = b.tenant_id
+        WHERE a.tenant_id = :tenantId
+          AND ((NULLIF(:taxId, '') IS NOT NULL AND a.vendor_tax_id = :taxId)
             OR (NULLIF(:taxId, '') IS NULL AND a.vendor_name = :vendorName))
           AND NOT ((NULLIF(:taxId, '') IS NOT NULL AND b.vendor_tax_id = :taxId)
                OR (NULLIF(:taxId, '') IS NULL AND b.vendor_name = :vendorName))
@@ -321,6 +350,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         LIMIT 10
     """)
     List<VendorProjections.CoVendor> getCoVendors(
+            @Param("tenantId") String tenantId,
             @Param("taxId") String taxId,
             @Param("vendorName") String vendorName);
 
@@ -330,10 +360,12 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
     @Query(nativeQuery = true, value = """
         SELECT DISTINCT solution
         FROM tender_award
-        WHERE solution IS NOT NULL
+        WHERE tenant_id = :tenantId
+          AND solution IS NOT NULL
         ORDER BY solution
     """)
-    List<VendorProjections.SolutionOption> findDistinctSolutions();
+    List<VendorProjections.SolutionOption> findDistinctSolutions(
+            @Param("tenantId") String tenantId);
 
     /**
      * Solution 競品分析 KPI 摘要。
@@ -346,7 +378,8 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                 vendor_tax_id, vendor_name, vendor_award_amount
             FROM tender_award
-            WHERE solution = :solution
+            WHERE tenant_id = :tenantId
+              AND solution = :solution
               AND (:keyword  IS NULL OR matched_keyword = :keyword)
               AND (:dateFrom IS NULL OR award_announce_date >= CAST(:dateFrom AS date))
               AND (:dateTo   IS NULL OR award_announce_date <= CAST(:dateTo   AS date))
@@ -355,7 +388,8 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         kw_cnt AS (
             SELECT COUNT(DISTINCT matched_keyword) AS keyword_count
             FROM tender_award
-            WHERE solution = :solution
+            WHERE tenant_id = :tenantId
+              AND solution = :solution
               AND (:dateFrom IS NULL OR award_announce_date >= CAST(:dateFrom AS date))
               AND (:dateTo   IS NULL OR award_announce_date <= CAST(:dateTo   AS date))
         )
@@ -366,6 +400,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
             (SELECT keyword_count                                      FROM kw_cnt)  AS keyword_count
     """)
     List<VendorProjections.SolutionOverview> getSolutionOverview(
+            @Param("tenantId") String tenantId,
             @Param("solution") String solution,
             @Param("keyword")  String keyword,
             @Param("dateFrom") String dateFrom,
@@ -386,7 +421,8 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
                 SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                     vendor_tax_id, vendor_name, vendor_award_amount
                 FROM tender_award
-                WHERE solution = :solution
+                WHERE tenant_id = :tenantId
+                  AND solution = :solution
                   AND (:keyword  IS NULL OR matched_keyword = :keyword)
                   AND (:dateFrom IS NULL OR award_announce_date >= CAST(:dateFrom AS date))
                   AND (:dateTo   IS NULL OR award_announce_date <= CAST(:dateTo   AS date))
@@ -406,7 +442,8 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
                     SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
                         vendor_tax_id, vendor_name
                     FROM tender_award
-                    WHERE solution = :solution
+                    WHERE tenant_id = :tenantId
+                      AND solution = :solution
                       AND (:keyword  IS NULL OR matched_keyword = :keyword)
                       AND (:dateFrom IS NULL OR award_announce_date >= CAST(:dateFrom AS date))
                       AND (:dateTo   IS NULL OR award_announce_date <= CAST(:dateTo   AS date))
@@ -419,6 +456,7 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
         """
     )
     Page<VendorProjections.SolutionVendorRank> getVendorRankBySolution(
+            @Param("tenantId") String tenantId,
             @Param("solution") String solution,
             @Param("keyword")  String keyword,
             @Param("dateFrom") String dateFrom,
@@ -437,13 +475,15 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long> 
                               || '|' || award_announce_seq || '|' || CAST(vendor_order_seq AS TEXT)) AS win_count,
                COALESCE(SUM(vendor_award_amount), 0) AS total_amount
         FROM tender_award
-        WHERE solution = :solution
+        WHERE tenant_id = :tenantId
+          AND solution = :solution
           AND (:dateFrom IS NULL OR award_announce_date >= CAST(:dateFrom AS date))
           AND (:dateTo   IS NULL OR award_announce_date <= CAST(:dateTo   AS date))
         GROUP BY matched_keyword
         ORDER BY win_count DESC
     """)
     List<VendorProjections.SolutionKeyword> getKeywordSummaryBySolution(
+            @Param("tenantId") String tenantId,
             @Param("solution") String solution,
             @Param("dateFrom") String dateFrom,
             @Param("dateTo")   String dateTo);

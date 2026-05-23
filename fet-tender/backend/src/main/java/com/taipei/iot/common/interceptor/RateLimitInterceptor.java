@@ -11,12 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,6 +39,22 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     private static final String KEY_PREFIX = "rate_limit:";
 
+    private static final String LUA_INCR_EXPIRE = """
+            local count = redis.call('INCR', KEYS[1])
+            if count == 1 then
+                redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+            end
+            return count
+            """;
+
+    private static final DefaultRedisScript<Long> RATE_LIMIT_SCRIPT;
+
+    static {
+        RATE_LIMIT_SCRIPT = new DefaultRedisScript<>();
+        RATE_LIMIT_SCRIPT.setScriptText(LUA_INCR_EXPIRE);
+        RATE_LIMIT_SCRIPT.setResultType(Long.class);
+    }
+
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -56,10 +74,13 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         String clientIp = getClientIp(request);
         String redisKey = KEY_PREFIX + rateLimit.key() + ":" + clientIp;
 
-        // INCR：如果 key 不存在會自動建立並設為 1
+        // 使用 Lua script 保證 INCR + EXPIRE 原子性，避免 key 永不過期
         Long currentCount;
         try {
-            currentCount = redisTemplate.opsForValue().increment(redisKey);
+            currentCount = redisTemplate.execute(
+                    RATE_LIMIT_SCRIPT,
+                    Collections.singletonList(redisKey),
+                    String.valueOf(rateLimit.period()));
         } catch (Exception ex) {
             // Redis 不可用時放行，避免阻斷服務
             log.warn("Redis 不可用，跳過速率限制檢查: {}", ex.getMessage());
@@ -67,11 +88,6 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         }
         if (currentCount == null) {
             return true;
-        }
-
-        // 第一次請求時設定過期時間
-        if (currentCount == 1) {
-            redisTemplate.expire(redisKey, rateLimit.period(), TimeUnit.SECONDS);
         }
 
         // 超過限制 → 回傳 429

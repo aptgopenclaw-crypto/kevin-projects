@@ -50,7 +50,14 @@ export const useAuthStore = defineStore('auth', {
         setAxiosToken(data.accessToken)
         const tenantStore = useTenantStore()
         tenantStore.setTenantList(data.tenants as TenantOption[])
-        await router.push('/select-tenant')
+        if (data.isSuperAdmin && data.tenants && data.tenants.length > 0) {
+          const tenants = data.tenants as TenantOption[]
+          const lastTenantId = localStorage.getItem('lastTenantId')
+          const target = lastTenantId && tenants.find(t => t.tenantId === lastTenantId)
+          await this.doSelectTenant(target ? lastTenantId! : tenants[0].tenantId)
+        } else {
+          await router.push('/select-tenant')
+        }
       }
     },
     async doSelectTenant(tenantId: string) {
@@ -59,6 +66,7 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = data.accessToken
       setAxiosToken(data.accessToken)
       this.temporaryToken = null
+      localStorage.setItem('lastTenantId', tenantId)
       sessionStorage.setItem('passExam', 'true')
       await router.push('/')
     },
@@ -67,6 +75,7 @@ export const useAuthStore = defineStore('auth', {
       const data = res.body
       this.accessToken = data.accessToken
       setAxiosToken(data.accessToken)
+      localStorage.setItem('lastTenantId', tenantId)
       window.location.reload()
     },
     async getPermission() {

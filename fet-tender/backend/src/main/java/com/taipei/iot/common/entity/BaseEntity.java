@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 // 不加 @Setter：兩個欄位均由 AuditingEntityListener 管理，
-// 應用層不懅直接寫入，尤其 createdAt 在語意上建立後險變。
+// 應用層不應直接寫入，尤其 createdAt 在語意上建立後不變。
 public abstract class BaseEntity {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

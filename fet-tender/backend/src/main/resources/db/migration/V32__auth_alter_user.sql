@@ -1,2 +1,0 @@
--- ALTER TABLE users ADD COLUMN notify_email_flag BOOLEAN DEFAULT FALSE;
--- ALTER TABLE users ADD COLUMN notify_sms_flag BOOLEAN DEFAULT FALSE;

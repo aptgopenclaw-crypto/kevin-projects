@@ -1,13 +1,28 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  test: {
+    environment: 'happy-dom',
+    globals: true,
   },
   server: {
     port: 5173,
@@ -21,9 +36,7 @@ export default defineConfig({
     proxy: {
       '/v1': {
         target: 'http://localhost:8080',
-        changeOrigin: true,
-        timeout: 120000,         // 120 秒，配合 LLM 回應時間
-        proxyTimeout: 120000,
+        changeOrigin: true
       }
     }
   }

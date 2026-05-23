@@ -4,7 +4,8 @@ import com.taipei.iot.common.response.BaseResponse;
 import com.taipei.iot.tender.dto.TenderAnnouncementQueryRequest;
 import com.taipei.iot.tender.dto.TenderAnnouncementResponse;
 import com.taipei.iot.tender.service.TenderAnnouncementService;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class TenderAnnouncementController {
     @GetMapping
     @PreAuthorize("hasAuthority('tender:announcement:view')")
     public BaseResponse<PageResponse<TenderAnnouncementResponse>> search(
-            TenderAnnouncementQueryRequest req) {
+            @Valid TenderAnnouncementQueryRequest req) {
         return BaseResponse.success(service.search(req));
     }
 

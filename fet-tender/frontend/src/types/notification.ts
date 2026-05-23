@@ -10,13 +10,7 @@ export interface NotificationItem {
   createdAt: string
 }
 
-export interface NotificationPageResponse {
-  content: NotificationItem[]
-  totalElements: number
-  totalPages: number
-  page: number
-  size: number
-}
+// Use PageResponse<NotificationItem> from @/types/common instead
 
 export interface NotificationUnreadCount {
   count: number

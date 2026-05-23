@@ -13,4 +13,6 @@ public interface AnnouncementDeptRepository extends JpaRepository<AnnouncementDe
     void deleteByAnnouncementId(Long announcementId);
 
     List<AnnouncementDept> findByAnnouncementIdIn(List<Long> announcementIds);
+
+    boolean existsByAnnouncementIdAndDeptId(Long announcementId, Long deptId);
 }

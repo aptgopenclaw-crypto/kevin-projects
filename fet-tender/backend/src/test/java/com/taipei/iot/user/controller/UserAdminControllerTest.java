@@ -5,7 +5,7 @@ import com.taipei.iot.auth.security.JwtAuthenticationFilter;
 import com.taipei.iot.auth.security.JwtUtil;
 import com.taipei.iot.common.exception.GlobalExceptionHandler;
 import com.taipei.iot.config.SecurityConfig;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import com.taipei.iot.user.dto.response.UserListItemDto;
 import com.taipei.iot.user.service.UserAdminService;
 import io.jsonwebtoken.Claims;
@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.taipei.iot.common.interceptor.RateLimitInterceptor;
 import com.taipei.iot.tenant.TenantInterceptor;
+import com.taipei.iot.tenant.TenantEnabledCache;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,16 +41,23 @@ class UserAdminControllerTest {
     @MockitoBean private UserAdminService userAdminService;
     @MockitoBean private JwtUtil jwtUtil;
     @MockitoBean private StringRedisTemplate stringRedisTemplate;
+    @MockitoBean private TenantEnabledCache tenantEnabledCache;
 
     private String validToken() {
         return "valid.jwt.token";
     }
 
     private void mockJwtValid(String token, String userId, String tenantId, List<String> roles) {
+        mockJwtValid(token, userId, tenantId, roles, List.of());
+    }
+
+    private void mockJwtValid(String token, String userId, String tenantId,
+                               List<String> roles, List<String> permissions) {
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("uid", userId);
         claimsMap.put("tenantId", tenantId);
         claimsMap.put("roles", roles);
+        claimsMap.put("permissions", permissions);
         claimsMap.put("sub", "test@test.com");
         claimsMap.put("exp", new Date(System.currentTimeMillis() + 3600000));
         claimsMap.put("iat", new Date());
@@ -59,7 +67,8 @@ class UserAdminControllerTest {
 
     @Test
     void listUsers_adminRole_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"));
+        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+                List.of("USER_LIST", "USER_CREATE", "USER_UPDATE", "USER_DISABLE", "USER_DELETE"));
 
         PageResponse<UserListItemDto> pageResponse = PageResponse.<UserListItemDto>builder()
                 .content(List.of())

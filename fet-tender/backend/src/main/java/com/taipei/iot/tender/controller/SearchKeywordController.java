@@ -48,4 +48,13 @@ public class SearchKeywordController {
         service.delete(id);
         return BaseResponse.success(null);
     }
+
+    /**
+     * 取得所有方案名稱選項（合併搜尋關鍵字 + 機關過濾的 distinct solutions）。
+     */
+    @GetMapping("/solutions")
+    @PreAuthorize("hasAuthority('tender:config:view')")
+    public BaseResponse<List<String>> listSolutions() {
+        return BaseResponse.success(service.listDistinctSolutions());
+    }
 }

@@ -1,5 +1,6 @@
 package com.taipei.iot.auth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class UserInfoDto {
     private String deptId;
     private String deptName;
     private List<String> permissions;
+    @JsonProperty("isSuperAdmin")
     private boolean isSuperAdmin;
     private List<TenantOption> availableTenants;
 }

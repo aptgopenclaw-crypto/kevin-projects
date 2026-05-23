@@ -4,10 +4,12 @@ import com.taipei.iot.audit.dto.AuditQueryRequest;
 import com.taipei.iot.audit.dto.UserEventLogDto;
 import com.taipei.iot.audit.entity.UserEventLogEntity;
 import com.taipei.iot.audit.repository.UserEventLogRepository;
+import com.taipei.iot.auth.entity.UserEntity;
 import com.taipei.iot.common.util.SecurityContextUtils;
 import com.taipei.iot.dept.service.DataScopeHelper;
 import com.taipei.iot.tenant.TenantContext;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -43,8 +45,10 @@ public class AuditService {
      * 操作紀錄查詢（Audit History）。
      * <p>使用 SYSTEM context 繞過 Hibernate @Filter，由 Specification 手動過濾 tenantId + DataScope。</p>
      * <ul>
+     *   <li>tenantId 嚴格等於當前場域，排除 tenantId 為 null 的跨階段事件</li>
+     *   <li>排除所有 SUPER_ADMIN 的操作紀錄，避免出現在場域稽核畫面</li>
      *   <li>isAdmin = false（DEPT_USER）→ 只看自己的紀錄</li>
-     *   <li>isAdmin = true（SUPER_ADMIN / ADMIN / DEPT_ADMIN）→ 依 DataScope 看部門範圍內的紀錄</li>
+     *   <li>isAdmin = true（ADMIN / DEPT_ADMIN）→ 依 DataScope 看部門範圍內的紀錄</li>
      * </ul>
      */
     public Page<UserEventLogDto> getUserUsageHistory(AuditQueryRequest request,
@@ -55,13 +59,18 @@ public class AuditService {
         Specification<UserEventLogEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 手動租戶過濾：目前租戶 OR tenantId 為空（預選租戶階段的事件）
+            // 手動租戶過濾：嚴格限制為當前租戶，不含 tenantId 為空的跨階段事件
             if (currentTenantId != null && !"SYSTEM".equals(currentTenantId)) {
-                predicates.add(cb.or(
-                        cb.equal(root.get("tenantId"), currentTenantId),
-                        cb.isNull(root.get("tenantId"))
-                ));
+                predicates.add(cb.equal(root.get("tenantId"), currentTenantId));
             }
+
+            // 排除 SUPER_ADMIN 的操作紀錄：不應出現在各場域的稽核畫面中
+            Subquery<String> superAdminIds = query.subquery(String.class);
+            jakarta.persistence.criteria.Root<UserEntity> userRoot =
+                    superAdminIds.from(UserEntity.class);
+            superAdminIds.select(userRoot.get("userId"))
+                    .where(cb.isTrue(userRoot.get("isSuperAdmin")));
+            predicates.add(cb.not(root.get("userId").in(superAdminIds)));
 
             if (!isAdmin) {
                 // DEPT_USER：只能看自己的紀錄

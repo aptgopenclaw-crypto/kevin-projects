@@ -47,7 +47,12 @@ public class StompAuthInterceptor implements WebSocketMessageBrokerConfigurer {
                             accessor.setUser(auth);
                         } catch (Exception e) {
                             log.warn("WebSocket STOMP auth failed: {}", e.getMessage());
+                            throw new org.springframework.messaging.MessageDeliveryException(
+                                    "Authentication failed: invalid or expired token");
                         }
+                    } else {
+                        throw new org.springframework.messaging.MessageDeliveryException(
+                                "Authentication required: missing Authorization header");
                     }
                 }
                 return message;

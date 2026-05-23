@@ -1,6 +1,7 @@
 import axiosIns from '@/api/axios/axiosIns'
 import type { BaseResponse } from '@/types/auth'
 import type {
+  TenderDashboardResponse,
   SearchKeywordRequest,
   SearchKeywordResponse,
   AgencyFilterRequest,
@@ -23,7 +24,14 @@ import type {
   SolutionCompetitorSummaryResponse,
   SolutionVendorRankPageResponse,
   SolutionKeywordSummaryResponse,
+  MailRecipientRequest,
+  MailRecipientResponse,
+  MailRecipientBatchResult,
 } from '@/types/tender'
+
+// ── Dashboard 總覽 ────────────────────────────────────────────
+export const getTenderDashboard = () =>
+  axiosIns.get<unknown, BaseResponse<TenderDashboardResponse>>('/tender/dashboard')
 
 // ── 搜尋關鍵字 ────────────────────────────────────────────────
 export const listSearchKeywords = (includeInactive = false) =>
@@ -47,6 +55,11 @@ export const updateSearchKeyword = (id: number, payload: SearchKeywordRequest) =
 export const deleteSearchKeyword = (id: number) =>
   axiosIns.delete<unknown, BaseResponse<void>>(
     `/tender/announcement-keywords/${id}`,
+  )
+
+export const listConfigSolutions = () =>
+  axiosIns.get<unknown, BaseResponse<string[]>>(
+    '/tender/announcement-keywords/solutions',
   )
 
 // ── 機關過濾設定 ──────────────────────────────────────────────
@@ -73,6 +86,36 @@ export const deleteAgencyFilter = (id: number) =>
     `/tender/announcement-agency-filters/${id}`,
   )
 
+// ── 郵件收件人設定 ────────────────────────────────────────────
+export const listMailRecipients = (includeInactive = false) =>
+  axiosIns.get<unknown, BaseResponse<MailRecipientResponse[]>>(
+    '/tender/mail-recipients',
+    { params: { includeInactive } },
+  )
+
+export const createMailRecipient = (payload: MailRecipientRequest) =>
+  axiosIns.post<unknown, BaseResponse<MailRecipientResponse>>(
+    '/tender/mail-recipients',
+    payload,
+  )
+
+export const updateMailRecipient = (id: number, payload: MailRecipientRequest) =>
+  axiosIns.put<unknown, BaseResponse<MailRecipientResponse>>(
+    `/tender/mail-recipients/${id}`,
+    payload,
+  )
+
+export const deleteMailRecipient = (id: number) =>
+  axiosIns.delete<unknown, BaseResponse<void>>(
+    `/tender/mail-recipients/${id}`,
+  )
+
+export const batchImportMailRecipients = (emails: string[]) =>
+  axiosIns.post<unknown, BaseResponse<MailRecipientBatchResult>>(
+    '/tender/mail-recipients/batch',
+    { emails },
+  )
+
 // ── 採購公告 ──────────────────────────────────────────────────
 export const searchTenderAnnouncements = (params: TenderAnnouncementQueryRequest) =>
   axiosIns.get<unknown, BaseResponse<TenderAnnouncementPageResponse>>(
@@ -91,11 +134,11 @@ export const deleteTenderAnnouncement = (id: number) =>
   )
 
 // ── AI 聊天 ───────────────────────────────────────────────────
-export const tenderChat = (payload: TenderChatRequest) =>
+export const tenderChat = (payload: TenderChatRequest, signal?: AbortSignal) =>
   axiosIns.post<unknown, BaseResponse<TenderChatResponse>>(
     '/tender/chat',
     payload,
-    { timeout: 120000 }, // LLM 回應最多等 120 秒
+    { timeout: 120000, signal }, // LLM 回應最多等 120 秒
   )
 
 // ── 決標公告 ──────────────────────────────────────────────────

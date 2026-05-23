@@ -3,7 +3,8 @@ package com.taipei.iot.tender.service;
 import com.taipei.iot.tender.dto.TenderAwardQueryRequest;
 import com.taipei.iot.tender.dto.TenderAwardResponse;
 import com.taipei.iot.tender.repository.TenderAwardRepository;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
+import com.taipei.iot.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ public class TenderAwardService {
         String dateFrom = req.getDateFrom() != null ? req.getDateFrom().toString() : null;
         String dateTo   = req.getDateTo()   != null ? req.getDateTo().toString()   : null;
         Page<TenderAwardResponse> page = repository.search(
+                TenantContext.getCurrentTenantId(),
                 req.getSolution(),
                 req.getKeyword(),
                 req.getAgency(),

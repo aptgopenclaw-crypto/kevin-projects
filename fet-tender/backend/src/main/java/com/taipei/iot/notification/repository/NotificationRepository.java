@@ -1,6 +1,7 @@
 package com.taipei.iot.notification.repository;
 
 import com.taipei.iot.notification.entity.NotificationEntity;
+import com.taipei.iot.tenant.TenantScopedRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
+public interface NotificationRepository extends JpaRepository<NotificationEntity, Long>, TenantScopedRepository {
 
     Page<NotificationEntity> findByUserIdOrderByCreatedAtDesc(String userId, Pageable pageable);
 

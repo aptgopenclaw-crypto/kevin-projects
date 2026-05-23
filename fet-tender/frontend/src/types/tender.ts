@@ -1,3 +1,27 @@
+// ── Dashboard 總覽 ────────────────────────────────────────────
+export interface TenderDashboardResponse {
+  kpiCards: {
+    announcementCountThisMonth: number
+    announcementCountLastMonth: number
+    awardCountThisMonth: number
+    awardCountLastMonth: number
+    awardAmountThisMonth: number
+    awardAmountLastMonth: number
+    activeSolutionCount: number
+  }
+  announcementTrend: Array<{ date: string; count: number }>
+  awardAmountTrend: Array<{ month: string; amount: number; count: number }>
+  solutionDistribution: Array<{ solution: string; count: number; totalBudget: number }>
+  recentAnnouncements: Array<{
+    id: number
+    tenderName: string
+    agencyName: string
+    solution: string
+    budgetAmount: number | null
+    announcementDate: string
+  }>
+}
+
 // ── 關鍵字設定 ────────────────────────────────────────────────
 export interface SearchKeywordResponse {
   id: number
@@ -28,6 +52,27 @@ export interface AgencyFilterRequest {
   agencyKeyword: string
   isOrgOnlySearch: boolean
   isActive: boolean
+}
+
+// ── 郵件收件人設定 ────────────────────────────────────────────
+export interface MailRecipientResponse {
+  id: number
+  email: string
+  name: string | null
+  isActive: boolean
+  createdAt: string
+}
+
+export interface MailRecipientRequest {
+  email: string
+  name: string | null
+  isActive: boolean
+}
+
+export interface MailRecipientBatchResult {
+  successCount: number
+  skippedCount: number
+  skippedItems: Array<{ email: string; reason: string }>
 }
 
 // ── 採購公告 ──────────────────────────────────────────────────

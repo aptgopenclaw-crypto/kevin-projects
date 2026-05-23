@@ -39,12 +39,19 @@ public class EmailChannel implements NotificationChannel {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail());
-            message.setSubject("[路燈平台] " + payload.getTitle());
-            message.setText(payload.getContent() != null ? payload.getContent() : payload.getTitle());
+            String safeTitle = sanitize(payload.getTitle());
+            message.setSubject("[路燈平台] " + safeTitle);
+            String content = payload.getContent() != null ? payload.getContent() : safeTitle;
+            message.setText(sanitize(content));
             mailSender.send(message);
             log.info("Email sent to userId={}", user.getUserId());
         } catch (Exception e) {
             log.warn("Failed to send email to userId={}: {}", user.getUserId(), e.getMessage());
         }
+    }
+
+    private String sanitize(String input) {
+        if (input == null) return "";
+        return input.replaceAll("[\\r\\n]", " ");
     }
 }

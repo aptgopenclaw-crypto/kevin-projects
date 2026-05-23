@@ -16,7 +16,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -107,13 +106,6 @@ public class GlobalExceptionHandler {
                         ? request.getUserPrincipal().getName() : "anonymous"));
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(BaseResponse.fail(ErrorCode.PERMISSION_DENIED));
-    }
-
-    /** 靜態資源 404（如 favicon.ico）— 正常行為，不需 ERROR log */
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<BaseResponse<?>> handleNoResource(NoResourceFoundException ex) {
-        log.debug("Static resource not found: {}", ex.getResourcePath());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @ExceptionHandler(Exception.class)

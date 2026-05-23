@@ -6,7 +6,7 @@ import { useLocaleStore } from '@/stores/localeStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useI18n } from 'vue-i18n'
-import { Sun, Moon, LogOut } from 'lucide-vue-next'
+import { Sun, Moon, LogOut, KeyRound, UserCog, ChevronDown } from 'lucide-vue-next'
 import NotificationBell from '@/components/NotificationBell.vue'
 import type { LocaleKey } from '@/i18n'
 
@@ -17,6 +17,8 @@ const localeStore = useLocaleStore()
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
+
+const displayName = computed(() => authStore.userInfo?.displayName ?? '')
 
 const crumbs = computed(() => menuStore.getBreadcrumbs(route.name as string))
 
@@ -33,6 +35,12 @@ const currentLocaleLabel = computed(
 async function handleLogout() {
   await authStore.doLogout()
   router.push('/login')
+}
+
+function handleUserCommand(command: string) {
+  if (command === 'profile') router.push('/profile')
+  else if (command === 'changePassword') router.push('/change-password')
+  else if (command === 'logout') handleLogout()
 }
 </script>
 
@@ -64,11 +72,29 @@ async function handleLogout() {
       </el-tooltip>
 
       <!-- Logout -->
-      <el-tooltip :content="t('nav.logout')" placement="bottom">
-        <button class="icon-btn" @click="handleLogout">
-          <LogOut :size="16" />
+      <el-dropdown trigger="click" @command="handleUserCommand">
+        <button class="user-btn">
+          <UserCog :size="15" />
+          <span class="user-btn-name">{{ displayName }}</span>
+          <ChevronDown :size="11" />
         </button>
-      </el-tooltip>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="profile">
+              <el-icon><UserCog :size="14" /></el-icon>
+              {{ t('nav.profile') }}
+            </el-dropdown-item>
+            <el-dropdown-item command="changePassword">
+              <el-icon><KeyRound :size="14" /></el-icon>
+              {{ t('nav.changePassword') }}
+            </el-dropdown-item>
+            <el-dropdown-item command="logout" divided>
+              <el-icon><LogOut :size="14" /></el-icon>
+              {{ t('nav.logout') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
 
       <div class="topbar-divider" />
 
@@ -180,6 +206,35 @@ async function handleLogout() {
   height: 18px;
   background: var(--border-divider);
   margin: 0 6px;
+}
+
+.user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: border-color 150ms ease, background 150ms ease;
+  outline: none;
+  max-width: 160px;
+}
+
+.user-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+}
+
+.user-btn-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .icon-btn {

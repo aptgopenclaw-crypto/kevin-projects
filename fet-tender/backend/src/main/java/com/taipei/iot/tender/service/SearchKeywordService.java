@@ -3,18 +3,22 @@ package com.taipei.iot.tender.service;
 import com.taipei.iot.tender.dto.SearchKeywordRequest;
 import com.taipei.iot.tender.dto.SearchKeywordResponse;
 import com.taipei.iot.tender.entity.AnnouncementSearchKeyword;
+import com.taipei.iot.tender.repository.AnnouncementAgencyFilterRepository;
 import com.taipei.iot.tender.repository.AnnouncementSearchKeywordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.TreeSet;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class SearchKeywordService {
 
     private final AnnouncementSearchKeywordRepository repository;
+    private final AnnouncementAgencyFilterRepository agencyFilterRepository;
 
     @Transactional(readOnly = true)
     public List<SearchKeywordResponse> listAll() {
@@ -51,5 +55,17 @@ public class SearchKeywordService {
             throw new IllegalArgumentException("關鍵字設定不存在: " + id);
         }
         repository.deleteById(id);
+    }
+
+    /**
+     * 取得所有已存在的方案名稱（合併 keywords + agency_filters 的 distinct solutions）。
+     */
+    @Transactional(readOnly = true)
+    public List<String> listDistinctSolutions() {
+        TreeSet<String> solutions = Stream.concat(
+                repository.findDistinctSolutions().stream(),
+                agencyFilterRepository.findDistinctSolutions().stream()
+        ).collect(java.util.stream.Collectors.toCollection(TreeSet::new));
+        return List.copyOf(solutions);
     }
 }

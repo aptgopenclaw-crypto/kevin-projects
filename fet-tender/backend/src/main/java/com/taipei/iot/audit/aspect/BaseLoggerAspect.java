@@ -70,10 +70,8 @@ public class BaseLoggerAspect {
     private String getClientIp() {
         HttpServletRequest req = getRequest();
         if (req == null) return null;
-        String xff = req.getHeader("X-Forwarded-For");
-        if (xff != null && !xff.isBlank()) {
-            return xff.split(",")[0].trim();
-        }
+        // 直接使用 TCP 連線來源 IP，不信任可偽造的 X-Forwarded-For header。
+        // 與 RateLimitInterceptor 保持一致策略。
         return req.getRemoteAddr();
     }
 

@@ -22,6 +22,7 @@ export interface LoginResult {
   accessToken: string
   refreshToken: string | null
   needsSelection: boolean
+  isSuperAdmin: boolean
   tenants: TenantOption[] | null
 }
 

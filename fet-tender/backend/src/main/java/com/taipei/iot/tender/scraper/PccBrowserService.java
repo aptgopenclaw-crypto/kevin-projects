@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -176,8 +176,15 @@ public class PccBrowserService implements AutoCloseable {
      *
      * @return 詳細頁 HTML，CAPTCHA 失敗或 detailUrl 為空時回傳 null
      */
+    private static final String ALLOWED_URL_PREFIX = "https://web.pcc.gov.tw/";
+
     public String fetchDetailPageHtml(Page page, String detailUrl) {
         if (detailUrl == null || detailUrl.isEmpty()) return null;
+
+        if (!detailUrl.startsWith(ALLOWED_URL_PREFIX)) {
+            log.warn("[PccBrowser] URL 不在白名單範圍，已拒絕: {}", detailUrl);
+            return null;
+        }
 
         try {
             page.navigate(detailUrl, new Page.NavigateOptions()
@@ -217,12 +224,11 @@ public class PccBrowserService implements AutoCloseable {
             }
         }
 
-        Random random = new Random();
         int attempt = 0;
 
         while (true) {
             attempt++;
-            int[] combo = allCombos.get(random.nextInt(allCombos.size()));
+            int[] combo = allCombos.get(ThreadLocalRandom.current().nextInt(allCombos.size()));
             log.debug("[PccBrowser] CAPTCHA 嘗試 {}，組合 [{},{}]", attempt, combo[0], combo[1]);
 
             List<ElementHandle> checkboxes = page.querySelectorAll("input[name='choose']");

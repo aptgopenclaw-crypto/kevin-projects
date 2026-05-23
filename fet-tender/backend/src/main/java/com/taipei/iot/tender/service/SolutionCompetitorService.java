@@ -2,6 +2,7 @@ package com.taipei.iot.tender.service;
 
 import com.taipei.iot.tender.dto.*;
 import com.taipei.iot.tender.repository.TenderAwardRepository;
+import com.taipei.iot.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +28,7 @@ public class SolutionCompetitorService {
     /** 取得所有 Solution 選項（供下拉選單）。 */
     @Transactional(readOnly = true)
     public List<String> listSolutions() {
-        return repository.findDistinctSolutions()
+        return repository.findDistinctSolutions(TenantContext.getCurrentTenantId())
                 .stream()
                 .map(VendorProjections.SolutionOption::getSolution)
                 .collect(Collectors.toList());
@@ -37,7 +38,8 @@ public class SolutionCompetitorService {
     @Transactional(readOnly = true)
     public SolutionCompetitorSummaryResponse getSummary(
             String solution, String keyword, String dateFrom, String dateTo) {
-        return repository.getSolutionOverview(solution, nullIfBlank(keyword), nullIfBlank(dateFrom), nullIfBlank(dateTo))
+        String tenantId = TenantContext.getCurrentTenantId();
+        return repository.getSolutionOverview(tenantId, solution, nullIfBlank(keyword), nullIfBlank(dateFrom), nullIfBlank(dateTo))
                 .stream().findFirst()
                 .map(p -> SolutionCompetitorSummaryResponse.builder()
                         .totalTenders(p.getTotalTenders() == null ? 0L : p.getTotalTenders())
@@ -54,9 +56,10 @@ public class SolutionCompetitorService {
     @Transactional(readOnly = true)
     public Page<SolutionVendorRankResponse> getVendorRank(
             String solution, String keyword, String dateFrom, String dateTo, Pageable pageable) {
+        String tenantId = TenantContext.getCurrentTenantId();
         Page<VendorProjections.SolutionVendorRank> raw =
                 repository.getVendorRankBySolution(
-                        solution, nullIfBlank(keyword), nullIfBlank(dateFrom), nullIfBlank(dateTo), pageable);
+                        tenantId, solution, nullIfBlank(keyword), nullIfBlank(dateFrom), nullIfBlank(dateTo), pageable);
 
         // 名次從全局 offset 開始 (e.g. 第 2 頁 page=1, size=10 → rank 從 11 開始)
         AtomicInteger rankStart = new AtomicInteger((int) pageable.getOffset() + 1);
@@ -77,8 +80,9 @@ public class SolutionCompetitorService {
     @Transactional(readOnly = true)
     public List<SolutionKeywordSummaryResponse> getKeywordSummary(
             String solution, String dateFrom, String dateTo) {
+        String tenantId = TenantContext.getCurrentTenantId();
         return repository.getKeywordSummaryBySolution(
-                        solution, nullIfBlank(dateFrom), nullIfBlank(dateTo))
+                        tenantId, solution, nullIfBlank(dateFrom), nullIfBlank(dateTo))
                 .stream()
                 .map(p -> SolutionKeywordSummaryResponse.builder()
                         .keyword(p.getKeyword())

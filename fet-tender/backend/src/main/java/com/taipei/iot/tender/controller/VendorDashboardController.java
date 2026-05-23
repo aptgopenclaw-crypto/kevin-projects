@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +30,9 @@ public class VendorDashboardController {
      */
     @GetMapping("/suggest")
     public BaseResponse<List<VendorSuggestResponse>> suggest(@RequestParam(defaultValue = "") String q) {
+        if (q == null || q.trim().length() < 2) {
+            return BaseResponse.success(Collections.emptyList());
+        }
         return BaseResponse.success(service.suggest(q));
     }
 

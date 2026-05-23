@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +49,8 @@ public class ClamAvVirusScanService implements VirusScanService {
 
     @Override
     public ScanResult scan(String filePath) {
-        try (Socket socket = new Socket(host, port)) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), timeout);
             socket.setSoTimeout(timeout);
 
             OutputStream out = socket.getOutputStream();

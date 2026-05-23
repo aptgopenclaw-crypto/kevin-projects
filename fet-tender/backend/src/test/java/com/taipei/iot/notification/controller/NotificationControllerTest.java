@@ -7,7 +7,8 @@ import com.taipei.iot.notification.dto.NotificationResponse;
 import com.taipei.iot.notification.dto.UnreadCountResponse;
 import com.taipei.iot.notification.enums.NotificationType;
 import com.taipei.iot.notification.service.NotificationService;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.tenant.TenantEnabledCache;
+import com.taipei.iot.common.dto.PageResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.impl.DefaultClaims;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ class NotificationControllerTest {
 
     @MockitoBean
     private StringRedisTemplate stringRedisTemplate;
+
+    @MockitoBean
+    private TenantEnabledCache tenantEnabledCache;
 
     private String validToken() {
         return "valid.jwt.token";

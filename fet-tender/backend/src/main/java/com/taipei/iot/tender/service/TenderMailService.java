@@ -31,6 +31,7 @@ public class TenderMailService {
     private final TenderMailProperties mailProps;
     private final TenderExcelExporter excelExporter;
     private final TenderAwardExcelExporter awardExcelExporter;
+    private final MailRecipientService mailRecipientService;
 
     /**
      * 寄送招標日報郵件，含 Excel 附件。
@@ -38,9 +39,9 @@ public class TenderMailService {
      * @param result 爬蟲結果（含筆數、按 solution 分類的計數、公告清單）
      */
     public void sendReport(TenderScrapeResult result) {
-        List<String> recipients = mailProps.getRecipients();
-        if (recipients == null || recipients.isEmpty()) {
-            log.warn("[TenderMail] 未設定收件人（tender.mail.recipients），跳過寄信");
+        List<String> recipients = resolveRecipients();
+        if (recipients.isEmpty()) {
+            log.warn("[TenderMail] 未設定收件人，跳過寄信");
             return;
         }
 
@@ -79,9 +80,9 @@ public class TenderMailService {
      * @param result 決標爬蟲結果
      */
     public void sendAwardReport(AwardScrapeResult result) {
-        List<String> recipients = mailProps.getRecipients();
-        if (recipients == null || recipients.isEmpty()) {
-            log.warn("[TenderMail] 未設定收件人（tender.mail.recipients），跳過寄信");
+        List<String> recipients = resolveRecipients();
+        if (recipients.isEmpty()) {
+            log.warn("[TenderMail] 未設定收件人，跳過寄信");
             return;
         }
 
@@ -170,5 +171,17 @@ public class TenderMailService {
                 </body>
                 </html>
                 """, type, today, total, rows);
+    }
+
+    // ── 收件人解析：DB 優先，yml fallback ─────────────────────────────────────
+
+    private List<String> resolveRecipients() {
+        List<String> dbRecipients = mailRecipientService.getActiveEmails();
+        if (dbRecipients != null && !dbRecipients.isEmpty()) {
+            return dbRecipients;
+        }
+        // fallback: 舊設定檔 recipients
+        List<String> configRecipients = mailProps.getRecipients();
+        return configRecipients != null ? configRecipients : List.of();
     }
 }

@@ -37,6 +37,12 @@ public class UserSelfService {
         if (req.getPhone() != null) {
             user.setPhone(req.getPhone());
         }
+        if (req.getNotifySmsFlag() != null) {
+            user.setNotifySmsFlag(req.getNotifySmsFlag());
+        }
+        if (req.getNotifyEmailFlag() != null) {
+            user.setNotifyEmailFlag(req.getNotifyEmailFlag());
+        }
 
         UserEntity saved = userRepository.save(user);
         userAuditService.logAction("UPDATE", currentUserId, currentUserId, "自助更新個人資料");
@@ -47,6 +53,10 @@ public class UserSelfService {
     public void changePassword(String currentUserId, ChangePasswordRequest req) {
         UserEntity user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(req.getOldPassword(), user.getPasswordHash())) {
+            throw new BusinessException(ErrorCode.OLD_PASSWORD_INCORRECT);
+        }
 
         passwordValidator.validate(req.getNewPassword());
         passwordValidator.checkNotRecentlyUsed(currentUserId, req.getNewPassword());

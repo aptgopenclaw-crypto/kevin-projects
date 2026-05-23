@@ -15,7 +15,7 @@ import com.taipei.iot.tenant.TenantContext;
 import com.taipei.iot.user.dto.request.AddTenantRoleRequest;
 import com.taipei.iot.user.dto.request.CreateUserRequest;
 import com.taipei.iot.user.dto.request.UpdateUserRequest;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import com.taipei.iot.user.dto.response.UserListItemDto;
 import com.taipei.iot.user.dto.response.UserTenantMappingDto;
 import com.taipei.iot.user.entity.PasswordHistoryEntity;
@@ -46,6 +46,27 @@ public class UserAdminService {
     private final DataScopeHelper dataScopeHelper;
     private final DeptInfoRepository deptInfoRepository;
     private final RoleService roleService;
+
+    @Transactional(readOnly = true)
+    public UserListItemDto getUser(String userId) {
+        String tenantId = TenantContext.getCurrentTenantId();
+        UserTenantMappingEntity mapping;
+
+        if (TenantContext.isSystemContext()) {
+            mapping = userTenantMappingRepository.findByUserId(userId).stream()
+                    .findFirst()
+                    .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        } else {
+            mapping = userTenantMappingRepository.findByUserIdAndTenantId(userId, tenantId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+            if (!dataScopeHelper.isDeptInScope(mapping.getDeptId())) {
+                throw new BusinessException(ErrorCode.PERMISSION_DENIED, "無權檢視該使用者");
+            }
+        }
+
+        return toUserListItemDto(mapping);
+    }
 
     @Transactional(readOnly = true)
     public PageResponse<UserListItemDto> listUsers(int page, int size, String keyword) {
@@ -144,6 +165,16 @@ public class UserAdminService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
+        // DataScope 檢核：驗證目標使用者在操作者管轄範圍內
+        String tenantId = TenantContext.getCurrentTenantId();
+        UserTenantMappingEntity mapping = userTenantMappingRepository
+                .findByUserIdAndTenantId(userId, tenantId)
+                .orElse(null);
+
+        if (mapping != null && !dataScopeHelper.isDeptInScope(mapping.getDeptId())) {
+            throw new BusinessException(ErrorCode.PERMISSION_DENIED, "無權修改該使用者");
+        }
+
         if (req.getDisplayName() != null) {
             user.setDisplayName(req.getDisplayName());
         }
@@ -153,20 +184,23 @@ public class UserAdminService {
 
         userRepository.save(user);
 
-        String tenantId = TenantContext.getCurrentTenantId();
-        UserTenantMappingEntity mapping = userTenantMappingRepository
-                .findByUserIdAndTenantId(userId, tenantId)
-                .orElse(null);
-
         if (mapping != null) {
             boolean mappingChanged = false;
             if (req.getRoleId() != null && !req.getRoleId().equals(mapping.getRoleId())) {
+                // 角色指派檢核
+                if (!roleService.isRoleAssignable(req.getRoleId())) {
+                    throw new BusinessException(ErrorCode.PERMISSION_DENIED, "無權指派該角色");
+                }
                 roleRepository.findById(req.getRoleId())
                         .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
                 mapping.setRoleId(req.getRoleId());
                 mappingChanged = true;
             }
             if (req.getDeptId() != null && !req.getDeptId().equals(mapping.getDeptId())) {
+                // DataScope 檢核：新部門也要在範圍內
+                if (!dataScopeHelper.isDeptInScope(req.getDeptId())) {
+                    throw new BusinessException(ErrorCode.PERMISSION_DENIED, "無權指派到該部門");
+                }
                 mapping.setDeptId(req.getDeptId());
                 mappingChanged = true;
             }
@@ -197,6 +231,15 @@ public class UserAdminService {
         UserEntity user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
+        // DataScope 檢核
+        String tenantId = TenantContext.getCurrentTenantId();
+        userTenantMappingRepository.findByUserIdAndTenantId(targetUserId, tenantId)
+                .ifPresent(mapping -> {
+                    if (!dataScopeHelper.isDeptInScope(mapping.getDeptId())) {
+                        throw new BusinessException(ErrorCode.PERMISSION_DENIED, "無權停用該使用者");
+                    }
+                });
+
         user.setEnabled(false);
         userRepository.save(user);
 
@@ -211,6 +254,15 @@ public class UserAdminService {
 
         UserEntity user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // DataScope 檢核
+        String tenantId = TenantContext.getCurrentTenantId();
+        userTenantMappingRepository.findByUserIdAndTenantId(targetUserId, tenantId)
+                .ifPresent(mapping -> {
+                    if (!dataScopeHelper.isDeptInScope(mapping.getDeptId())) {
+                        throw new BusinessException(ErrorCode.PERMISSION_DENIED, "無權刪除該使用者");
+                    }
+                });
 
         user.setDeleted(true);
         user.setDeletedAt(java.time.LocalDateTime.now());

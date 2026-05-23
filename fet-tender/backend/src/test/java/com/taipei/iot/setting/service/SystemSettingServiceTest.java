@@ -1,5 +1,6 @@
 package com.taipei.iot.setting.service;
 
+import com.taipei.iot.common.exception.BusinessException;
 import com.taipei.iot.setting.dto.SystemSettingDto;
 import com.taipei.iot.setting.entity.SystemSettingEntity;
 import com.taipei.iot.setting.enums.SettingKey;
@@ -69,7 +70,7 @@ class SystemSettingServiceTest {
         when(settingRepository.findBySettingKey("idle_timeout_minutes"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(BusinessException.class,
                 () -> settingService.updateIdleTimeoutMinutes(30));
     }
 
@@ -117,7 +118,7 @@ class SystemSettingServiceTest {
         when(settingRepository.findBySettingKey("unknown_key"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(BusinessException.class,
                 () -> settingService.updateSetting("unknown_key", "value"));
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.taipei.iot.common.interceptor.RateLimitInterceptor;
 import com.taipei.iot.tenant.TenantInterceptor;
+import com.taipei.iot.tenant.TenantEnabledCache;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -44,6 +45,7 @@ class DeptControllerTest {
     @MockitoBean private DeptService deptService;
     @MockitoBean private JwtUtil jwtUtil;
     @MockitoBean private StringRedisTemplate stringRedisTemplate;
+    @MockitoBean private TenantEnabledCache tenantEnabledCache;
 
     private String validToken() {
         return "valid.jwt.token";
@@ -71,7 +73,8 @@ class DeptControllerTest {
 
     @Test
     void getDeptTree_authenticated_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"));
+        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+                List.of("DEPT_LIST", "DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
 
         DeptDto root = DeptDto.builder().id(1L).deptName("總公司").build();
         when(deptService.getDeptTree()).thenReturn(List.of(root));

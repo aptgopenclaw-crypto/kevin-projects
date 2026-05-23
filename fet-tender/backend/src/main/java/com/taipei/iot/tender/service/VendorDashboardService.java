@@ -2,6 +2,7 @@ package com.taipei.iot.tender.service;
 
 import com.taipei.iot.tender.dto.*;
 import com.taipei.iot.tender.repository.TenderAwardRepository;
+import com.taipei.iot.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class VendorDashboardService {
     @Transactional(readOnly = true)
     public List<VendorSuggestResponse> suggest(String q) {
         String keyword = q == null ? "" : q.trim();
-        return repository.suggestVendors(keyword).stream()
+        return repository.suggestVendors(TenantContext.getCurrentTenantId(), keyword).stream()
                 .map(p -> VendorSuggestResponse.builder()
                         .vendorName(p.getVendorName())
                         .vendorTaxId(p.getVendorTaxId())
@@ -36,7 +37,8 @@ public class VendorDashboardService {
 
     @Transactional(readOnly = true)
     public VendorOverviewResponse getOverview(String vendorTaxId, String vendorName) {
-        return repository.getVendorOverview(nullIfBlank(vendorTaxId), vendorName)
+        String tenantId = TenantContext.getCurrentTenantId();
+        return repository.getVendorOverview(tenantId, nullIfBlank(vendorTaxId), vendorName)
                 .stream().findFirst()
                 .map(p -> VendorOverviewResponse.builder()
                         .vendorName(p.getVendorName())
@@ -56,8 +58,9 @@ public class VendorDashboardService {
     @Transactional(readOnly = true)
     public VendorTrendResponse getTrend(String vendorTaxId, String vendorName) {
         String taxId = nullIfBlank(vendorTaxId);
+        String tenantId = TenantContext.getCurrentTenantId();
 
-        var dateRange = repository.getVendorDateRange(taxId, vendorName)
+        var dateRange = repository.getVendorDateRange(tenantId, taxId, vendorName)
                 .stream().findFirst().orElse(null);
 
         if (dateRange == null || dateRange.getMinDate() == null) {
@@ -70,13 +73,13 @@ public class VendorDashboardService {
 
         if (days < 90) {
             granularity = "DAY";
-            rawPoints = repository.trendByDay(taxId, vendorName);
+            rawPoints = repository.trendByDay(tenantId, taxId, vendorName);
         } else if (days < 730) {
             granularity = "MONTH";
-            rawPoints = repository.trendByMonth(taxId, vendorName);
+            rawPoints = repository.trendByMonth(tenantId, taxId, vendorName);
         } else {
             granularity = "QUARTER";
-            rawPoints = repository.trendByQuarter(taxId, vendorName);
+            rawPoints = repository.trendByQuarter(tenantId, taxId, vendorName);
         }
 
         List<VendorTrendResponse.TrendPoint> points = rawPoints.stream()
@@ -95,10 +98,11 @@ public class VendorDashboardService {
     @Transactional(readOnly = true)
     public List<VendorSolutionNode> getSolutionBreakdown(String vendorTaxId, String vendorName) {
         String taxId = nullIfBlank(vendorTaxId);
+        String tenantId = TenantContext.getCurrentTenantId();
 
         // 先按 solution 分組，再把 keyword rows 掛進去
         Map<String, List<VendorProjections.SolutionRow>> grouped =
-                repository.getSolutionBreakdown(taxId, vendorName)
+                repository.getSolutionBreakdown(tenantId, taxId, vendorName)
                         .stream()
                         .collect(Collectors.groupingBy(r -> r.getSolution() == null ? "未分類" : r.getSolution()));
 
@@ -136,7 +140,8 @@ public class VendorDashboardService {
     @Transactional(readOnly = true)
     public List<VendorTopAgencyResponse> getTopAgencies(String vendorTaxId, String vendorName, int limit) {
         String taxId = nullIfBlank(vendorTaxId);
-        return repository.getTopAgencies(taxId, vendorName, limit).stream()
+        String tenantId = TenantContext.getCurrentTenantId();
+        return repository.getTopAgencies(tenantId, taxId, vendorName, limit).stream()
                 .map(p -> VendorTopAgencyResponse.builder()
                         .agencyName(p.getAgencyName())
                         .agencyCode(p.getAgencyCode())
@@ -151,13 +156,14 @@ public class VendorDashboardService {
     @Transactional(readOnly = true)
     public VendorProcurementProfileResponse getProcurementProfile(String vendorTaxId, String vendorName) {
         String taxId = nullIfBlank(vendorTaxId);
+        String tenantId = TenantContext.getCurrentTenantId();
 
         List<VendorProcurementProfileResponse.NameCount> tenderMethods =
-                toNameCounts(repository.countByTenderMethod(taxId, vendorName));
+                toNameCounts(repository.countByTenderMethod(tenantId, taxId, vendorName));
         List<VendorProcurementProfileResponse.NameCount> procurementTypes =
-                toNameCounts(repository.countByProcurementType(taxId, vendorName));
+                toNameCounts(repository.countByProcurementType(tenantId, taxId, vendorName));
         List<VendorProcurementProfileResponse.NameCount> awardMethods =
-                toNameCounts(repository.countByAwardMethod(taxId, vendorName));
+                toNameCounts(repository.countByAwardMethod(tenantId, taxId, vendorName));
 
         return VendorProcurementProfileResponse.builder()
                 .tenderMethods(tenderMethods)
@@ -171,7 +177,8 @@ public class VendorDashboardService {
     @Transactional(readOnly = true)
     public List<VendorCoVendorResponse> getCoVendors(String vendorTaxId, String vendorName) {
         String taxId = nullIfBlank(vendorTaxId);
-        return repository.getCoVendors(taxId, vendorName).stream()
+        String tenantId = TenantContext.getCurrentTenantId();
+        return repository.getCoVendors(tenantId, taxId, vendorName).stream()
                 .map(p -> VendorCoVendorResponse.builder()
                         .vendorName(p.getVendorName())
                         .vendorTaxId(p.getVendorTaxId())

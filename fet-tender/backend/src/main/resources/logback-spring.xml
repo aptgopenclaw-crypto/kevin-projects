@@ -53,7 +53,7 @@
     </logger>
 
     <!-- Security logger: writes to both console and security file -->
-    <logger name="SECURITY" level="WARN" additivity="false">
+    <logger name="SECURITY" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="SECURITY_FILE"/>
     </logger>

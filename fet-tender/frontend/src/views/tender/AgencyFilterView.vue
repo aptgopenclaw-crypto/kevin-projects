@@ -1,16 +1,28 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import {
   listAgencyFilters,
   createAgencyFilter,
   updateAgencyFilter,
   deleteAgencyFilter,
+  listConfigSolutions,
 } from '@/api/tender'
 import type { AgencyFilterResponse, AgencyFilterRequest } from '@/types/tender'
 
 const { t } = useI18n()
+
+// ── 方案選項 ──────────────────────────────────────────────────
+const solutionOptions = ref<string[]>([])
+
+async function fetchSolutions() {
+  try {
+    const res = await listConfigSolutions()
+    if (res.errorCode === '00000') solutionOptions.value = res.body
+  } catch { /* ignore */ }
+}
 
 // ── 列表 ──────────────────────────────────────────────────────
 const loading = ref(false)
@@ -27,19 +39,42 @@ async function fetchList() {
   }
 }
 
-onMounted(fetchList)
+// ── 分頁 ──────────────────────────────────────────────────────
+const currentPage = ref(1)
+const pageSize = ref(20)
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return tableData.value.slice(start, start + pageSize.value)
+})
+
+onMounted(() => {
+  fetchList()
+  fetchSolutions()
+})
 
 // ── Dialog ────────────────────────────────────────────────────
 const dialogVisible = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
 const editingId = ref<number | null>(null)
 const saving = ref(false)
+const formRef = ref<FormInstance>()
 
 const form = reactive<AgencyFilterRequest>({
   solution: '',
   agencyKeyword: '',
   isOrgOnlySearch: false,
   isActive: true,
+})
+
+const formRules = reactive<FormRules>({
+  solution: [
+    { required: true, message: () => t('tender.agencyFilter.validationRequired'), trigger: 'change' },
+    { max: 100, message: () => t('common.maxLength', { max: 100 }), trigger: 'blur' },
+  ],
+  agencyKeyword: [
+    { required: true, message: () => t('tender.agencyFilter.validationRequired'), trigger: 'blur' },
+    { max: 200, message: () => t('common.maxLength', { max: 200 }), trigger: 'blur' },
+  ],
 })
 
 function openCreate() {
@@ -63,10 +98,8 @@ function openEdit(row: AgencyFilterResponse) {
 }
 
 async function handleSave() {
-  if (!form.solution.trim() || !form.agencyKeyword.trim()) {
-    ElMessage.warning(t('tender.agencyFilter.validationRequired'))
-    return
-  }
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
   saving.value = true
   try {
     if (dialogMode.value === 'create') {
@@ -77,6 +110,7 @@ async function handleSave() {
     ElMessage.success(t('common.save') + t('common.confirm'))
     dialogVisible.value = false
     fetchList()
+    fetchSolutions()
   } catch {
     ElMessage.error(t('common.operationFailed'))
   } finally {
@@ -111,7 +145,7 @@ async function handleDelete(row: AgencyFilterResponse) {
       </el-checkbox>
     </div>
 
-    <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
+    <el-table v-loading="loading" :data="pagedData" border stripe style="width: 100%">
       <el-table-column prop="solution" :label="$t('tender.keyword.solution')" width="200" />
       <el-table-column prop="agencyKeyword" :label="$t('tender.agencyFilter.agencyKeyword')" />
       <el-table-column
@@ -146,6 +180,16 @@ async function handleDelete(row: AgencyFilterResponse) {
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      v-if="tableData.length > pageSize"
+      class="mt-4"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :page-sizes="[10, 20, 50, 100]"
+      :total="tableData.length"
+      layout="total, sizes, prev, pager, next"
+    />
+
     <!-- Dialog -->
     <el-dialog
       v-model="dialogVisible"
@@ -153,12 +197,26 @@ async function handleDelete(row: AgencyFilterResponse) {
       width="480px"
       destroy-on-close
     >
-      <el-form label-width="140px" @submit.prevent>
-        <el-form-item :label="$t('tender.keyword.solution')" required>
-          <el-input v-model="form.solution" :placeholder="$t('tender.keyword.solutionPlaceholder')" />
+      <el-form ref="formRef" :model="form" :rules="formRules" label-width="140px" @submit.prevent>
+        <el-form-item :label="$t('tender.keyword.solution')" prop="solution">
+          <el-select
+            v-model="form.solution"
+            filterable
+            allow-create
+            default-first-option
+            :placeholder="$t('tender.keyword.solutionPlaceholder')"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="sol in solutionOptions"
+              :key="sol"
+              :label="sol"
+              :value="sol"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item :label="$t('tender.agencyFilter.agencyKeyword')" required>
-          <el-input v-model="form.agencyKeyword" :placeholder="$t('tender.agencyFilter.agencyKeywordPlaceholder')" />
+        <el-form-item :label="$t('tender.agencyFilter.agencyKeyword')" prop="agencyKeyword">
+          <el-input v-model="form.agencyKeyword" :placeholder="$t('tender.agencyFilter.agencyKeywordPlaceholder')" maxlength="200" show-word-limit />
         </el-form-item>
         <el-form-item :label="$t('tender.agencyFilter.isOrgOnlySearch')">
           <el-switch v-model="form.isOrgOnlySearch" />
@@ -183,5 +241,6 @@ async function handleDelete(row: AgencyFilterResponse) {
 .toolbar { margin-bottom: 16px; display: flex; align-items: center; }
 .mr-1 { margin-right: 4px; }
 .ml-4 { margin-left: 16px; }
+.mt-4 { margin-top: 16px; }
 .hint { margin-left: 8px; font-size: 12px; color: var(--el-text-color-secondary); }
 </style>

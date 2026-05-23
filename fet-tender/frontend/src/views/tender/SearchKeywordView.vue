@@ -1,16 +1,28 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import {
   listSearchKeywords,
   createSearchKeyword,
   updateSearchKeyword,
   deleteSearchKeyword,
+  listConfigSolutions,
 } from '@/api/tender'
 import type { SearchKeywordResponse, SearchKeywordRequest } from '@/types/tender'
 
 const { t } = useI18n()
+
+// ── 方案選項 ──────────────────────────────────────────────────
+const solutionOptions = ref<string[]>([])
+
+async function fetchSolutions() {
+  try {
+    const res = await listConfigSolutions()
+    if (res.errorCode === '00000') solutionOptions.value = res.body
+  } catch { /* ignore */ }
+}
 
 // ── 列表 ──────────────────────────────────────────────────────
 const loading = ref(false)
@@ -27,18 +39,41 @@ async function fetchList() {
   }
 }
 
-onMounted(fetchList)
+// ── 分頁 ──────────────────────────────────────────────────────
+const currentPage = ref(1)
+const pageSize = ref(20)
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return tableData.value.slice(start, start + pageSize.value)
+})
+
+onMounted(() => {
+  fetchList()
+  fetchSolutions()
+})
 
 // ── Dialog ────────────────────────────────────────────────────
 const dialogVisible = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
 const editingId = ref<number | null>(null)
 const saving = ref(false)
+const formRef = ref<FormInstance>()
 
 const form = reactive<SearchKeywordRequest>({
   solution: '',
   keyword: '',
   isActive: true,
+})
+
+const formRules = reactive<FormRules>({
+  solution: [
+    { required: true, message: () => t('tender.keyword.validationRequired'), trigger: 'change' },
+    { max: 100, message: () => t('common.maxLength', { max: 100 }), trigger: 'blur' },
+  ],
+  keyword: [
+    { required: true, message: () => t('tender.keyword.validationRequired'), trigger: 'blur' },
+    { max: 200, message: () => t('common.maxLength', { max: 200 }), trigger: 'blur' },
+  ],
 })
 
 function openCreate() {
@@ -60,10 +95,8 @@ function openEdit(row: SearchKeywordResponse) {
 }
 
 async function handleSave() {
-  if (!form.solution.trim() || !form.keyword.trim()) {
-    ElMessage.warning(t('tender.keyword.validationRequired'))
-    return
-  }
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
   saving.value = true
   try {
     if (dialogMode.value === 'create') {
@@ -75,6 +108,7 @@ async function handleSave() {
     }
     dialogVisible.value = false
     fetchList()
+    fetchSolutions()
   } catch {
     ElMessage.error(t('common.operationFailed'))
   } finally {
@@ -109,7 +143,7 @@ async function handleDelete(row: SearchKeywordResponse) {
       </el-checkbox>
     </div>
 
-    <el-table v-loading="loading" :data="tableData" border stripe style="width: 100%">
+    <el-table v-loading="loading" :data="pagedData" border stripe style="width: 100%">
       <el-table-column prop="solution" :label="$t('tender.keyword.solution')" width="200" />
       <el-table-column prop="keyword" :label="$t('tender.keyword.keyword')" />
       <el-table-column prop="isActive" :label="$t('common.status')" width="100" align="center">
@@ -132,6 +166,16 @@ async function handleDelete(row: SearchKeywordResponse) {
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      v-if="tableData.length > pageSize"
+      class="mt-4"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :page-sizes="[10, 20, 50, 100]"
+      :total="tableData.length"
+      layout="total, sizes, prev, pager, next"
+    />
+
     <!-- Dialog -->
     <el-dialog
       v-model="dialogVisible"
@@ -139,12 +183,26 @@ async function handleDelete(row: SearchKeywordResponse) {
       width="480px"
       destroy-on-close
     >
-      <el-form label-width="120px" @submit.prevent>
-        <el-form-item :label="$t('tender.keyword.solution')" required>
-          <el-input v-model="form.solution" :placeholder="$t('tender.keyword.solutionPlaceholder')" />
+      <el-form ref="formRef" :model="form" :rules="formRules" label-width="120px" @submit.prevent>
+        <el-form-item :label="$t('tender.keyword.solution')" prop="solution">
+          <el-select
+            v-model="form.solution"
+            filterable
+            allow-create
+            default-first-option
+            :placeholder="$t('tender.keyword.solutionPlaceholder')"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="sol in solutionOptions"
+              :key="sol"
+              :label="sol"
+              :value="sol"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item :label="$t('tender.keyword.keyword')" required>
-          <el-input v-model="form.keyword" :placeholder="$t('tender.keyword.keywordPlaceholder')" />
+        <el-form-item :label="$t('tender.keyword.keyword')" prop="keyword">
+          <el-input v-model="form.keyword" :placeholder="$t('tender.keyword.keywordPlaceholder')" maxlength="200" show-word-limit />
         </el-form-item>
         <el-form-item :label="$t('common.status')">
           <el-switch v-model="form.isActive" />
@@ -165,4 +223,5 @@ async function handleDelete(row: SearchKeywordResponse) {
 .toolbar { margin-bottom: 16px; display: flex; align-items: center; }
 .mr-1 { margin-right: 4px; }
 .ml-4 { margin-left: 16px; }
+.mt-4 { margin-top: 16px; }
 </style>

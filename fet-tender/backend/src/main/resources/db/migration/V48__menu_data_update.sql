@@ -1,0 +1,28 @@
+-- Auto-generated SQL script #202605220652
+UPDATE menus
+	SET "name"='帳號管理'
+	WHERE menu_id=1;
+UPDATE menus
+	SET "name"='系統管理'
+	WHERE menu_id=10;
+UPDATE menus
+	SET "name"='稽核紀錄'
+	WHERE menu_id=20;
+UPDATE menus
+	SET "name"='用戶清單'
+	WHERE menu_id=2;
+UPDATE menus
+	SET "name"='創建用戶'
+	WHERE menu_id=3;
+UPDATE menus
+	SET "name"='選單管理'
+	WHERE menu_id=11;
+UPDATE menus
+	SET "name"='部門管理'
+	WHERE menu_id=12;
+UPDATE menus
+	SET "name"='角色管理'
+	WHERE menu_id=13;
+UPDATE menus
+	SET "name"='使用紀錄'
+	WHERE menu_id=21;

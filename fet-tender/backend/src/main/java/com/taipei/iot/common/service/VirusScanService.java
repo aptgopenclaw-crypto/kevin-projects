@@ -15,7 +15,12 @@ public interface VirusScanService {
         CLEAN,
         /** 偵測到惡意內容 */
         INFECTED,
-        /** 掃描服務不可用 */
+        /**
+         * 掃描服務不可用或發生非預期錯誤。
+         * <p><b>呼叫端處理策略：</b>應視為<b>拒絕上傳</b>（fail-closed），
+         * 不得將 ERROR 當作通過。若需 fallback（如暫時允許上傳並於後台重掃），
+         * 必須在呼叫端明確實作並記錄安全事件。</p>
+         */
         ERROR
     }
 

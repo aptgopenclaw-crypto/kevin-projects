@@ -17,7 +17,7 @@ import com.taipei.iot.common.util.SecurityContextUtils;
 import com.taipei.iot.dept.entity.DeptInfoEntity;
 import com.taipei.iot.dept.repository.DeptInfoRepository;
 import com.taipei.iot.dept.enums.DataScopeEnum;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -70,7 +70,11 @@ public class AnnouncementService {
         UserInfo user = SecurityContextUtils.getUserInfo();
         LocalDateTime now = LocalDateTime.now();
         String safeFilter = statusFilter != null ? statusFilter : "ALL";
-        String safeKeyword = (keyword != null && !keyword.isBlank()) ? "%" + keyword.trim() + "%" : null;
+        String safeKeyword = null;
+        if (keyword != null && !keyword.isBlank()) {
+            String escaped = keyword.trim().replace("%", "\\%").replace("_", "\\_");
+            safeKeyword = "%" + escaped + "%";
+        }
 
         Pageable pageable = PageRequest.of(page, size, DEFAULT_SORT);
         Page<Announcement> pageResult;
@@ -93,10 +97,26 @@ public class AnnouncementService {
     // ── 單筆查詢 ──
 
     @Transactional(readOnly = true)
-    public AnnouncementResponse getById(Long id) {
+    public AnnouncementResponse getById(Long id, boolean hasManagePermission) {
         UserInfo user = SecurityContextUtils.getUserInfo();
         Announcement entity = announcementRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
+
+        // 非管理員：只能看已發佈、未過期、且 scope 符合的公告
+        if (!hasManagePermission) {
+            LocalDateTime now = LocalDateTime.now();
+            boolean published = "PUBLISHED".equals(entity.getStatus());
+            boolean notExpired = entity.getExpireAt() == null || entity.getExpireAt().isAfter(now);
+            boolean started = entity.getPublishAt() != null && !entity.getPublishAt().isAfter(now);
+            boolean scopeMatch = "ALL".equals(entity.getScope())
+                    || (user.getDeptId() != null && announcementDeptRepository
+                            .existsByAnnouncementIdAndDeptId(entity.getId(), user.getDeptId()));
+
+            if (!published || !notExpired || !started || !scopeMatch) {
+                throw new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND);
+            }
+        }
+
         return toResponse(entity, user.getUserId(), false);
     }
 
@@ -341,13 +361,8 @@ public class AnnouncementService {
 
     private Map<Long, String> resolveDeptNameMap(Set<Long> deptIds) {
         if (deptIds == null || deptIds.isEmpty()) return Collections.emptyMap();
-        return deptIds.stream()
-                .collect(Collectors.toMap(
-                        id -> id,
-                        id -> deptInfoRepository.findByDeptId(id)
-                                .map(DeptInfoEntity::getDeptName)
-                                .orElse(String.valueOf(id))
-                ));
+        return deptInfoRepository.findByDeptIdIn(deptIds).stream()
+                .collect(Collectors.toMap(DeptInfoEntity::getDeptId, DeptInfoEntity::getDeptName));
     }
 
     private <T> PageResponse<T> buildPageResponse(List<T> content, Page<?> page) {

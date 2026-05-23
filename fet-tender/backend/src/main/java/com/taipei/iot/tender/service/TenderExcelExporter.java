@@ -4,7 +4,7 @@ import com.taipei.iot.tender.entity.TenderAnnouncement;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -35,8 +35,8 @@ public class TenderExcelExporter {
      * @return XLSX 檔案的位元組陣列
      */
     public byte[] export(List<TenderAnnouncement> rows) throws IOException {
-        try (Workbook wb = new XSSFWorkbook();
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        SXSSFWorkbook wb = new SXSSFWorkbook(100); // 記憶體中保留 100 列
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
             Sheet sheet = wb.createSheet("招標資料");
 
@@ -54,6 +54,18 @@ public class TenderExcelExporter {
 
             // ── 凍結標頭列 ─────────────────────────────────────────────────────
             sheet.createFreezePane(0, 1);
+
+            // ── 欄寬（SXSSFWorkbook 需在資料列前設定）──────────────────────────
+            int[] colWidths = {
+                    6*256,  20*256, 12*256, 25*256, 20*256, 40*256,
+                    8*256,  12*256, 10*256, 12*256, 16*256, 18*256,
+                    40*256, 14*256, 20*256, 30*256, 10*256, 16*256,
+                    25*256, 30*256, 16*256, 12*256, 12*256,
+                    12*256, 16*256, 25*256, 12*256, 25*256
+            };
+            for (int i = 0; i < colWidths.length; i++) {
+                sheet.setColumnWidth(i, colWidths[i]);
+            }
 
             // ── 資料列 ─────────────────────────────────────────────────────────
             CellStyle dateStyle   = createDateStyle(wb);
@@ -97,20 +109,10 @@ public class TenderExcelExporter {
                 set(row, 27, ann.getPerformanceLocation(),                          normalStyle);
             }
 
-            // ── 欄寬 ───────────────────────────────────────────────────────────
-            int[] colWidths = {
-                    6*256,  20*256, 12*256, 25*256, 20*256, 40*256,
-                    8*256,  12*256, 10*256, 12*256, 16*256, 18*256,
-                    40*256, 14*256, 20*256, 30*256, 10*256, 16*256,
-                    25*256, 30*256, 16*256, 12*256, 12*256,
-                    12*256, 16*256, 25*256, 12*256, 25*256
-            };
-            for (int i = 0; i < colWidths.length; i++) {
-                sheet.setColumnWidth(i, colWidths[i]);
-            }
-
             wb.write(out);
             return out.toByteArray();
+        } finally {
+            wb.dispose();
         }
     }
 

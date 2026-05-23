@@ -11,8 +11,10 @@ import {
   Home,
   UserCog,
   KeyRound,
+  Building2,
 } from 'lucide-vue-next'
 import MenuNode from '@/components/MenuNode.vue'
+import TenantSwitcher from '@/components/TenantSwitcher.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -40,6 +42,8 @@ function handleMenuSelect(index: string) {
 
 const displayName = computed(() => authStore.userInfo?.displayName ?? '')
 const tenantName = computed(() => authStore.userInfo?.tenantName ?? '')
+const availableTenants = computed(() => authStore.userInfo?.availableTenants ?? [])
+const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 </script>
 
 <template>
@@ -47,7 +51,8 @@ const tenantName = computed(() => authStore.userInfo?.tenantName ?? '')
     <!-- Brand Header -->
     <div class="sidebar-header">
       <div class="brand" v-if="!collapsed">
-        <span class="brand-text">{{ tenantName || 'CCMS' }}</span>
+        <TenantSwitcher v-if="availableTenants.length > 1" />
+        <span class="brand-text" v-else>{{ tenantName || 'CCMS' }}</span>
       </div>
       <button class="collapse-btn" @click="collapsed = !collapsed">
         <MenuIcon :size="18" />
@@ -93,6 +98,12 @@ const tenantName = computed(() => authStore.userInfo?.tenantName ?? '')
             <template #title><span>{{ t('nav.changePassword') }}</span></template>
           </el-menu-item>
         </template>
+
+        <!-- SUPER_ADMIN only: Tenant Management -->
+        <el-menu-item v-if="isSuperAdmin" index="/admin/system/tenants" @click="router.push('/admin/system/tenants')">
+          <el-icon><Building2 /></el-icon>
+          <template #title><span>{{ t('tenant.navLabel') }}</span></template>
+        </el-menu-item>
       </el-menu>
     </nav>
   </aside>

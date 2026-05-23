@@ -1,5 +1,7 @@
 package com.taipei.iot.dept.service;
 
+import com.taipei.iot.auth.entity.UserEntity;
+import com.taipei.iot.auth.repository.UserRepository;
 import com.taipei.iot.auth.repository.UserTenantMappingRepository;
 import com.taipei.iot.common.enums.ErrorCode;
 import com.taipei.iot.common.exception.BusinessException;
@@ -26,6 +28,7 @@ public class DeptService {
 
     private final DeptInfoRepository deptInfoRepository;
     private final UserTenantMappingRepository userTenantMappingRepository;
+    private final UserRepository userRepository;
     private final DataScopeHelper dataScopeHelper;
 
     @Transactional(readOnly = true)
@@ -147,13 +150,23 @@ public class DeptService {
             throw new BusinessException(ErrorCode.DEPT_HAS_CHILDREN);
         }
 
-        // Check: has users in user_tenant_mapping?
-        boolean hasUsers = userTenantMappingRepository.findByTenantIdAndEnabledTrue(entity.getTenantId())
+        // Check: has active (non-deleted) users in user_tenant_mapping?
+        List<String> blockingUserIds = userTenantMappingRepository.findByTenantIdAndDeptIdAndEnabledTrue(entity.getTenantId(), deptId)
                 .stream()
-                .anyMatch(m -> deptId.equals(m.getDeptId()));
-        if (hasUsers) {
-            throw new BusinessException(ErrorCode.DEPT_HAS_USERS);
+                .map(m -> m.getUserId())
+                .collect(Collectors.toList());
+        if (!blockingUserIds.isEmpty()) {
+            List<String> activeNames = userRepository.findAllById(blockingUserIds).stream()
+                    .filter(u -> !u.getDeleted())
+                    .map(UserEntity::getDisplayName)
+                    .collect(Collectors.toList());
+            if (!activeNames.isEmpty()) {
+                throw new BusinessException(ErrorCode.DEPT_HAS_USERS, String.join(", ", activeNames));
+            }
         }
+
+        // Clear dept_id references in user_tenant_mapping to avoid FK violation
+        userTenantMappingRepository.clearDeptIdByTenantIdAndDeptId(entity.getTenantId(), deptId);
 
         deptInfoRepository.delete(entity);
     }

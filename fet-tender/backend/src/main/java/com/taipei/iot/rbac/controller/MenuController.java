@@ -57,6 +57,7 @@ public class MenuController {
     }
 
     @PutMapping
+    @AuditEvent(AuditEventType.UPDATE_MENU)
     public BaseResponse<MenuDto> updateMenu(@Valid @RequestBody UpdateMenuRequest request) {
         return BaseResponse.success(menuService.updateMenu(request));
     }

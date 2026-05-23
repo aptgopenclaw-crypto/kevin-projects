@@ -3,17 +3,17 @@ server:
 
 spring:
   application:
-    name: fet-tender
+    name: taipei-iot
 
   profiles:
     active: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mydb?currentSchema=tenderdb
+    url: jdbc:postgresql://localhost:5432/mydb?currentSchema=fet_tenderdb
     username: postgres
-    password: 'Kali1234!'
+    password: ${DB_PASSWORD}
     hikari:
-      schema: tenderdb
+      schema: fet_tenderdb
       maximum-pool-size: 10
 
   jpa:
@@ -21,38 +21,26 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        default_schema: tenderdb
+        default_schema: fet_tenderdb
 
   flyway:
     enabled: true
     out-of-order: true
     schemas:
-      - tenderdb
-    default-schema: tenderdb
+      - iotdb
+    default-schema: fet_tenderdb
     locations: classpath:db/migration
 
   data:
     redis:
       host: localhost
       port: 6379
-      password: ${REDIS_PASSWORD:Kali1234!}
+      password: ${REDIS_PASSWORD}
 
   servlet:
     multipart:
       max-file-size: ${FILE_MAX_SIZE:10MB}
       max-request-size: ${FILE_MAX_REQUEST_SIZE:15MB}
-
-  mail:
-    host: smtp.office365.com
-    port: 587
-    username: ${TENDER_MAIL_USERNAME:}
-    password: ${TENDER_MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 
 jwt:
   secret: ${JWT_SECRET}
@@ -90,28 +78,6 @@ tenant:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
-nvidia:
-  ai:
-    api-key: ${NVIDIA_API_KEY:}                              # NVIDIA API Key（請設定在 .env 或環境變數）
-    base-url: https://integrate.api.nvidia.com/v1
-    model: deepseek-ai/deepseek-v4-pro
-    max-tokens: 2048
-    temperature: 0.6
-
-tender:
-  scraper:
-    request-delay-ms: ${TENDER_REQUEST_DELAY_MS:2000}   # 每次搜尋之間的延遲（毫秒），建議 >= 2000
-    page-timeout-ms:  ${TENDER_PAGE_TIMEOUT_MS:30000}   # Playwright 頁面操作逾時（毫秒）
-    cron: "0 26 13 * * MON-FRI"                         # 排程時間
-    procurement-type-filter:                             # 採購性質過濾（空清單 = 不過濾）
-      - 工程
-      - 財物
-      - 勞務
-  mail:
-    alias: ${TENDER_MAIL_ALIAS:政府採購公告}             # 寄件者顯示名稱
-    recipients:                                          # 收件人清單（逗號分隔或 YAML 清單）
-      - ${TENDER_MAIL_RECIPIENT_1:kevinchang4@fareastone.com.tw}
-
 file:
   storage:
     local:
@@ -141,4 +107,37 @@ user:
     max-age-days: ${PASSWORD_MAX_AGE:90}
     history-count: 5
 
+# ── Phase 7: IoT / MQTT ──────────────────────────────────
+mqtt:
+  broker-url: ${MQTT_BROKER_URL:tcp://localhost:1883}
+  client-id: ${MQTT_CLIENT_ID:taipei-iot-server}
+  username: ${MQTT_USERNAME:}
+  password: ${MQTT_PASSWORD:}
+  telemetry-topic: device/+/telemetry
+  command-topic-prefix: device/
+  qos: 1
+  completion-timeout: 30000
 
+iot:
+  device-token:
+    header-name: X-Device-Token
+  no-signal-detection:
+    enabled: ${IOT_NO_SIGNAL_ENABLED:true}
+    interval-ms: ${IOT_NO_SIGNAL_INTERVAL:300000}
+
+# ── Tender 招標/決標爬蟲 ──────────────────────────────────
+tender:
+  award-scraper:
+    request-delay-ms: ${TENDER_REQUEST_DELAY:2000}
+    page-timeout-ms: ${TENDER_PAGE_TIMEOUT:30000}
+    procurement-type-filter:
+      - 工程
+      - 財物
+      - 勞務
+
+# ── NVIDIA AI (Tender AI Chat) ────────────────────────────
+nvidia:
+  ai:
+    api-key: ${NVIDIA_AI_API_KEY:}
+    base-url: ${NVIDIA_AI_BASE_URL:https://integrate.api.nvidia.com/v1}
+    model: ${NVIDIA_AI_MODEL:meta/llama-3.1-70b-instruct}

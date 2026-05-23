@@ -71,8 +71,8 @@ class DataScopeHelperTest {
                     .deptId(20L).hierarchyPath("/20/").build();
 
             when(deptInfoRepository.findById(1L)).thenReturn(Optional.of(root));
-            when(deptInfoRepository.findAllByStatusOrderByDeptSortAsc((short) 1))
-                    .thenReturn(List.of(root, child1, child2, otherRoot));
+            when(deptInfoRepository.findByHierarchyPathStartingWith("/1/"))
+                    .thenReturn(List.of(root, child1, child2));
 
             List<Long> result = dataScopeHelper.getVisibleDeptIds();
 

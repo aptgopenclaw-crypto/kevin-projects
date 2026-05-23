@@ -6,7 +6,8 @@ import com.taipei.iot.tender.dto.TenderAwardQueryRequest;
 import com.taipei.iot.tender.dto.TenderAwardResponse;
 import com.taipei.iot.tender.service.TenderAwardScraperService;
 import com.taipei.iot.tender.service.TenderAwardService;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,7 @@ public class TenderAwardController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('tender:award:view')")
-    public BaseResponse<PageResponse<TenderAwardResponse>> search(TenderAwardQueryRequest req) {
+    public BaseResponse<PageResponse<TenderAwardResponse>> search(@Valid TenderAwardQueryRequest req) {
         return BaseResponse.success(service.search(req));
     }
 

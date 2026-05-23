@@ -21,7 +21,6 @@ const totalBadge = computed(() =>
 )
 
 onMounted(() => {
-  if (!authStore.accessToken) return
   announcementStore.startPolling()
   notificationStore.startPolling(authStore.accessToken ?? undefined)
 })

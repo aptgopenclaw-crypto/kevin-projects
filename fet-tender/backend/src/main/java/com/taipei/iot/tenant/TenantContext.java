@@ -33,4 +33,22 @@ public final class TenantContext {
     public static boolean isSystemContext() {
         return SYSTEM_TENANT_MARKER.equals(CURRENT_TENANT.get());
     }
+
+    /**
+     * 在 SYSTEM context 中執行給定動作，執行完畢後自動恢復先前的 context。
+     * 適用於需要跨租戶操作的場景（如建立 UserTenantMapping）。
+     */
+    public static void runInSystemContext(Runnable action) {
+        String previous = CURRENT_TENANT.get();
+        try {
+            setSystemContext();
+            action.run();
+        } finally {
+            if (previous != null) {
+                CURRENT_TENANT.set(previous);
+            } else {
+                CURRENT_TENANT.remove();
+            }
+        }
+    }
 }

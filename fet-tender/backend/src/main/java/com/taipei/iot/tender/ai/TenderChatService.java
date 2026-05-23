@@ -142,12 +142,20 @@ public class TenderChatService {
 
         if (request.getHistory() != null) {
             for (var h : request.getHistory()) {
-                messages.add(Map.of("role", h.getRole(), "content", h.getContent()));
+                messages.add(Map.of("role", h.getRole(), "content", sanitize(h.getContent())));
             }
         }
 
-        messages.add(Map.of("role", "user", "content", request.getMessage()));
+        messages.add(Map.of("role", "user", "content", sanitize(request.getMessage())));
         return messages;
+    }
+
+    /**
+     * 移除控制字元（U+0000~U+001F 中保留 \n \r \t），防止 Prompt Injection。
+     */
+    private String sanitize(String input) {
+        if (input == null) return "";
+        return input.replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", "");
     }
 
     private JsonNode callApi(List<Map<String, Object>> messages, List<Map<String, Object>> tools) {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { updateOwnProfile } from '@/api/user'
 import { ElMessage } from 'element-plus'
@@ -9,6 +10,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
+const router = useRouter()
 const authStore = useAuthStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
@@ -131,6 +133,9 @@ async function handleSubmit() {
         </div>
 
         <el-form-item class="submit-row">
+          <el-button class="cancel-btn" @click="router.back()">
+            {{ t('common.cancel') }}
+          </el-button>
           <el-button
             class="submit-btn"
             :loading="loading"
@@ -226,8 +231,23 @@ async function handleSubmit() {
   margin-top: 8px;
 }
 
+.submit-row :deep(.el-form-item__content) {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel-btn {
+  flex: 1;
+  border-radius: 86px;
+  padding: 8px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 .submit-btn {
-  width: 100%;
+  flex: 1;
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   border: none;

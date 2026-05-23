@@ -6,6 +6,7 @@ import com.taipei.iot.tender.service.SolutionCompetitorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,11 +15,11 @@ import java.util.List;
  * Solution 競品分析 API
  *
  * 以 solution + matched_keyword 為維度，分析哪些廠商在各 Solution 領域最常得標。
- * 所有人皆可存取（permitAll），無需額外權限。
  */
 @RestController
 @RequestMapping("/v1/tender/solution-competitor")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('tender:award:view')")
 public class SolutionCompetitorController {
 
     private final SolutionCompetitorService service;

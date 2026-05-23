@@ -1,8 +1,12 @@
 package com.taipei.iot.tender.entity;
 
 import com.taipei.iot.common.entity.BaseEntity;
+import com.taipei.iot.tenant.TenantAware;
+import com.taipei.iot.tenant.TenantEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Filter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,15 +17,20 @@ import java.time.LocalDateTime;
     name = "tender_award",
     uniqueConstraints = @UniqueConstraint(
         name = "uq_tender_award_key",
-        columnNames = {"solution", "matched_keyword", "tender_number", "award_announce_date", "award_announce_seq", "vendor_order_seq"}
+        columnNames = {"tenant_id", "solution", "matched_keyword", "tender_number", "award_announce_date", "award_announce_seq", "vendor_order_seq"}
     )
 )
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+@EntityListeners({TenantEntityListener.class, AuditingEntityListener.class})
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
-public class TenderAward extends BaseEntity {
+public class TenderAward extends BaseEntity implements TenantAware {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "tenant_id", nullable = false, length = 50)
+    private String tenantId;
 
     // ── 搜尋來源 ──────────────────────────────────────────────────────────────
     @Column(name = "solution", length = 255)

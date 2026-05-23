@@ -174,6 +174,7 @@ public class AuthServiceImpl implements AuthService {
             return LoginResult.builder()
                     .accessToken(tempToken)
                     .needsSelection(true)
+                    .isSuperAdmin(true)
                     .tenants(tenantOptions)
                     .build();
         }
@@ -241,9 +242,10 @@ public class AuthServiceImpl implements AuthService {
                 throw new BusinessException(ErrorCode.TENANT_ACCESS_DENIED);
             }
 
-            mapping = userTenantMappingRepository
-                    .findByUserIdAndTenantId(userId, request.getTenantId())
-                    .orElse(null);
+            mapping = queryMappingsWithSystemContext(
+                    () -> userTenantMappingRepository
+                            .findByUserIdAndTenantId(userId, request.getTenantId())
+                            .orElse(null));
 
             String roleCode = "SUPER_ADMIN";
             String deptId = mapping != null && mapping.getDeptId() != null ? mapping.getDeptId().toString() : null;
@@ -654,6 +656,15 @@ public class AuthServiceImpl implements AuthService {
 
     @SuppressWarnings("unchecked")
     private List<String> resolvePermissions(String roleId, String tenantId) {
+        // SUPER_ADMIN 擁有所有權限（不透過 role_permissions 表）
+        if ("ROLE_SUPER_ADMIN".equals(roleId)) {
+            String allPermsSql = "SELECT p.code FROM permissions p ORDER BY p.code";
+            return queryMappingsWithSystemContext(() -> {
+                Query query = TenantAwareQuery.create(entityManager, allPermsSql);
+                return query.getResultList();
+            });
+        }
+
         // role_permissions 有 tenant_id 欄位 → 使用 TenantAwareQuery
         // 在 auth 流程（login / selectTenant / refreshToken）中，TenantContext 尚未設定，
         // 因此使用 System Context 包裝。租戶隔離由明確的 :tenantId 參數保證。

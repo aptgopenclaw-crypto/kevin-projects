@@ -74,6 +74,7 @@ class UserSelfServiceTest {
     @Test
     void changePassword_success() {
         when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
         when(passwordEncoder.encode("NewPass123")).thenReturn("$2a$10$newHash");
         when(userRepository.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
         when(passwordHistoryRepository.save(any(PasswordHistoryEntity.class)))
@@ -82,6 +83,7 @@ class UserSelfServiceTest {
                 .thenAnswer(inv -> inv.getArgument(0));
 
         ChangePasswordRequest req = ChangePasswordRequest.builder()
+                .oldPassword("OldPass000")
                 .newPassword("NewPass123")
                 .build();
 
@@ -96,12 +98,29 @@ class UserSelfServiceTest {
     }
 
     @Test
+    void changePassword_oldPasswordIncorrect_shouldThrow() {
+        when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("WrongPass", "$2a$10$existingHash")).thenReturn(false);
+
+        ChangePasswordRequest req = ChangePasswordRequest.builder()
+                .oldPassword("WrongPass")
+                .newPassword("NewPass123")
+                .build();
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> userSelfService.changePassword("user-001", req));
+        assertEquals(ErrorCode.OLD_PASSWORD_INCORRECT, ex.getErrorCode());
+    }
+
+    @Test
     void changePassword_invalidFormat_shouldThrowResetPasswordError() {
         when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
         doThrow(new BusinessException(ErrorCode.RESET_PASSWORD_ERROR, "密碼長度至少 8 字元"))
                 .when(passwordValidator).validate("short");
 
         ChangePasswordRequest req = ChangePasswordRequest.builder()
+                .oldPassword("OldPass000")
                 .newPassword("short")
                 .build();
 
@@ -113,10 +132,12 @@ class UserSelfServiceTest {
     @Test
     void changePassword_recentlyUsed_shouldThrowPasswordRecentlyUsed() {
         when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
         doThrow(new BusinessException(ErrorCode.PASSWORD_RECENTLY_USED))
                 .when(passwordValidator).checkNotRecentlyUsed("user-001", "OldPass123");
 
         ChangePasswordRequest req = ChangePasswordRequest.builder()
+                .oldPassword("OldPass000")
                 .newPassword("OldPass123")
                 .build();
 

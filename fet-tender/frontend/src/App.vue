@@ -5,7 +5,6 @@ import AppSidebar from '@/components/AppSidebar.vue'
 import AppTopBar from '@/components/AppTopBar.vue'
 import IdleTimeoutDialog from '@/components/IdleTimeoutDialog.vue'
 import { useLocaleStore } from '@/stores/localeStore'
-import { useAuthStore } from '@/stores/authStore'
 import { useIdleTimeout } from '@/composables/useIdleTimeout'
 import zhTW from 'element-plus/es/locale/lang/zh-tw'
 import zhCN from 'element-plus/es/locale/lang/zh-cn'
@@ -13,13 +12,10 @@ import en from 'element-plus/es/locale/lang/en'
 
 const route = useRoute()
 const localeStore = useLocaleStore()
-const authStore = useAuthStore()
 const { showWarning, remainingSeconds, continueSession } = useIdleTimeout()
 
-const publicRoutes = ['/login', '/select-tenant', '/forgot-password', '/reset-password']
-const showSidebar = computed(() =>
-  authStore.accessToken !== null && !publicRoutes.includes(route.path)
-)
+const publicRoutes = ['/login', '/select-tenant']
+const showSidebar = computed(() => !publicRoutes.includes(route.path))
 
 const elLocale = computed(() => {
   if (localeStore.locale === 'zh-TW') return zhTW

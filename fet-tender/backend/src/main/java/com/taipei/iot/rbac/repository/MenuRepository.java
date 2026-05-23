@@ -14,8 +14,5 @@ public interface MenuRepository extends JpaRepository<MenuEntity, Long> {
 
     List<MenuEntity> findByPermissionCodeInAndVisibleTrue(Collection<String> codes);
 
-    /** 無需權限、所有登入使用者都可看到的選單（permission_code IS NULL） */
-    List<MenuEntity> findByPermissionCodeIsNullAndVisibleTrue();
-
     boolean existsByParentId(Long parentId);
 }

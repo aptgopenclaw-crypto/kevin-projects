@@ -1,5 +1,6 @@
 package com.taipei.iot.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -33,6 +34,7 @@ public class UserEntity {
     @Column(name = "email", length = 200, nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password_hash", length = 255, nullable = false)
     private String passwordHash;
 
@@ -53,10 +55,12 @@ public class UserEntity {
     @Column(name = "locked_at")
     private LocalDateTime lockedAt;
 
+    @JsonIgnore
     @Column(name = "login_fail_count", nullable = false)
     @Builder.Default
     private Integer loginFailCount = 0;
 
+    @JsonIgnore
     @Column(name = "is_super_admin", nullable = false)
     @Builder.Default
     private Boolean isSuperAdmin = false;

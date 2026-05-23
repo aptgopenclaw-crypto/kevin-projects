@@ -32,10 +32,4 @@ export interface UnreadCountResponse {
   count: number
 }
 
-export interface AnnouncementPageResponse {
-  content: AnnouncementResponse[]
-  totalElements: number
-  totalPages: number
-  page: number
-  size: number
-}
+// Use PageResponse<AnnouncementResponse> from @/types/common instead

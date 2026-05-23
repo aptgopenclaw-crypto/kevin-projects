@@ -3,7 +3,7 @@ package com.taipei.iot.tender.service;
 import com.taipei.iot.tender.dto.TenderAnnouncementQueryRequest;
 import com.taipei.iot.tender.dto.TenderAnnouncementResponse;
 import com.taipei.iot.tender.repository.TenderAnnouncementRepository;
-import com.taipei.iot.user.dto.response.PageResponse;
+import com.taipei.iot.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
