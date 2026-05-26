@@ -1,23 +1,12 @@
 # Kevin Projects
 
-此倉庫收錄多個專案，包含影像串流播放器與智慧路燈管理平台。
+此倉庫收錄多個專案，包含智慧路燈管理平台等。
 
 ## 專案列表
 
 | 專案 | 說明 |
 |------|------|
-| [arisan-video-player-v2](./arisan-video-player-v2/) | Vue 影像串流播放器元件，支援即時串流與回放功能 |
 | [taipei-streetlight](./taipei-streetlight/) | 臺北市路燈管理平台 — 路燈資產全生命週期管理系統 |
-
-## arisan-video-player-v2
-
-Vue ESM 影像播放器，支援：
-
-- 即時串流 (Live Streaming)
-- 影像回放 (Playback)
-- 時間軸搜尋 (Seekbar)
-
-詳細整合說明請參閱 [arisan-video-player-v2/README.md](./arisan-video-player-v2/README.md)。
 
 ## taipei-streetlight
 
