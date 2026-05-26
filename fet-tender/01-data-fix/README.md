@@ -17,7 +17,7 @@ mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="inst
 
 ```bash
 # 補招標公告資料
-mvn spring-boot:run -Dspring-boot.run.arguments="--type=announcement --tenant=FET --from=2026-01-01 --to=2026-05-22"
+mvn sprinboot:run -Dspring-boot.run.arguments="--type=announcement --tenant=TENANT_B --from=2026-05-01 --to=2026-05-22"
 
 # 補決標資料
 mvn spring-boot:run -Dspring-boot.run.arguments="--type=award --tenant=FET --from=2026-01-01 --to=2026-05-22"

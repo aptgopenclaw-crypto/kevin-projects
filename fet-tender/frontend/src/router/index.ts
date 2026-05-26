@@ -31,12 +31,6 @@ const noauthRoutes = [
 
 // Static admin routes (kept for backward compatibility — also injected via menus dynamically)
 const staticAdminRoutes = [
-  // ── Dashboard ──
-  {
-    path: '/admin/dashboard',
-    name: 'Dashboard',
-    component: () => import('@/views/admin/dashboard/DashboardView.vue'),
-  },
   {
     path: '/admin/users',
     name: 'UserList',
@@ -82,143 +76,6 @@ const staticAdminRoutes = [
     path: '/admin/system/announcements',
     name: 'AnnouncementManagement',
     component: () => import('@/views/admin/announcement/AnnouncementManagementView.vue'),
-  },
-  {
-    path: '/admin/asset/devices',
-    name: 'DeviceManagement',
-    component: () => import('@/views/admin/asset/DeviceManagementView.vue'),
-  },
-  {
-    path: '/admin/asset/circuits',
-    name: 'CircuitManagement',
-    component: () => import('@/views/admin/asset/CircuitManagementView.vue'),
-  },
-  {
-    path: '/admin/asset/contracts',
-    name: 'ContractManagement',
-    component: () => import('@/views/admin/asset/ContractManagementView.vue'),
-  },
-  {
-    path: '/admin/asset/topology',
-    name: 'DeviceTopology',
-    component: () => import('@/views/admin/asset/DeviceTopologyView.vue'),
-  },
-  {
-    path: '/admin/asset/schema-designer',
-    name: 'SchemaDesigner',
-    component: () => import('@/views/admin/asset/SchemaDesignerView.vue'),
-  },
-  {
-    path: '/admin/asset/faults',
-    name: 'FaultTicket',
-    component: () => import('@/views/admin/asset/FaultTicketView.vue'),
-  },
-  {
-    path: '/admin/asset/fault-correlations',
-    name: 'FaultCorrelation',
-    component: () => import('@/views/admin/asset/FaultCorrelationView.vue'),
-  },
-  {
-    path: '/admin/workflow/pending',
-    name: 'PendingTasks',
-    component: () => import('@/views/admin/workflow/PendingTasksView.vue'),
-  },
-  {
-    path: '/admin/workflow/delegates',
-    name: 'DelegateSettings',
-    component: () => import('@/views/admin/workflow/DelegateSettingsView.vue'),
-  },
-  {
-    path: '/admin/repair/tickets',
-    name: 'RepairTicket',
-    component: () => import('@/views/admin/repair/RepairTicketView.vue'),
-  },
-  {
-    path: '/admin/repair/tickets/:id',
-    name: 'RepairTicketDetail',
-    component: () => import('@/views/admin/repair/RepairTicketDetailView.vue'),
-  },
-  {
-    path: '/admin/repair/inspection',
-    name: 'InspectionTask',
-    component: () => import('@/views/admin/repair/InspectionView.vue'),
-  },
-  {
-    path: '/admin/repair/inspection/:taskId/records',
-    name: 'InspectionRecord',
-    component: () => import('@/views/admin/repair/InspectionRecordView.vue'),
-  },
-  // ── Material Management ──
-  {
-    path: '/admin/material/specs',
-    name: 'MaterialSpec',
-    component: () => import('@/views/admin/material/MaterialSpecView.vue'),
-  },
-  {
-    path: '/admin/material/warehouses',
-    name: 'WarehouseManagement',
-    component: () => import('@/views/admin/material/WarehouseView.vue'),
-  },
-  {
-    path: '/admin/material/suppliers',
-    name: 'SupplierManagement',
-    component: () => import('@/views/admin/material/SupplierView.vue'),
-  },
-  {
-    path: '/admin/material/inventory',
-    name: 'InventoryManagement',
-    component: () => import('@/views/admin/material/InventoryView.vue'),
-  },
-  {
-    path: '/admin/material/purchase-orders',
-    name: 'PurchaseOrder',
-    component: () => import('@/views/admin/material/PurchaseOrderView.vue'),
-  },
-  {
-    path: '/admin/material/approved-materials',
-    name: 'ApprovedMaterial',
-    component: () => import('@/views/admin/material/ApprovedMaterialView.vue'),
-  },
-  {
-    path: '/admin/material/receiving',
-    name: 'ReceivingRecord',
-    component: () => import('@/views/admin/material/ReceivingView.vue'),
-  },
-  {
-    path: '/admin/material/issue-requests',
-    name: 'IssueRequest',
-    component: () => import('@/views/admin/material/IssueRequestView.vue'),
-  },
-  {
-    path: '/admin/material/adjustments',
-    name: 'InventoryAdjustment',
-    component: () => import('@/views/admin/material/AdjustmentView.vue'),
-  },
-  {
-    path: '/admin/material/disposals',
-    name: 'DisposalRecord',
-    component: () => import('@/views/admin/material/DisposalView.vue'),
-  },
-  // ── Replacement Maintenance ──
-  {
-    path: '/admin/replacement/orders',
-    name: 'ReplacementOrder',
-    component: () => import('@/views/admin/replacement/ReplacementOrderView.vue'),
-  },
-  {
-    path: '/admin/replacement/orders/:id',
-    name: 'ReplacementOrderDetail',
-    component: () => import('@/views/admin/replacement/ReplacementOrderDetailView.vue'),
-  },
-  {
-    path: '/admin/replacement/orders/:id/self-check',
-    name: 'ReplacementSelfCheck',
-    component: () => import('@/views/admin/replacement/SelfCheckView.vue'),
-  },
-  {
-    path: '/admin/replacement/pole-numbers',
-    name: 'PoleNumber',
-    component: () => import('@/views/admin/replacement/PoleNumberView.vue'),
   },
   // ── IoT / Smart Streetlight ──
   {
@@ -270,43 +127,6 @@ const staticAdminRoutes = [
     path: '/admin/iot/meters',
     name: 'MeterStatus',
     component: () => import('@/views/admin/iot/MeterStatusView.vue'),
-  },
-  // ── GIS ──
-  {
-    path: '/admin/gis/map',
-    name: 'GisMap',
-    component: () => import('@/views/admin/gis/GisMapView.vue'),
-  },
-  // ── KPI / Performance Management ──
-  {
-    path: '/admin/kpi/indicators',
-    name: 'KpiIndicators',
-    component: () => import('@/views/admin/kpi/IndicatorView.vue'),
-  },
-  {
-    path: '/admin/kpi/data',
-    name: 'KpiData',
-    component: () => import('@/views/admin/kpi/DataView.vue'),
-  },
-  {
-    path: '/admin/kpi/calculate',
-    name: 'KpiCalculate',
-    component: () => import('@/views/admin/kpi/CalculateView.vue'),
-  },
-  {
-    path: '/admin/kpi/reports',
-    name: 'KpiReports',
-    component: () => import('@/views/admin/kpi/ReportView.vue'),
-  },
-  {
-    path: '/admin/kpi/periods',
-    name: 'KpiPeriods',
-    component: () => import('@/views/admin/kpi/PeriodView.vue'),
-  },
-  {
-    path: '/admin/kpi/contractor',
-    name: 'ContractorKpi',
-    component: () => import('@/views/admin/kpi/ContractorKpiView.vue'),
   },
   // ── Tender 招標/決標 ──
   {

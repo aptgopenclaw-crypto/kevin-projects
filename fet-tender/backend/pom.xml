@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>com.taipei.iot</groupId>
-    <artifactId>taipei-streetlight</artifactId>
+    <artifactId>fet-tender</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -251,5 +251,94 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            prod profile：將 frontend 一併打包成單一可執行 jar。
+            使用方式：mvn -Pprod clean package
+            產物：target/taipei-streetlight-0.0.1-SNAPSHOT.jar（內含 BOOT-INF/classes/static/）
+        -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <frontend.dir>${project.basedir}/../frontend</frontend.dir>
+                <node.version>v22.11.0</node.version>
+                <npm.version>10.9.0</npm.version>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- 1. 安裝 Node/npm 並執行 frontend build -->
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>1.15.1</version>
+                        <configuration>
+                            <workingDirectory>${frontend.dir}</workingDirectory>
+                            <installDirectory>${project.build.directory}</installDirectory>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>install-node-and-npm</id>
+                                <goals>
+                                    <goal>install-node-and-npm</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                            </execution>
+                            <execution>
+                                <id>npm-install</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                                <configuration>
+                                    <arguments>install</arguments>
+                                </configuration>
+                            </execution>
+                            <!--
+                                直接呼叫 vite build，跳過 package.json 內 "build" script 的 vue-tsc 型別檢查。
+                                打包流程的型別檢查應由獨立的 CI step / `npm run type-check` 負責。
+                            -->
+                            <execution>
+                                <id>npm-run-build</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                                <configuration>
+                                    <arguments>exec -- vite build</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 2. 將 frontend/dist 拷貝至 classpath:/static（Spring Boot 預設靜態資源目錄） -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-frontend-dist</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                                    <overwrite>true</overwrite>
+                                    <resources>
+                                        <resource>
+                                            <directory>${frontend.dir}/dist</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

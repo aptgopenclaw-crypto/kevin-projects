@@ -30,6 +30,15 @@ export function setAxiosLogoutHandler(handler: () => void) {
 
 // Request interceptor
 axiosIns.interceptors.request.use((config) => {
+  // 多語系：將前端目前 locale 一律帶入 Accept-Language；後端會在白名單外 fallback
+  try {
+    const lang = localStorage.getItem('locale')
+    if (lang) {
+      config.headers.set('Accept-Language', lang)
+    }
+  } catch {
+    // localStorage 在 SSR / 隱私模式可能失效；忽略
+  }
   return config
 })
 

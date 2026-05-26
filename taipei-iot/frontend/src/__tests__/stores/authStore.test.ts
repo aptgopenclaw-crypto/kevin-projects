@@ -120,7 +120,7 @@ describe('authStore', () => {
         errorMsg: '',
         errorDetail: '',
         timestamp: '',
-        body: { accessToken: 'final-token' },
+        body: { accessToken: 'final-token', refreshToken: 'final-refresh' },
       })
 
       await store.doSelectTenant('tenant-1')
@@ -142,7 +142,7 @@ describe('authStore', () => {
         errorMsg: '',
         errorDetail: '',
         timestamp: '',
-        body: { accessToken: 'refreshed-token' },
+        body: { accessToken: 'refreshed-token', refreshToken: 'refreshed-refresh' },
       })
 
       await store.restoreSession()

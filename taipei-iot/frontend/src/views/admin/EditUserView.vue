@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
 import { updateUser, getUser } from '@/api/user'
 import { listAssignableRoles } from '@/api/rbac'
 import { ElMessage } from 'element-plus'
@@ -16,7 +15,6 @@ const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
-const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 const pageLoading = ref(true)

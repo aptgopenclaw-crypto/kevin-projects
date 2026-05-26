@@ -49,6 +49,38 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * SPA 靜態資源與前端路由 FilterChain — 用於前後端打包成單一 jar 時，
+     * 放行 index.html、assets、以及 Vue Router 的 HTML5 history mode 路徑。
+     *
+     * 凡是「非後端 API/WS/Swagger/Actuator」的請求一律放行，由 SpaForwardingController
+     * 將前端路由轉發至 /index.html，靜態資源（assets/*.js, *.css 等含副檔名）由
+     * Spring Boot 預設的 ResourceHandler 直接從 classpath:/static/ 提供。
+     */
+    @Bean
+    @Order(0)
+    public SecurityFilterChain staticAndSpaFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(request -> {
+                    String uri = request.getRequestURI();
+                    String ctx = request.getContextPath();
+                    if (ctx != null && !ctx.isEmpty() && uri.startsWith(ctx)) {
+                        uri = uri.substring(ctx.length());
+                    }
+                    // 後端路徑交由其他 FilterChain 處理
+                    if (uri.startsWith("/v1/") || uri.equals("/v1")) return false;
+                    if (uri.startsWith("/ws/") || uri.equals("/ws")) return false;
+                    if (uri.startsWith("/v3/api-docs")) return false;
+                    if (uri.startsWith("/swagger-ui") || uri.equals("/swagger-ui.html")) return false;
+                    if (uri.startsWith("/actuator")) return false;
+                    // 其餘（/、/index.html、/assets/**、/login、/dashboard/... 等）放行
+                    return true;
+                })
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .build();
+    }
+
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

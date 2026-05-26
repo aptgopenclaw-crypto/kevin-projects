@@ -6,6 +6,7 @@ import com.taipei.iot.announcement.dto.AnnouncementResponse;
 import com.taipei.iot.announcement.dto.UnreadCountResponse;
 import com.taipei.iot.announcement.service.AnnouncementReadService;
 import com.taipei.iot.announcement.service.AnnouncementService;
+import com.taipei.iot.announcement.service.AnnouncementAttachmentService;
 import com.taipei.iot.auth.security.JwtUtil;
 import com.taipei.iot.common.dto.PageResponse;
 import com.taipei.iot.common.exception.GlobalExceptionHandler;
@@ -42,6 +43,7 @@ class AnnouncementControllerTest {
 
     @MockitoBean private AnnouncementService announcementService;
     @MockitoBean private AnnouncementReadService announcementReadService;
+    @MockitoBean private AnnouncementAttachmentService announcementAttachmentService;
     @MockitoBean private JwtUtil jwtUtil;
     @MockitoBean private StringRedisTemplate stringRedisTemplate;
     @MockitoBean private TenantEnabledCache tenantEnabledCache;
@@ -90,7 +92,7 @@ class AnnouncementControllerTest {
     @Test
     void list_authenticated_returnsOk() throws Exception {
         mockJwtValid("user-1", "T1", List.of("ROLE_USER"), List.of("ANNOUNCEMENT_VIEW"));
-        when(announcementService.listVisible(0, 10)).thenReturn(emptyPage());
+        when(announcementService.listVisible(isNull(), eq(0), eq(10), any())).thenReturn(emptyPage());
 
         mockMvc.perform(get("/v1/auth/announcements")
                         .header("Authorization", AUTH_HEADER))
@@ -109,7 +111,7 @@ class AnnouncementControllerTest {
     @Test
     void listAdmin_withPermission_returnsOk() throws Exception {
         mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
-        when(announcementService.listAdmin(eq("ALL"), isNull(), eq(0), eq(10)))
+        when(announcementService.listAdmin(eq("ALL"), isNull(), isNull(), eq(0), eq(10), any()))
                 .thenReturn(emptyPage());
 
         mockMvc.perform(get("/v1/auth/announcements/admin")
@@ -130,7 +132,7 @@ class AnnouncementControllerTest {
     @Test
     void listAdmin_withKeywordAndFilter_passesParams() throws Exception {
         mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
-        when(announcementService.listAdmin(eq("DRAFT"), eq("test"), eq(1), eq(20)))
+        when(announcementService.listAdmin(eq("DRAFT"), isNull(), eq("test"), eq(1), eq(20), any()))
                 .thenReturn(emptyPage());
 
         mockMvc.perform(get("/v1/auth/announcements/admin")
@@ -149,7 +151,7 @@ class AnnouncementControllerTest {
         mockJwtValid("user-1", "T1", List.of("ROLE_USER"), List.of("ANNOUNCEMENT_VIEW"));
         AnnouncementResponse resp = AnnouncementResponse.builder()
                 .id(1L).title("Hello").content("World").status("PUBLISHED").scope("ALL").build();
-        when(announcementService.getById(eq(1L), eq(false))).thenReturn(resp);
+        when(announcementService.getById(eq(1L), eq(false), any())).thenReturn(resp);
 
         mockMvc.perform(get("/v1/auth/announcements/1")
                         .header("Authorization", AUTH_HEADER))
@@ -162,7 +164,7 @@ class AnnouncementControllerTest {
         mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
         AnnouncementResponse resp = AnnouncementResponse.builder()
                 .id(1L).title("Draft").content("C").status("DRAFT").scope("ALL").build();
-        when(announcementService.getById(eq(1L), eq(true))).thenReturn(resp);
+        when(announcementService.getById(eq(1L), eq(true), any())).thenReturn(resp);
 
         mockMvc.perform(get("/v1/auth/announcements/1")
                         .header("Authorization", AUTH_HEADER))
@@ -252,6 +254,58 @@ class AnnouncementControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void create_expireBeforePublish_returnsBadRequest() throws Exception {
+        // 跨欄位驗證：expireAt 早於 publishAt 應被 @AssertTrue 攔下
+        mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
+        AnnouncementRequest req = validRequest();
+        LocalDateTime now = LocalDateTime.now();
+        req.setPublishAt(now.plusDays(2));
+        req.setExpireAt(now.plusDays(1));
+
+        mockMvc.perform(post("/v1/auth/announcements")
+                        .header("Authorization", AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest());
+
+        verify(announcementService, never()).create(any());
+    }
+
+    @Test
+    void create_expireEqualsPublish_returnsBadRequest() throws Exception {
+        // expireAt == publishAt（同一時刻）也應被擋下（必須嚴格晚於）
+        mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
+        AnnouncementRequest req = validRequest();
+        LocalDateTime at = LocalDateTime.now().plusDays(1);
+        req.setPublishAt(at);
+        req.setExpireAt(at);
+
+        mockMvc.perform(post("/v1/auth/announcements")
+                        .header("Authorization", AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void create_neverExpire_returnsOk() throws Exception {
+        // expireAt 為 null（永不過期）應通過跨欄位驗證
+        mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
+        when(announcementService.create(any()))
+                .thenReturn(AnnouncementResponse.builder().id(1L).build());
+
+        AnnouncementRequest req = validRequest();
+        req.setPublishAt(LocalDateTime.now().plusDays(1));
+        req.setExpireAt(null);
+
+        mockMvc.perform(post("/v1/auth/announcements")
+                        .header("Authorization", AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk());
+    }
+
     // ─── PUT /v1/auth/announcements/{id} ────────────────────────────────────
 
     @Test
@@ -277,6 +331,24 @@ class AnnouncementControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest())))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void update_versionConflict_returns409() throws Exception {
+        mockJwtValid("admin-1", "T1", List.of("ROLE_ADMIN"), List.of("ANNOUNCEMENT_MANAGE"));
+        when(announcementService.update(eq(1L), any()))
+                .thenThrow(new com.taipei.iot.common.exception.BusinessException(
+                        com.taipei.iot.common.enums.ErrorCode.ANNOUNCEMENT_VERSION_CONFLICT));
+
+        AnnouncementRequest req = validRequest();
+        req.setVersion(0L);
+
+        mockMvc.perform(put("/v1/auth/announcements/1")
+                        .header("Authorization", AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value("50002"));
     }
 
     // ─── DELETE /v1/auth/announcements/{id} ──────────────────────────────────

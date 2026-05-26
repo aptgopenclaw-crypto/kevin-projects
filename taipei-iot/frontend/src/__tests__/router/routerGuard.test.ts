@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { type RouteLocationNormalized } from 'vue-router'
 import { setActivePinia, createPinia } from 'pinia'
 
 // We test the guard logic by importing and replaying it against a minimal router setup.

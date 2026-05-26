@@ -42,7 +42,7 @@ const filters = reactive<AuditFilterModel>({
   endTimestamp: defaultEnd,
 })
 
-const dateRange = reactive<[string, string]>([defaultStart, defaultEnd])
+const dateRange = ref<[string, string]>([defaultStart, defaultEnd])
 
 function onDateRangeChange(val: [string, string] | null) {
   if (val) {

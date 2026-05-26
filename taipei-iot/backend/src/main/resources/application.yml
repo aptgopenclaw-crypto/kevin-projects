@@ -85,6 +85,12 @@ file:
   validation:
     max-size: ${FILE_MAX_SIZE:10485760}  # 10MB
 
+# 公告附件安全政策：縮小副檔名白名單以降低攻擊面（預設僅 PDF）
+# 可透過環境變數 ANNOUNCEMENT_ATTACHMENT_EXTS 覆寫（逗號分隔，小寫）
+announcement:
+  attachments:
+    allowed-extensions: ${ANNOUNCEMENT_ATTACHMENT_EXTS:pdf}
+
 virus-scan:
   enabled: ${VIRUS_SCAN_ENABLED:false}
   clamav:

@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
-import { LayoutDashboard, ArrowRight, ClipboardList, Inbox } from 'lucide-vue-next'
-
+import { LayoutDashboard } from 'lucide-vue-next'
 
 const { t } = useI18n()
-const router = useRouter()
-
-
 </script>
 
 <template>

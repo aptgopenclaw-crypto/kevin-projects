@@ -62,6 +62,7 @@ public enum ErrorCode {
 
     // 50xxx: 公告
     ANNOUNCEMENT_NOT_FOUND("50001", 404, "公告不存在"),
+    ANNOUNCEMENT_VERSION_CONFLICT("50002", 409, "公告已被其他人更新，請重新整理後再試"),
 
     // 55xxx: 通知
     NOTIFICATION_NOT_FOUND("55001", 404, "通知不存在"),

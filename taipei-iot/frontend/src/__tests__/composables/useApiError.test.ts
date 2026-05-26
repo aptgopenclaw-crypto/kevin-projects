@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { getErrorCode } from '@/composables/useApiError'
 
 // We test the pure utility function (getErrorCode) without Vue context

@@ -14,7 +14,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "types": ["node"]
+    "types": ["node", "vitest/config"]
   },
   "include": ["vite.config.*"]
 }

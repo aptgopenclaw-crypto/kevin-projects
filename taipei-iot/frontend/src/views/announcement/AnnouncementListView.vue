@@ -1,29 +1,39 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { ElMessage } from 'element-plus'
 import { useAnnouncementStore } from '@/stores/announcementStore'
-import { listAnnouncements, markAsRead } from '@/api/announcement'
-import type { AnnouncementResponse } from '@/types/announcement'
+import type { AnnouncementResponse, AnnouncementAttachmentResponse } from '@/types/announcement'
+import { ANNOUNCEMENT_CATEGORIES } from '@/types/announcement'
+import { downloadAnnouncementAttachment } from '@/api/announcement'
 
 const { t } = useI18n()
+const { locale } = useI18n()
 const announcementStore = useAnnouncementStore()
+const { listItems: items, listLoading: loading, listPagination: pagination, listCategory } =
+  storeToRefs(announcementStore)
 
-const loading = ref(false)
-const items = ref<AnnouncementResponse[]>([])
-const pagination = reactive({ page: 0, size: 10, total: 0 })
+// 語言切換時重新抓入公告清單，以取得對應語言的 title/content
+watch(locale, () => {
+  announcementStore.fetchListPage(0)
+})
+
 const expandedId = ref<number | null>(null)
 
-async function fetchList() {
-  loading.value = true
-  try {
-    const res = await listAnnouncements({ page: pagination.page, size: pagination.size })
-    if (res.errorCode === '00000') {
-      items.value = res.body.content
-      pagination.total = res.body.totalElements
-    }
-  } finally {
-    loading.value = false
-  }
+/** 分類 → el-tag type 顏色對應（各類别視覺區隔） */
+const CATEGORY_TAG_TYPE: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
+  GENERAL: 'info',
+  SYSTEM: 'primary',
+  POLICY: 'success',
+  EVENT: 'warning',
+  MAINTENANCE: 'danger',
+}
+function getCategoryTagType(c: string | undefined) {
+  return CATEGORY_TAG_TYPE[c ?? 'GENERAL'] ?? 'info'
+}
+function getCategoryLabel(c: string | undefined) {
+  return t(`announcement.category.${(c ?? 'general').toLowerCase()}`)
 }
 
 async function toggleExpand(item: AnnouncementResponse) {
@@ -33,18 +43,35 @@ async function toggleExpand(item: AnnouncementResponse) {
   }
   expandedId.value = item.id
 
-  // 標記已讀
+  // 需確認公告：不自動標記已讀，需使用者明確點「我已閱讀並了解」按鈕。
+  if (item.requiresAck) return
+
+  // 一般公告：展開即視為已讀（各如以往行為）
   if (!item.isRead) {
-    await markAsRead(item.id)
-    item.isRead = true
-    announcementStore.unreadCount = Math.max(0, announcementStore.unreadCount - 1)
+    await announcementStore.markRead(item.id)
+  }
+}
+
+/** 使用者明確點選「我已閱讀並了解」（需確認公告專用） */
+async function handleAcknowledge(item: AnnouncementResponse, e: MouseEvent) {
+  e.stopPropagation()
+  if (item.isRead) return
+  try {
+    await announcementStore.markRead(item.id)
+    ElMessage.success(t('announcement.ack.success'))
+  } catch {
+    ElMessage.error(t('common.error'))
   }
 }
 
 function handlePageChange(page: number) {
-  pagination.page = page - 1
   expandedId.value = null
-  fetchList()
+  announcementStore.fetchListPage(page - 1)
+}
+
+function handleCategoryChange(value: string | null) {
+  expandedId.value = null
+  announcementStore.setListCategory(value)
 }
 
 function formatDate(dateStr: string | null): string {
@@ -57,8 +84,31 @@ function getScopeLabel(item: AnnouncementResponse): string {
   return item.scope === 'ALL' ? t('announcement.scope.all') : t('announcement.scope.dept')
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
+async function handleDownload(item: AnnouncementResponse, att: AnnouncementAttachmentResponse, e: MouseEvent) {
+  e.stopPropagation()
+  try {
+    const blob = await downloadAnnouncementAttachment(item.id, att.id)
+    const url = window.URL.createObjectURL(blob as unknown as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = att.fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  } catch {
+    ElMessage.error(t('common.error'))
+  }
+}
+
 onMounted(() => {
-  fetchList()
+  announcementStore.fetchListPage(0)
 })
 </script>
 
@@ -67,6 +117,23 @@ onMounted(() => {
     <div class="page-header">
       <h2>{{ t('announcement.list.title') }}</h2>
       <p class="page-subtitle">{{ t('announcement.list.subtitle') }}</p>
+    </div>
+
+    <div class="filter-bar">
+      <el-select
+        :model-value="listCategory ?? 'ALL'"
+        size="small"
+        style="width: 160px"
+        @update:model-value="(v: string) => handleCategoryChange(v === 'ALL' ? null : v)"
+      >
+        <el-option value="ALL" :label="t('announcement.category.all')" />
+        <el-option
+          v-for="c in ANNOUNCEMENT_CATEGORIES"
+          :key="c"
+          :value="c"
+          :label="t(`announcement.category.${c.toLowerCase()}`)"
+        />
+      </el-select>
     </div>
 
     <div v-loading="loading" class="announcement-list">
@@ -85,6 +152,23 @@ onMounted(() => {
           <div class="card-title-row">
             <span v-if="!item.isRead" class="unread-dot" />
             <span v-if="item.pinned" class="pin-icon">📌</span>
+            <el-tag
+              v-if="item.requiresAck"
+              size="small"
+              type="warning"
+              effect="dark"
+              class="ack-tag"
+            >
+              {{ t('announcement.ack.required') }}
+            </el-tag>
+            <el-tag
+              size="small"
+              :type="getCategoryTagType(item.category)"
+              effect="light"
+              class="category-tag"
+            >
+              {{ getCategoryLabel(item.category) }}
+            </el-tag>
             <span class="card-title" :class="{ 'is-unread': !item.isRead }">
               {{ item.title }}
             </span>
@@ -97,7 +181,42 @@ onMounted(() => {
 
         <transition name="expand">
           <div v-if="expandedId === item.id" class="card-content">
-            <pre class="content-text">{{ item.content }}</pre>
+            <!-- content 已由後端 OWASP HTML Sanitizer 清洗，可安全使用 v-html 渲染 -->
+            <div class="content-html" v-html="item.content" />
+            <div v-if="item.attachments && item.attachments.length > 0" class="attachments-section">
+              <div class="attachments-title">{{ t('announcement.attachments.title') }}</div>
+              <ul class="attachments-list">
+                <li v-for="att in item.attachments" :key="att.id" class="attachment-item">
+                  <span class="attachment-icon">📎</span>
+                  <a href="#" class="attachment-name" @click.prevent="handleDownload(item, att, $event)">
+                    {{ att.fileName }}
+                  </a>
+                  <span class="attachment-size">{{ formatFileSize(att.fileSize) }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 需確認公告：明確閱讀按鈕 -->
+            <div v-if="item.requiresAck" class="ack-section">
+              <el-alert
+                :title="t('announcement.ack.notice')"
+                type="warning"
+                :closable="false"
+                show-icon
+                style="margin-bottom: 12px"
+              />
+              <el-button
+                v-if="!item.isRead"
+                type="primary"
+                size="default"
+                @click="handleAcknowledge(item, $event)"
+              >
+                ✓ {{ t('announcement.ack.button') }}
+              </el-button>
+              <div v-else class="ack-confirmed">
+                ✓ {{ t('announcement.ack.confirmed') }}
+              </div>
+            </div>
           </div>
         </transition>
       </div>
@@ -213,6 +332,16 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
+.category-tag {
+  flex-shrink: 0;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .card-meta {
   font-size: 12px;
   color: var(--text-muted);
@@ -235,6 +364,30 @@ onMounted(() => {
   margin: 0;
 }
 
+.content-html {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+.content-html :deep(p) { margin: 0 0 8px; }
+.content-html :deep(h1),
+.content-html :deep(h2),
+.content-html :deep(h3),
+.content-html :deep(h4) { margin: 12px 0 8px; font-weight: 600; }
+.content-html :deep(ul),
+.content-html :deep(ol) { padding-left: 24px; margin: 0 0 8px; }
+.content-html :deep(blockquote) {
+  border-left: 3px solid var(--el-color-primary-light-5);
+  padding-left: 12px;
+  margin: 8px 0;
+  color: var(--text-secondary);
+}
+.content-html :deep(a) {
+  color: var(--el-color-primary);
+  text-decoration: underline;
+}
+
 .expand-enter-active,
 .expand-leave-active {
   transition: all 200ms ease;
@@ -250,5 +403,57 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+.attachments-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-divider);
+}
+.attachments-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.attachments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.attachment-icon { flex-shrink: 0; }
+.attachment-name {
+  color: var(--el-color-primary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.attachment-name:hover { text-decoration: underline; }
+.attachment-size {
+  color: var(--text-muted);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.ack-tag {
+  flex-shrink: 0;
+}
+.ack-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--el-color-warning-light-5);
+}
+.ack-confirmed {
+  color: var(--el-color-success);
+  font-size: 14px;
+  font-weight: 500;
 }
 </style>

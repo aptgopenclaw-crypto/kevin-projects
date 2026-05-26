@@ -41,7 +41,7 @@ public class TenderScrapeJob {
      *     cron: "0 0 8 * * MON-FRI"
      * </pre>
      */
-    @Scheduled(cron = "${tender.scraper.cron:0 00 08 * * MON-FRI}")
+    @Scheduled(cron = "${tender.scraper.cron:0 00 21 * * MON-FRI}")
     @SchedulerLock(name = "TenderScrapeJob", lockAtLeastFor = "5m", lockAtMostFor = "60m")
     public void execute() {
         log.info("[TenderScrapeJob] 排程開始執行");

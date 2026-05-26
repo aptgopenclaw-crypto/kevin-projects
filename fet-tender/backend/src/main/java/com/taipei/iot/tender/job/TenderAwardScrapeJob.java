@@ -39,7 +39,7 @@ public class TenderAwardScrapeJob {
     private final TenderMailService mailService;
     private final TenantRepository tenantRepository;
 
-    @Scheduled(cron = "${tender.award-scraper.cron:0 21 07 * * MON-FRI}")
+    @Scheduled(cron = "${tender.award-scraper.cron:0 0 20 * * MON-FRI}")
     @SchedulerLock(name = "TenderAwardScrapeJob", lockAtLeastFor = "5m", lockAtMostFor = "60m")
     public void execute() {
         log.info("[TenderAwardScrapeJob] 排程開始執行");

@@ -7,6 +7,7 @@ import com.taipei.iot.announcement.entity.AnnouncementDept;
 import com.taipei.iot.announcement.repository.AnnouncementDeptRepository;
 import com.taipei.iot.announcement.repository.AnnouncementReadRepository;
 import com.taipei.iot.announcement.repository.AnnouncementRepository;
+import com.taipei.iot.announcement.repository.AnnouncementTranslationRepository;
 import com.taipei.iot.auth.entity.UserEntity;
 import com.taipei.iot.auth.repository.UserRepository;
 import com.taipei.iot.common.dto.UserInfo;
@@ -49,12 +50,19 @@ class AnnouncementServiceTest {
     @Mock private AnnouncementRepository announcementRepository;
     @Mock private AnnouncementDeptRepository announcementDeptRepository;
     @Mock private AnnouncementReadRepository announcementReadRepository;
+    @Mock private AnnouncementTranslationRepository announcementTranslationRepository;
     @Mock private DeptInfoRepository deptInfoRepository;
     @Mock private UserRepository userRepository;
+    // 使用真實 sanitizer，避免在每個 create/update 測試手動 stub
+    @org.mockito.Spy private HtmlSanitizerService htmlSanitizerService = new HtmlSanitizerService();
+    @Mock private AnnouncementAttachmentService attachmentService;
 
     @BeforeEach
     void setUp() {
         TenantContext.setCurrentTenantId("TENANT_A");
+        // 多語系子表 mock：預設回空集合，避免 NPE；個別測試可覆寫
+        when(announcementTranslationRepository.findByAnnouncementId(anyLong())).thenReturn(List.of());
+        when(announcementTranslationRepository.findByAnnouncementIdIn(any())).thenReturn(List.of());
     }
 
     @AfterEach
@@ -87,12 +95,14 @@ class AnnouncementServiceTest {
                 .content("Content")
                 .status(status)
                 .scope(scope)
+                .category("GENERAL")
                 .pinned(false)
                 .publishAt(publishAt)
                 .expireAt(expireAt)
                 .createdBy(createdBy)
                 .createdByName("User")
                 .createdAt(LocalDateTime.now())
+                .version(0L)
                 .build();
     }
 
@@ -192,14 +202,14 @@ class AnnouncementServiceTest {
             Announcement existing = buildAnnouncement(1L, "DRAFT", "ALL",
                     "admin-1", LocalDateTime.now(), null);
             when(announcementRepository.findById(1L)).thenReturn(Optional.of(existing));
-            when(announcementRepository.save(any())).thenReturn(existing);
+            when(announcementRepository.saveAndFlush(any())).thenReturn(existing);
             when(announcementDeptRepository.findByAnnouncementId(1L)).thenReturn(List.of());
             when(announcementReadRepository.findByAnnouncementIdInAndUserId(any(), any()))
                     .thenReturn(List.of());
 
             AnnouncementRequest req = AnnouncementRequest.builder()
                     .title("Updated").content("New body").status("PUBLISHED")
-                    .scope("ALL").pinned(true).build();
+                    .scope("ALL").pinned(true).version(0L).build();
 
             AnnouncementResponse resp = announcementService.update(1L, req);
 
@@ -217,7 +227,7 @@ class AnnouncementServiceTest {
 
             AnnouncementRequest req = AnnouncementRequest.builder()
                     .title("Hack").content("Body").status("PUBLISHED")
-                    .scope("ALL").pinned(false).build();
+                    .scope("ALL").pinned(false).version(0L).build();
 
             BusinessException ex = assertThrows(BusinessException.class,
                     () -> announcementService.update(1L, req));
@@ -230,10 +240,65 @@ class AnnouncementServiceTest {
             when(announcementRepository.findById(99L)).thenReturn(Optional.empty());
 
             AnnouncementRequest req = AnnouncementRequest.builder()
-                    .title("X").content("Y").status("DRAFT").scope("ALL").build();
+                    .title("X").content("Y").status("DRAFT").scope("ALL").version(0L).build();
 
             assertThrows(BusinessException.class,
                     () -> announcementService.update(99L, req));
+        }
+
+        @Test
+        void update_staleVersion_throwsVersionConflict() {
+            // 客戶端送出舊版本（0），但 DB 已被別人更新成 1
+            setSecurityContext("admin-1", 1L, "ALL");
+            Announcement existing = buildAnnouncement(1L, "DRAFT", "ALL",
+                    "admin-1", LocalDateTime.now(), null);
+            existing.setVersion(1L);
+            when(announcementRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+            AnnouncementRequest req = AnnouncementRequest.builder()
+                    .title("Stale").content("Body").status("PUBLISHED")
+                    .scope("ALL").pinned(false).version(0L).build();
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> announcementService.update(1L, req));
+            assertEquals(ErrorCode.ANNOUNCEMENT_VERSION_CONFLICT, ex.getErrorCode());
+            verify(announcementRepository, never()).saveAndFlush(any());
+        }
+
+        @Test
+        void update_missingVersion_throwsValidationError() {
+            setSecurityContext("admin-1", 1L, "ALL");
+            Announcement existing = buildAnnouncement(1L, "DRAFT", "ALL",
+                    "admin-1", LocalDateTime.now(), null);
+            when(announcementRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+            AnnouncementRequest req = AnnouncementRequest.builder()
+                    .title("NoVersion").content("Body").status("PUBLISHED")
+                    .scope("ALL").pinned(false).build(); // 無 version
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> announcementService.update(1L, req));
+            assertEquals(ErrorCode.VALIDATION_ERROR, ex.getErrorCode());
+        }
+
+        @Test
+        void update_optimisticLockingFailureAtFlush_translatesToVersionConflict() {
+            // 模擬 load 通過後、flush 時 Hibernate 偵測到 race 拋 OptimisticLockingFailureException
+            setSecurityContext("admin-1", 1L, "ALL");
+            Announcement existing = buildAnnouncement(1L, "DRAFT", "ALL",
+                    "admin-1", LocalDateTime.now(), null);
+            when(announcementRepository.findById(1L)).thenReturn(Optional.of(existing));
+            when(announcementRepository.saveAndFlush(any()))
+                    .thenThrow(new org.springframework.orm.ObjectOptimisticLockingFailureException(
+                            Announcement.class, 1L));
+
+            AnnouncementRequest req = AnnouncementRequest.builder()
+                    .title("Race").content("Body").status("PUBLISHED")
+                    .scope("ALL").pinned(false).version(0L).build();
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> announcementService.update(1L, req));
+            assertEquals(ErrorCode.ANNOUNCEMENT_VERSION_CONFLICT, ex.getErrorCode());
         }
     }
 
@@ -412,7 +477,7 @@ class AnnouncementServiceTest {
             Announcement a1 = buildAnnouncement(1L, "PUBLISHED", "ALL",
                     "admin-1", past, null);
             Page<Announcement> page = new PageImpl<>(List.of(a1));
-            when(announcementRepository.findVisibleAnnouncements(eq(3L), any(), any()))
+            when(announcementRepository.findVisibleAnnouncements(eq(3L), isNull(), any(), any()))
                     .thenReturn(page);
             when(announcementDeptRepository.findByAnnouncementIdIn(List.of(1L)))
                     .thenReturn(List.of());
@@ -420,7 +485,7 @@ class AnnouncementServiceTest {
                     .thenReturn(List.of());
             when(deptInfoRepository.findByDeptIdIn(any())).thenReturn(List.of());
 
-            PageResponse<AnnouncementResponse> result = announcementService.listVisible(0, 10);
+            PageResponse<AnnouncementResponse> result = announcementService.listVisible(null, 0, 10);
 
             assertNotNull(result);
             assertEquals(1, result.getContent().size());
@@ -439,15 +504,15 @@ class AnnouncementServiceTest {
         void listAdmin_asAdmin_queriesAll() {
             setSecurityContext("admin-1", 1L, "ALL");
             Page<Announcement> page = new PageImpl<>(List.of());
-            when(announcementRepository.findAdminAnnouncements(any(), any(), any(), any()))
+            when(announcementRepository.findAdminAnnouncements(any(), any(), any(), any(), any()))
                     .thenReturn(page);
 
             PageResponse<AnnouncementResponse> result =
-                    announcementService.listAdmin("ALL", null, 0, 10);
+                    announcementService.listAdmin("ALL", null, null, 0, 10);
 
             assertNotNull(result);
             verify(announcementRepository).findAdminAnnouncements(
-                    eq("ALL"), isNull(), any(), any());
+                    eq("ALL"), isNull(), isNull(), any(), any());
         }
 
         @Test
@@ -455,31 +520,57 @@ class AnnouncementServiceTest {
             setSecurityContext("dept-admin-1", 5L, "THIS_LEVEL");
             Page<Announcement> page = new PageImpl<>(List.of());
             when(announcementRepository.findDeptAdminAnnouncements(
-                    any(), any(), any(), any(), any(), any())).thenReturn(page);
+                    any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
             when(announcementDeptRepository.findByAnnouncementIdIn(any())).thenReturn(List.of());
             when(announcementReadRepository.findByAnnouncementIdInAndUserId(any(), any()))
                     .thenReturn(List.of());
             when(deptInfoRepository.findByDeptIdIn(any())).thenReturn(List.of());
 
             PageResponse<AnnouncementResponse> result =
-                    announcementService.listAdmin("ALL", null, 0, 10);
+                    announcementService.listAdmin("ALL", null, null, 0, 10);
 
             assertNotNull(result);
             verify(announcementRepository).findDeptAdminAnnouncements(
-                    eq("dept-admin-1"), eq(5L), eq("ALL"), isNull(), any(), any());
+                    eq("dept-admin-1"), eq(5L), eq("ALL"), isNull(), isNull(), any(), any());
         }
 
         @Test
         void listAdmin_keywordEscaped() {
             setSecurityContext("admin-1", 1L, "ALL");
             Page<Announcement> page = new PageImpl<>(List.of());
-            when(announcementRepository.findAdminAnnouncements(any(), any(), any(), any()))
+            when(announcementRepository.findAdminAnnouncements(any(), any(), any(), any(), any()))
                     .thenReturn(page);
 
-            announcementService.listAdmin("ALL", "50%_off", 0, 10);
+            announcementService.listAdmin("ALL", null, "50%_off", 0, 10);
 
             verify(announcementRepository).findAdminAnnouncements(
-                    eq("ALL"), eq("%50\\%\\_off%"), any(), any());
+                    eq("ALL"), isNull(), eq("%50\\%\\_off%"), any(), any());
+        }
+
+        @Test
+        void listAdmin_categoryFilter_passedThrough() {
+            setSecurityContext("admin-1", 1L, "ALL");
+            Page<Announcement> page = new PageImpl<>(List.of());
+            when(announcementRepository.findAdminAnnouncements(any(), any(), any(), any(), any()))
+                    .thenReturn(page);
+
+            announcementService.listAdmin("ALL", "MAINTENANCE", null, 0, 10);
+
+            verify(announcementRepository).findAdminAnnouncements(
+                    eq("ALL"), eq("MAINTENANCE"), isNull(), any(), any());
+        }
+
+        @Test
+        void listAdmin_categoryAll_normalizedToNull() {
+            setSecurityContext("admin-1", 1L, "ALL");
+            Page<Announcement> page = new PageImpl<>(List.of());
+            when(announcementRepository.findAdminAnnouncements(any(), any(), any(), any(), any()))
+                    .thenReturn(page);
+
+            announcementService.listAdmin("ALL", "ALL", null, 0, 10);
+
+            verify(announcementRepository).findAdminAnnouncements(
+                    eq("ALL"), isNull(), isNull(), any(), any());
         }
     }
 }

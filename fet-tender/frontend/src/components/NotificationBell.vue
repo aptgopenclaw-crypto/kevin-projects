@@ -31,16 +31,11 @@ onUnmounted(() => {
 })
 
 function resolveRoute(item: NotificationItem): string {
-  const { refType, refId } = item
-  if (!refType || !refId) return '/admin/workflow/pending'
+  const { refType } = item
+  if (!refType) return '/announcements'
   switch (refType) {
-    case 'FAULT':        return `/admin/asset/faults`
-    case 'REPAIR':       return `/admin/repair/tickets/${refId}`
-    case 'REPLACEMENT':  return `/admin/replacement/orders/${refId}`
-    case 'WORKFLOW':     return `/admin/workflow/pending`
-    case 'MATERIAL':     return `/admin/material/purchase-orders`
     case 'ANNOUNCEMENT': return `/admin/system/announcements`
-    default:             return `/admin/workflow/pending`
+    default:             return `/announcements`
   }
 }
 
@@ -65,7 +60,7 @@ async function handleMarkAllRead() {
 
 function handleViewAll() {
   if (activeTab.value === 'notification') {
-    router.push('/admin/workflow/pending')
+    router.push('/announcements')
   } else {
     router.push('/announcements')
   }
