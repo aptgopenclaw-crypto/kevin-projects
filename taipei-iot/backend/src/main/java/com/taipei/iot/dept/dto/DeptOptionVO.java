@@ -14,8 +14,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeptOptionVO {
-    private Long value;
-    private Long pid;
-    private String label;
-    private List<DeptOptionVO> children;
+
+	private Long value;
+
+	private Long pid;
+
+	private String label;
+
+	private List<DeptOptionVO> children;
+
 }

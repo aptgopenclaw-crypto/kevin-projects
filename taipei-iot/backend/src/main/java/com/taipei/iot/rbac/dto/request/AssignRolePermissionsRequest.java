@@ -1,6 +1,6 @@
 package com.taipei.iot.rbac.dto.request;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AssignRolePermissionsRequest {
 
-    @NotNull
-    private List<String> permissionIds;
+	@NotEmpty(message = "permissionIds 不能為空")
+	private List<String> permissionIds;
+
 }

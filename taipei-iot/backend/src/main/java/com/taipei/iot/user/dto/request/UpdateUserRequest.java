@@ -12,8 +12,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserRequest {
-    private String displayName;
-    private String phone;
-    private String roleId;
-    private Long deptId;
+
+	private String displayName;
+
+	private String phone;
+
+	private String roleId;
+
+	private Long deptId;
+
 }

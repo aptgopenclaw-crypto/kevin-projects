@@ -170,7 +170,7 @@ async function handleToggle(tenant: TenantDto) {
       width="520px"
       :close-on-click-modal="false"
     >
-      <div class="dialog-form">
+      <div class="dialog-form" role="form" :aria-label="dialogMode === 'create' ? t('tenant.dialogCreateTitle') : t('tenant.dialogEditTitle')">
         <div v-if="dialogMode === 'create'" class="form-row">
           <label class="form-label">{{ t('tenant.codeLabel') }} *</label>
           <el-input

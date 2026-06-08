@@ -9,16 +9,14 @@ import org.springframework.stereotype.Service;
 @Profile("test")
 public class NoOpCaptchaServiceImpl implements CaptchaService {
 
-    @Override
-    public CaptchaResponse generate() {
-        return CaptchaResponse.builder()
-                .captchaKey("test-captcha-key")
-                .captchaImage("data:image/png;base64,")
-                .build();
-    }
+	@Override
+	public CaptchaResponse generate() {
+		return CaptchaResponse.builder().captchaKey("test-captcha-key").captchaImage("data:image/png;base64,").build();
+	}
 
-    @Override
-    public boolean verify(String captchaKey, String captchaValue) {
-        return true;
-    }
+	@Override
+	public boolean verify(String captchaKey, String captchaValue) {
+		return true;
+	}
+
 }

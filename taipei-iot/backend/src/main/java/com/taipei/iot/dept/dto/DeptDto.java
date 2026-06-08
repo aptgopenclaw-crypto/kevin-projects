@@ -17,15 +17,27 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeptDto {
-    private Long id;
-    private Long pid;
-    private String deptName;
-    private Integer deptSort;
-    private Short status;
-    private String hierarchyPath;
-    private String createBy;
-    private String updateBy;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
-    private List<DeptDto> children;
+
+	private Long id;
+
+	private Long pid;
+
+	private String deptName;
+
+	private Integer deptSort;
+
+	private Short status;
+
+	private String hierarchyPath;
+
+	private String createBy;
+
+	private String updateBy;
+
+	private LocalDateTime createTime;
+
+	private LocalDateTime updateTime;
+
+	private List<DeptDto> children;
+
 }

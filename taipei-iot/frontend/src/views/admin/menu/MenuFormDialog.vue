@@ -33,6 +33,12 @@ const menuTypeOptions = [
   { label: '按鈕', value: 'BUTTON' },
 ]
 
+const scopeOptions = [
+  { label: '租戶內（TENANT）', value: 'TENANT' },
+  { label: '平台專用（PLATFORM）', value: 'PLATFORM' },
+  { label: '公開（PUBLIC）', value: 'PUBLIC' },
+]
+
 const form = ref({
   name: '',
   menuType: 'PAGE' as string,
@@ -46,11 +52,24 @@ const form = ref({
   visible: true,
   keepAlive: false,
   redirect: '',
+  scope: 'TENANT' as 'PLATFORM' | 'TENANT' | 'PUBLIC',
 })
 
 const rules: FormRules = {
   name: [{ required: true, message: '請輸入選單名稱', trigger: 'blur' }],
   menuType: [{ required: true, message: '請選擇選單類型', trigger: 'change' }],
+  redirect: [
+    {
+      validator: (_rule, value: string, callback) => {
+        if (!value) return callback()
+        if (!/^\/[a-zA-Z0-9\-_/]*$/.test(value)) {
+          return callback(new Error('Redirect 必須為 / 開頭的內部路徑'))
+        }
+        callback()
+      },
+      trigger: 'blur',
+    },
+  ],
 }
 
 // Flatten tree for parentId selector
@@ -84,6 +103,7 @@ watch(
           visible: props.menu.visible,
           keepAlive: props.menu.keepAlive,
           redirect: props.menu.redirect ?? '',
+          scope: props.menu.scope ?? 'TENANT',
         }
       } else {
         form.value = {
@@ -99,6 +119,7 @@ watch(
           visible: true,
           keepAlive: false,
           redirect: '',
+          scope: 'TENANT',
         }
       }
       loadPermissions()
@@ -137,6 +158,7 @@ async function handleSubmit() {
         visible: form.value.visible,
         keepAlive: form.value.keepAlive,
         redirect: form.value.redirect || null,
+        scope: form.value.scope,
       }
       await updateMenu(payload)
       ElMessage.success(t('menu.form.updatedSuccess'))
@@ -154,6 +176,7 @@ async function handleSubmit() {
         visible: form.value.visible,
         keepAlive: form.value.keepAlive,
         redirect: form.value.redirect || null,
+        scope: form.value.scope,
       }
       await createMenu(payload)
       ElMessage.success(t('menu.form.createdSuccess'))
@@ -186,6 +209,7 @@ async function handleSubmit() {
       ref="formRef"
       :model="form"
       :rules="rules"
+      :aria-label="dialogTitle"
       label-width="100px"
       @submit.prevent="handleSubmit"
     >
@@ -250,11 +274,22 @@ async function handleSubmit() {
         <el-switch v-model="form.visible" />
       </el-form-item>
 
+      <el-form-item label="適用範圍" prop="scope">
+        <el-select v-model="form.scope">
+          <el-option
+            v-for="opt in scopeOptions"
+            :key="opt.value"
+            :label="opt.label"
+            :value="opt.value"
+          />
+        </el-select>
+      </el-form-item>
+
       <el-form-item v-if="form.menuType === 'PAGE'" :label="t('menu.form.keepAliveLabel')">
         <el-switch v-model="form.keepAlive" />
       </el-form-item>
 
-      <el-form-item v-if="form.menuType === 'DIRECTORY'" :label="t('menu.form.redirectLabel')">
+      <el-form-item v-if="form.menuType === 'DIRECTORY'" :label="t('menu.form.redirectLabel')" prop="redirect">
         <el-input v-model="form.redirect" :placeholder="t('menu.form.redirectPlaceholder')" />
       </el-form-item>
     </el-form>
@@ -283,7 +318,6 @@ async function handleSubmit() {
   gap: 6px;
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -306,7 +340,6 @@ async function handleSubmit() {
 .btn-outlined {
   background: transparent;
   color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -330,7 +363,6 @@ async function handleSubmit() {
 }
 
 :deep(.el-dialog__title) {
-  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 500;
   color: var(--text-heading);
@@ -341,21 +373,12 @@ async function handleSubmit() {
   color: var(--text-secondary);
 }
 
-:deep(.el-form-item__label) {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-label);
-  letter-spacing: 0.2px;
-}
-
 :deep(.el-input__inner),
 :deep(.el-select .el-input__inner),
 :deep(.el-textarea__inner) {
   background: var(--bg-base);
   color: var(--text-primary);
   border: 1px solid var(--border-medium);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;

@@ -13,14 +13,15 @@ import java.util.Optional;
 @EnableJpaAuditing
 public class JpaAuditConfig {
 
-    /**
-     * 提供 JPA {@code @CreatedBy} / {@code @LastModifiedBy} 的當前使用者資訊。
-     * 未認證或 anonymous 使用者回傳 {@link Optional#empty()}，Spring 會保留欄位既有值。
-     */
-    @Bean
-    public AuditorAware<String> auditorAware() {
-        return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .filter(auth -> auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal()))
-                .map(Authentication::getName);
-    }
+	/**
+	 * 提供 JPA {@code @CreatedBy} / {@code @LastModifiedBy} 的當前使用者資訊。 未認證或 anonymous 使用者回傳
+	 * {@link Optional#empty()}，Spring 會保留欄位既有值。
+	 */
+	@Bean
+	public AuditorAware<String> auditorAware() {
+		return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+			.filter(auth -> auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal()))
+			.map(Authentication::getName);
+	}
+
 }

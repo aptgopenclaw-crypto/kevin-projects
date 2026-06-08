@@ -1,8 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { publicRoutes } from '@/router/publicRoutes'
+import { resolveScopeRedirect } from '@/router/guards'
+import TenantLayout from '@/layouts/TenantLayout.vue'
+import PlatformLayout from '@/layouts/PlatformLayout.vue'
 
-// noauth routes — no login required
-const noauthRoutes = [
+// noauth routes — no login required, rendered at top level without any layout chrome.
+const noauthRoutes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
@@ -27,10 +30,85 @@ const noauthRoutes = [
     component: () => import('@/views/login/ResetPasswordView.vue'),
     meta: { requiresAuth: false },
   },
+  {
+    // [Phase 3] Reached only with a `password_change` temp token in authStore;
+    // the page itself guards against direct navigation by redirecting to /login
+    // when authStore.passwordChangeToken is empty.
+    path: '/force-change-password',
+    name: 'ForceChangePassword',
+    component: () => import('@/views/login/ForceChangePasswordView.vue'),
+    meta: { requiresAuth: false },
+  },
 ]
 
-// Static admin routes (kept for backward compatibility — also injected via menus dynamically)
-const staticAdminRoutes = [
+// [Phase 4 / 4.1.3 / ADR-004] Platform-scope routes — rendered inside
+// PlatformLayout (dark theme). All children carry `requiresScope: 'PLATFORM'`
+// which the 4.1.5 guard enforces. (4.1.8) the legacy `superAdminOnly` meta
+// has been retired in favour of `requiresScope` everywhere.
+//
+// NOTE: child paths intentionally stay ABSOLUTE so existing path-literal
+// assertions (see __tests__/router/tenantAuthConfigRoute.test.ts) keep working.
+const platformChildren: RouteRecordRaw[] = [
+  {
+    // [Phase 4 / 4.1.4] Default platform landing page — every super_admin
+    // login redirects here (`resolveLandingPath` in router/guards.ts).
+    // Re-uses the existing TenantManageView until 4.1.9 ships a dedicated
+    // platform-side tenants dashboard.
+    path: '/platform/tenants',
+    name: 'PlatformTenantManage',
+    component: () => import('@/views/admin/tenant/TenantManageView.vue'),
+    meta: { requiresScope: 'PLATFORM' },
+  },
+  {
+    // [Platform/Tenant Separation 2.1.6] Canonical route now carries the
+    // tenantId so cross-tenant editing is unambiguous and the URL aligns with
+    // the backend /v1/platform/tenants/{tenantId}/auth-config endpoint.
+    path: '/platform/tenants/:tenantId/auth-config',
+    name: 'TenantAuthConfig',
+    component: () => import('@/views/admin/setting/TenantAuthConfigView.vue'),
+    meta: { requiresScope: 'PLATFORM' },
+    props: true,
+  },
+  {
+    // Legacy alias — preserves seeded menu's `route_path` and any external
+    // bookmarks; rewrites to the canonical URL using the current tenant.
+    path: '/platform/auth-config',
+    name: 'TenantAuthConfigLegacy',
+    redirect: () => {
+      const tenantId =
+        (typeof localStorage !== 'undefined' && localStorage.getItem('lastTenantId')) || ''
+      return tenantId
+        ? { name: 'TenantAuthConfig', params: { tenantId } }
+        : { name: 'Login' }
+    },
+    meta: { requiresScope: 'PLATFORM' },
+  },
+  {
+    // [Phase 4 / 4.1.9 / ADR-002] Dedicated impersonation management page —
+    // super_admin can start a new impersonation session and review their own
+    // history (active / expired / revoked).
+    path: '/platform/impersonations',
+    name: 'PlatformImpersonationManage',
+    component: () => import('@/views/platform/ImpersonationManageView.vue'),
+    meta: { requiresScope: 'PLATFORM' },
+  },
+  {
+    path: '/platform/password-policy',
+    name: 'PlatformPasswordPolicy',
+    component: () => import('@/views/admin/setting/PlatformPasswordPolicyView.vue'),
+    meta: { requiresScope: 'PLATFORM' },
+  },
+  {
+    path: '/platform/announcements',
+    name: 'PlatformAnnouncementManage',
+    component: () => import('@/views/platform/PlatformAnnouncementManageView.vue'),
+    meta: { requiresScope: 'PLATFORM' },
+  },
+]
+
+// [Phase 4 / 4.1.3] Tenant-scope static admin routes — rendered inside
+// TenantLayout. Also injected dynamically by menuStore based on backend menus.
+const tenantStaticAdminRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/users',
     name: 'UserList',
@@ -55,7 +133,10 @@ const staticAdminRoutes = [
     path: '/admin/system/tenants',
     name: 'TenantManage',
     component: () => import('@/views/admin/tenant/TenantManageView.vue'),
-    meta: { superAdminOnly: true },
+    // [Phase 4 / 4.1.8] Was `superAdminOnly: true`; now scope-gated so the
+    // 4.1.5 guard handles redirection (TENANT/IMPERSONATION → / or /?impersonating=1).
+    // The canonical super_admin entry-point is /platform/tenants under PlatformLayout.
+    meta: { requiresScope: 'PLATFORM' },
   },
   {
     path: '/admin/system/roles',
@@ -73,61 +154,14 @@ const staticAdminRoutes = [
     component: () => import('@/views/admin/setting/SystemSettingsView.vue'),
   },
   {
+    path: '/admin/security/password-policy',
+    name: 'TenantPasswordPolicy',
+    component: () => import('@/views/admin/setting/TenantPasswordPolicyView.vue'),
+  },
+  {
     path: '/admin/system/announcements',
     name: 'AnnouncementManagement',
     component: () => import('@/views/admin/announcement/AnnouncementManagementView.vue'),
-  },
-
-  // ── IoT / Smart Streetlight ──
-  {
-    path: '/admin/iot/devices',
-    name: 'IoTDevice',
-    component: () => import('@/views/admin/iot/DeviceListView.vue'),
-  },
-  {
-    path: '/admin/iot/telemetry-formats',
-    name: 'TelemetryFormat',
-    component: () => import('@/views/admin/iot/TelemetryFormatView.vue'),
-  },
-  {
-    path: '/admin/iot/telemetry',
-    name: 'TelemetryData',
-    component: () => import('@/views/admin/iot/TelemetryDataView.vue'),
-  },
-  {
-    path: '/admin/iot/event-rules',
-    name: 'EventRule',
-    component: () => import('@/views/admin/iot/EventRuleView.vue'),
-  },
-  {
-    path: '/admin/iot/alerts',
-    name: 'IoTAlertHistory',
-    component: () => import('@/views/admin/iot/AlertHistoryView.vue'),
-  },
-  {
-    path: '/admin/iot/dimming',
-    name: 'DimmingControl',
-    component: () => import('@/views/admin/iot/DimmingControlView.vue'),
-  },
-  {
-    path: '/admin/iot/dimming/groups',
-    name: 'DimmingGroup',
-    component: () => import('@/views/admin/iot/DimmingGroupView.vue'),
-  },
-  {
-    path: '/admin/iot/dimming/schedules',
-    name: 'DimmingSchedule',
-    component: () => import('@/views/admin/iot/DimmingScheduleView.vue'),
-  },
-  {
-    path: '/admin/iot/map',
-    name: 'IoTMap',
-    component: () => import('@/views/admin/iot/IoTMapView.vue'),
-  },
-  {
-    path: '/admin/iot/meters',
-    name: 'MeterStatus',
-    component: () => import('@/views/admin/iot/MeterStatusView.vue'),
   },
 ]
 
@@ -135,8 +169,29 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...noauthRoutes,
-    ...publicRoutes,
-    ...staticAdminRoutes,
+    {
+      // [Phase 4 / 4.1.3] Platform shell — dark theme, super_admin only.
+      // Named so `menuStore` can later attach platform-prefixed menu routes
+      // via `router.addRoute('PlatformRoot', ...)`.
+      path: '/platform',
+      name: 'PlatformRoot',
+      component: PlatformLayout,
+      meta: { requiresScope: 'PLATFORM' },
+      children: platformChildren,
+    },
+    {
+      // [Phase 4 / 4.1.3] Tenant shell — green theme, default for every
+      // signed-in tenant user (including impersonation sessions).
+      // Named so `menuStore` can attach tenant-prefixed menu routes via
+      // `router.addRoute('TenantRoot', ...)`.
+      path: '/',
+      name: 'TenantRoot',
+      component: TenantLayout,
+      children: [
+        ...publicRoutes,
+        ...tenantStaticAdminRoutes,
+      ],
+    },
   ],
 })
 
@@ -181,14 +236,20 @@ router.beforeEach(async (to, _from, next) => {
       }
       await menuStore.fetchMyMenus()
 
-      // Load dept options once after login (cached in store)
-      const { useDeptStore } = await import('@/stores/deptStore')
-      const deptStore = useDeptStore()
-      if (!deptStore.initialized) {
-        try {
-          await deptStore.fetchDeptOptions()
-        } catch {
-          // Degradation: dept options failed — forms will show empty dept selector
+      // Load dept options once after login (cached in store).
+      // [Phase 5 / ADR-007] Skip for PLATFORM scope: dept is a tenant-only
+      // concept and /v1/auth/dept/options is blocked for PLATFORM tokens by
+      // ScopeEnforcementFilter. PLATFORM super_admin has no use for dept
+      // selectors on the platform shell.
+      if (authStore.scope !== 'PLATFORM') {
+        const { useDeptStore } = await import('@/stores/deptStore')
+        const deptStore = useDeptStore()
+        if (!deptStore.initialized) {
+          try {
+            await deptStore.fetchDeptOptions()
+          } catch {
+            // Degradation: dept options failed — forms will show empty dept selector
+          }
         }
       }
     } catch {
@@ -204,15 +265,34 @@ router.beforeEach(async (to, _from, next) => {
 
   // 4. publicRoutes → only check login (already checked above)
   if (to.meta.isPublic) {
+    // [Phase 4 / 4.1.5] Even publicRoutes (Home/Profile/etc.) live under the
+    // tenant shell — bounce a PLATFORM-scoped token straight to its own shell.
+    const publicScopeRedirect = resolveScopeRedirect(authStore.accessToken, to)
+    if (publicScopeRedirect && publicScopeRedirect !== to.fullPath) {
+      next(publicScopeRedirect)
+      return
+    }
     next()
     return
   }
 
-  // 5. super-admin-only routes (not in backend menu system)
-  if (to.meta.superAdminOnly) {
-    const isSuperAdmin = authStore.userInfo?.isSuperAdmin === true
-    if (!isSuperAdmin) next('/')
-    else next()
+  // 4.5. [Phase 4 / 4.1.5] Scope mismatch → redirect to the natural shell.
+  // PLATFORM tokens hitting /admin/* → /platform/tenants;
+  // TENANT/IMPERSONATION tokens hitting /platform/* → / or /?impersonating=1.
+  const scopeRedirect = resolveScopeRedirect(authStore.accessToken, to)
+  if (scopeRedirect && scopeRedirect !== to.fullPath) {
+    next(scopeRedirect)
+    return
+  }
+
+  // 5. [Phase 4 / 4.1.8] The legacy `superAdminOnly` meta has been removed —
+  //    scope enforcement above (step 4.5) is the single source of truth for
+  //    platform-only routes. Menu-based access still gates everything else.
+
+  // 5.5. Routes with `requiresScope` that already passed step 4.5 are
+  //       scope-gated, not menu-gated — allow them without menu check.
+  if (to.meta.requiresScope) {
+    next()
     return
   }
 

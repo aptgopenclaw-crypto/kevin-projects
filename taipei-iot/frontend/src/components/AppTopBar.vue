@@ -135,7 +135,6 @@ function handleUserCommand(command: string) {
 }
 
 .topbar-breadcrumb :deep(.el-breadcrumb__inner) {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -172,7 +171,6 @@ function handleUserCommand(command: string) {
   padding: 5px 12px;
   cursor: pointer;
   color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -218,7 +216,6 @@ function handleUserCommand(command: string) {
   padding: 5px 10px;
   cursor: pointer;
   color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   transition: border-color 150ms ease, background 150ms ease;

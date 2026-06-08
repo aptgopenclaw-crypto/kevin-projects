@@ -21,10 +21,18 @@ public class SearchKeywordController {
     @GetMapping
     @PreAuthorize("hasAuthority('tender:config:view')")
     public BaseResponse<List<SearchKeywordResponse>> list(
-            @RequestParam(defaultValue = "false") boolean includeInactive) {
-        List<SearchKeywordResponse> result = includeInactive
-                ? service.listAllIncludeInactive()
-                : service.listAll();
+            @RequestParam(defaultValue = "false") boolean includeInactive,
+            @RequestParam(required = false) String solution) {
+        List<SearchKeywordResponse> result;
+        if (solution != null && !solution.isBlank()) {
+            result = includeInactive
+                    ? service.listBySolutionIncludeInactive(solution)
+                    : service.listBySolution(solution);
+        } else {
+            result = includeInactive
+                    ? service.listAllIncludeInactive()
+                    : service.listAll();
+        }
         return BaseResponse.success(result);
     }
 

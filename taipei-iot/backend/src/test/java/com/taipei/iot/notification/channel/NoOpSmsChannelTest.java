@@ -10,22 +10,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NoOpSmsChannelTest {
 
-    private final NoOpSmsChannel channel = new NoOpSmsChannel();
+	private final NoOpSmsChannel channel = new NoOpSmsChannel();
 
-    @Test
-    void channelType_shouldReturnSms() {
-        assertEquals("SMS", channel.channelType());
-    }
+	@Test
+	void channelType_shouldReturnSms() {
+		assertEquals("SMS", channel.channelType());
+	}
 
-    @Test
-    void send_shouldNotThrow() {
-        NotificationPayload payload = NotificationPayload.builder()
-                .tenantId("T1")
-                .userIds(List.of("u1", "u2"))
-                .type(NotificationType.ALERT)
-                .title("Test")
-                .build();
+	@Test
+	void send_shouldNotThrow() {
+		NotificationPayload payload = NotificationPayload.builder()
+			.tenantId("T1")
+			.userIds(List.of("u1", "u2"))
+			.type(NotificationType.ALERT)
+			.title("Test")
+			.build();
 
-        assertDoesNotThrow(() -> channel.send(payload));
-    }
+		assertDoesNotThrow(() -> channel.send(payload));
+	}
+
 }

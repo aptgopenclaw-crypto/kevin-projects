@@ -5,9 +5,10 @@ import org.hibernate.envers.RevisionListener;
 
 public class AuditRevisionListener implements RevisionListener {
 
-    @Override
-    public void newRevision(Object revisionEntity) {
-        AuditRevisionEntity rev = (AuditRevisionEntity) revisionEntity;
-        rev.setActionUserId(SecurityContextUtils.getCurrentUserId());
-    }
+	@Override
+	public void newRevision(Object revisionEntity) {
+		AuditRevisionEntity rev = (AuditRevisionEntity) revisionEntity;
+		rev.setActionUserId(SecurityContextUtils.getCurrentUserId());
+	}
+
 }

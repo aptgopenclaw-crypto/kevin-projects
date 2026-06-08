@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserEntity, String>, JpaSpecificationExecutor<UserEntity> {
-    Optional<UserEntity> findByEmail(String email);
-    boolean existsByEmail(String email);
+
+	Optional<UserEntity> findByEmail(String email);
+
+	boolean existsByEmail(String email);
+
 }

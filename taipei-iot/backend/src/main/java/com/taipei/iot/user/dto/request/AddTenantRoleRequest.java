@@ -13,11 +13,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddTenantRoleRequest {
-    @NotBlank(message = "tenantId is required")
-    private String tenantId;
 
-    @NotBlank
-    private String roleId;
+	@NotBlank(message = "tenantId is required")
+	private String tenantId;
 
-    private Long deptId;
+	@NotBlank
+	private String roleId;
+
+	private Long deptId;
+
 }

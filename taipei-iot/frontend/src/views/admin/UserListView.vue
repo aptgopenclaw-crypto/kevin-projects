@@ -15,13 +15,15 @@ const router = useRouter()
 const userStore = useUserStore()
 const authStore = useAuthStore()
 const loading = ref(false)
+const initialLoading = ref(true)
 const keyword = ref('')
 const pageSize = ref(20)
 
 const currentUserId = computed(() => authStore.userInfo?.userId ?? '')
 
-onMounted(() => {
-  loadUsers()
+onMounted(async () => {
+  await loadUsers()
+  initialLoading.value = false
 })
 
 async function loadUsers(page = 0) {
@@ -75,11 +77,15 @@ async function handleDisable(row: UserListItemDto) {
     return
   }
 
+  // Optimistic update: mark disabled immediately
+  const previousEnabled = row.enabled
+  row.enabled = false
   try {
     await disableUser(row.userId)
     ElMessage.success(t('user.list.disabledSuccess'))
-    loadUsers(userStore.pagination.page)
   } catch (err: unknown) {
+    // Rollback on failure
+    row.enabled = previousEnabled
     const error = err as { response?: { data?: { errorCode?: string } } }
     const errorCode = error?.response?.data?.errorCode
     if (errorCode === '20005') {
@@ -107,11 +113,15 @@ async function handleSoftDelete(row: UserListItemDto) {
     return
   }
 
+  // Optimistic update: remove from list immediately
+  const idx = userStore.userList.indexOf(row)
+  if (idx !== -1) userStore.userList.splice(idx, 1)
   try {
     await softDeleteUser(row.userId)
     ElMessage.success(t('user.list.deletedSuccess'))
-    loadUsers(userStore.pagination.page)
   } catch (err: unknown) {
+    // Rollback on failure
+    if (idx !== -1) userStore.userList.splice(idx, 0, row)
     const error = err as { response?: { data?: { errorCode?: string } } }
     const errorCode = error?.response?.data?.errorCode
     if (errorCode === '20005') {
@@ -166,7 +176,9 @@ function getStatusLabel(row: UserListItemDto) {
         <el-button class="search-btn" @click="handleSearch">{{ t('common.search') }}</el-button>
       </div>
 
-      <div class="table-card" v-loading="loading">
+      <el-skeleton :rows="8" :loading="initialLoading" animated>
+        <template #default>
+          <div class="table-card" v-loading="loading">
         <el-table
           :data="userStore.userList"
           style="width: 100%"
@@ -227,6 +239,8 @@ function getStatusLabel(row: UserListItemDto) {
           />
         </div>
       </div>
+        </template>
+      </el-skeleton>
     </div>
   </div>
 </template>
@@ -249,7 +263,6 @@ function getStatusLabel(row: UserListItemDto) {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -258,7 +271,6 @@ function getStatusLabel(row: UserListItemDto) {
 }
 
 .page-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -273,7 +285,6 @@ function getStatusLabel(row: UserListItemDto) {
   border: none;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -300,7 +311,6 @@ function getStatusLabel(row: UserListItemDto) {
   border: 1px solid var(--border-light);
   border-radius: 6px;
   padding: 8px 16px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -328,7 +338,6 @@ function getStatusLabel(row: UserListItemDto) {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -394,45 +403,9 @@ function getStatusLabel(row: UserListItemDto) {
   --el-table-text-color: var(--text-primary);
   --el-table-header-text-color: var(--text-secondary);
   --el-table-border-color: var(--bg-active);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
-}
-
-:deep(.el-table th.el-table__cell) {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-:deep(.el-input__wrapper) {
-  background-color: var(--bg-base);
-  border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-:deep(.el-input__wrapper:hover) {
-  border-color: var(--border-strong);
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: rgba(85, 179, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(85, 179, 255, 0.15);
-}
-
-:deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: var(--text-muted);
 }
 
 :deep(.el-pagination) {

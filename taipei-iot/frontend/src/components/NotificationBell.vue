@@ -20,12 +20,19 @@ const totalBadge = computed(() =>
   notificationStore.unreadCount + announcementStore.unreadCount
 )
 
+// [ADR-007] Announcements / notifications are tenant-scoped APIs; PLATFORM
+// super_admin tokens can't call them (ScopeEnforcementFilter returns 403).
+// Skip polling entirely in PLATFORM scope to avoid console noise.
+const isPlatformScope = computed(() => authStore.scope === 'PLATFORM')
+
 onMounted(() => {
+  if (isPlatformScope.value) return
   announcementStore.startPolling()
   notificationStore.startPolling(authStore.accessToken ?? undefined)
 })
 
 onUnmounted(() => {
+  if (isPlatformScope.value) return
   announcementStore.stopPolling()
   notificationStore.stopPolling()
 })

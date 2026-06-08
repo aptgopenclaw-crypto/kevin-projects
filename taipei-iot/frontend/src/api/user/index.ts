@@ -41,10 +41,11 @@ export const softDeleteUser = (userId: string) =>
   axiosIns.patch<unknown, BaseResponse<void>>(`/auth/users/${encodeURIComponent(userId)}/soft-delete`)
 
 export const getUserTenantRoles = (userId: string) =>
-  axiosIns.get<unknown, BaseResponse<UserTenantMappingDto[]>>(`/auth/users/${encodeURIComponent(userId)}/tenant-roles`)
+  // [Platform/Tenant Separation 2.1.5] migrated to /v1/platform/users/{userId}/tenant-roles
+  axiosIns.get<unknown, BaseResponse<UserTenantMappingDto[]>>(`/platform/users/${encodeURIComponent(userId)}/tenant-roles`)
 
 export const addTenantRole = (userId: string, payload: AddTenantRoleRequest) =>
-  axiosIns.post<unknown, BaseResponse<UserTenantMappingDto>>(`/auth/users/${encodeURIComponent(userId)}/tenant-roles`, payload)
+  axiosIns.post<unknown, BaseResponse<UserTenantMappingDto>>(`/platform/users/${encodeURIComponent(userId)}/tenant-roles`, payload)
 
 export const removeTenantRole = (userId: string, mappingId: number) =>
-  axiosIns.delete<unknown, BaseResponse<void>>(`/auth/users/${encodeURIComponent(userId)}/tenant-roles/${mappingId}`)
+  axiosIns.delete<unknown, BaseResponse<void>>(`/platform/users/${encodeURIComponent(userId)}/tenant-roles/${mappingId}`)

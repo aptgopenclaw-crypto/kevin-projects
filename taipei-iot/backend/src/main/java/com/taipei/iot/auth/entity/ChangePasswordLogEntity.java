@@ -23,27 +23,28 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChangePasswordLogEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
 
-    @Column(name = "user_id", length = 50, nullable = false)
-    private String userId;
+	@Column(name = "user_id", length = 50, nullable = false)
+	private String userId;
 
-    @Column(name = "change_type", length = 50, nullable = false)
-    private String changeType;
+	@Column(name = "change_type", length = 50, nullable = false)
+	private String changeType;
 
-    @Column(name = "ip_address", length = 50)
-    private String ipAddress;
+	@Column(name = "ip_address", length = 50)
+	private String ipAddress;
 
-    @Column(name = "create_time", nullable = false, updatable = false)
-    private LocalDateTime createTime;
+	@Column(name = "create_time", nullable = false, updatable = false)
+	private LocalDateTime createTime;
 
-    @jakarta.persistence.PrePersist
-    public void prePersist() {
-        if (this.createTime == null) {
-            this.createTime = LocalDateTime.now();
-        }
-    }
+	@jakarta.persistence.PrePersist
+	public void prePersist() {
+		if (this.createTime == null) {
+			this.createTime = LocalDateTime.now();
+		}
+	}
+
 }

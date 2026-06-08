@@ -28,7 +28,6 @@ const crumbs = computed(() => menuStore.getBreadcrumbs(route.name as string))
 }
 
 .app-breadcrumb :deep(.el-breadcrumb__inner) {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;

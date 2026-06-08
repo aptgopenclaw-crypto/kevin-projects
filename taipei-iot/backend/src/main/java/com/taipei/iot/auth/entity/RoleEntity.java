@@ -26,36 +26,37 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RoleEntity {
 
-    @Id
-    @Column(name = "role_id", length = 50)
-    private String roleId;
+	@Id
+	@Column(name = "role_id", length = 50)
+	private String roleId;
 
-    @Column(name = "code", length = 50, nullable = false, unique = true)
-    private String code;
+	@Column(name = "code", length = 50, nullable = false, unique = true)
+	private String code;
 
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;
+	@Column(name = "name", length = 100, nullable = false)
+	private String name;
 
-    @Column(name = "description", length = 500)
-    private String description;
+	@Column(name = "description", length = 500)
+	private String description;
 
-    @Column(name = "built_in", nullable = false)
-    @Builder.Default
-    private Boolean builtIn = true;
+	@Column(name = "built_in", nullable = false)
+	@Builder.Default
+	private Boolean builtIn = true;
 
-    @Column(name = "enabled", nullable = false)
-    @Builder.Default
-    private Boolean enabled = true;
+	@Column(name = "enabled", nullable = false)
+	@Builder.Default
+	private Boolean enabled = true;
 
-    @Column(name = "data_scope", length = 30)
-    @Builder.Default
-    private String dataScope = "ALL";
+	@Column(name = "data_scope", length = 30)
+	@Builder.Default
+	private String dataScope = "ALL";
 
-    @CreatedDate
-    @Column(name = "create_time", nullable = false, updatable = false)
-    private LocalDateTime createTime;
+	@CreatedDate
+	@Column(name = "create_time", nullable = false, updatable = false)
+	private LocalDateTime createTime;
 
-    @LastModifiedDate
-    @Column(name = "update_time")
-    private LocalDateTime updateTime;
+	@LastModifiedDate
+	@Column(name = "update_time")
+	private LocalDateTime updateTime;
+
 }

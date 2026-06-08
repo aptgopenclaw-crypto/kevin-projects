@@ -24,6 +24,7 @@ import { ANNOUNCEMENT_CATEGORIES } from '@/types/announcement'
 import type { DeptOptionVO } from '@/types/dept'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import RichTextRenderer from '@/components/RichTextRenderer.vue'
 import draggable from 'vuedraggable'
 
 const { t } = useI18n()
@@ -840,7 +841,7 @@ onMounted(async () => {
       width="600px"
       destroy-on-close
     >
-      <el-form label-position="top">
+      <el-form label-position="top" :aria-label="dialogMode === 'create' ? t('announcement.admin.create') : t('announcement.admin.edit')">
         <!-- 多語系輸入：zh-TW 為主表（必填）；zh-CN / en 為選填翻譯 -->
         <el-tabs v-model="currentLangTab">
           <el-tab-pane :label="t('announcement.lang.zhTW') + ' *'" name="zh-TW">
@@ -1139,7 +1140,7 @@ onMounted(async () => {
             ? t('announcement.neverExpire')
             : (form.expireAt ?? '—') }}
         </div>
-        <div class="preview-content" v-html="form.content || ''" />
+        <RichTextRenderer class="preview-content" :html="form.content" />
 
         <div v-if="attachments.length > 0" class="preview-attachments">
           <div class="preview-attachments-title">{{ t('announcement.attachments.title') }}</div>

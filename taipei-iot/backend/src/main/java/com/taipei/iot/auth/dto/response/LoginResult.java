@@ -15,10 +15,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginResult {
-    private String accessToken;
-    private String refreshToken;
-    private boolean needsSelection;
-    @JsonProperty("isSuperAdmin")
-    private boolean isSuperAdmin;
-    private List<TenantOption> tenants;
+
+	private String accessToken;
+
+	private String refreshToken;
+
+	private boolean needsSelection;
+
+	@JsonProperty("isSuperAdmin")
+	private boolean isSuperAdmin;
+
+	private List<TenantOption> tenants;
+
+	/**
+	 * [Phase 3] When true, {@code accessToken} carries a short-lived password-change
+	 * temporary token rather than the regular access token, and the client must redirect
+	 * the user to the force-change-password flow.
+	 */
+	private boolean passwordChangeRequired;
+
 }

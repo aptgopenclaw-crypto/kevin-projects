@@ -9,9 +9,10 @@ import lombok.Setter;
 @Setter
 public class UpdateTenantRequest {
 
-    @NotBlank
-    @Size(max = 200)
-    private String tenantName;
+	@NotBlank
+	@Size(max = 200)
+	private String tenantName;
 
-    private String deploymentMode;
+	private String deploymentMode;
+
 }

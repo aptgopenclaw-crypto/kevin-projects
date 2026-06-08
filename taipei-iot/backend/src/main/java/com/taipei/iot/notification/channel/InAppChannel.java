@@ -14,50 +14,54 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class InAppChannel implements NotificationChannel {
 
-    private final NotificationRepository notificationRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+	private final NotificationRepository notificationRepository;
 
-    @Override
-    public String channelType() {
-        return "IN_APP";
-    }
+	private final SimpMessagingTemplate messagingTemplate;
 
-    @Override
-    public void send(NotificationPayload payload) {
-        for (String userId : payload.getUserIds()) {
-            try {
-                NotificationEntity entity = NotificationEntity.builder()
-                        .tenantId(payload.getTenantId())
-                        .userId(userId)
-                        .type(payload.getType())
-                        .title(payload.getTitle())
-                        .content(payload.getContent())
-                        .refType(payload.getRefType())
-                        .refId(payload.getRefId())
-                        .build();
-                NotificationEntity saved = notificationRepository.save(entity);
-                log.debug("In-app notification saved for user={}", userId);
+	@Override
+	public String channelType() {
+		return "IN_APP";
+	}
 
-                // Push via WebSocket (STOMP)
-                try {
-                    NotificationResponse response = NotificationResponse.builder()
-                            .id(saved.getId())
-                            .type(saved.getType())
-                            .title(saved.getTitle())
-                            .content(saved.getContent())
-                            .refType(saved.getRefType())
-                            .refId(saved.getRefId())
-                            .read(false)
-                            .createdAt(saved.getCreatedAt())
-                            .build();
-                    messagingTemplate.convertAndSendToUser(userId, "/queue/notifications", response);
-                    log.debug("WebSocket push sent to user={}", userId);
-                } catch (Exception e) {
-                    log.warn("WebSocket push failed for user={}: {}", userId, e.getMessage());
-                }
-            } catch (Exception e) {
-                log.error("Failed to send in-app notification to user={}: {}", userId, e.getMessage());
-            }
-        }
-    }
+	@Override
+	public void send(NotificationPayload payload) {
+		for (String userId : payload.getUserIds()) {
+			try {
+				NotificationEntity entity = NotificationEntity.builder()
+					.tenantId(payload.getTenantId())
+					.userId(userId)
+					.type(payload.getType())
+					.title(payload.getTitle())
+					.content(payload.getContent())
+					.refType(payload.getRefType())
+					.refId(payload.getRefId())
+					.build();
+				NotificationEntity saved = notificationRepository.save(entity);
+				log.debug("In-app notification saved for user={}", userId);
+
+				// Push via WebSocket (STOMP)
+				try {
+					NotificationResponse response = NotificationResponse.builder()
+						.id(saved.getId())
+						.type(saved.getType())
+						.title(saved.getTitle())
+						.content(saved.getContent())
+						.refType(saved.getRefType())
+						.refId(saved.getRefId())
+						.read(false)
+						.createdAt(saved.getCreatedAt())
+						.build();
+					messagingTemplate.convertAndSendToUser(userId, "/queue/notifications", response);
+					log.debug("WebSocket push sent to user={}", userId);
+				}
+				catch (Exception e) {
+					log.warn("WebSocket push failed for user={}: {}", userId, e.getMessage());
+				}
+			}
+			catch (Exception e) {
+				log.error("Failed to send in-app notification to user={}: {}", userId, e.getMessage());
+			}
+		}
+	}
+
 }

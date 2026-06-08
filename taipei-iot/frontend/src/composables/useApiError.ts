@@ -1,5 +1,6 @@
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
+import errorCodes from '@/generated/error-codes.json'
 
 /**
  * API 錯誤型別 (Axios error shape)
@@ -55,6 +56,7 @@ export function useApiError() {
     const errorCode = getErrorCode(err)
     const msg =
       (errorCode && codeMessages?.[errorCode]) ||
+      (errorCode && (errorCodes as Record<string, string>)[errorCode]) ||
       fallbackMessage ||
       t('common.operationFailed')
     ElMessage.error(msg)

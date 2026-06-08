@@ -184,7 +184,6 @@ onMounted(() => {
 }
 
 .login-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -193,7 +192,6 @@ onMounted(() => {
 }
 
 .login-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -242,7 +240,6 @@ onMounted(() => {
   border: none;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -268,38 +265,5 @@ onMounted(() => {
 .login-btn:hover {
   background: var(--btn-primary-hover);
   color: var(--btn-primary-text);
-}
-
-/* Element Plus dark overrides for login page */
-:deep(.el-input__wrapper) {
-  background-color: var(--bg-base);
-  border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-:deep(.el-input__wrapper:hover) {
-  border-color: var(--border-strong);
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: rgba(85, 179, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(85, 179, 255, 0.15);
-}
-
-:deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: var(--text-muted);
-}
-
-:deep(.el-form-item__error) {
-  color: #FF6363;
 }
 </style>

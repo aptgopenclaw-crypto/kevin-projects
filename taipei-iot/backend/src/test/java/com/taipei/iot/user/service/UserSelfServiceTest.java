@@ -4,6 +4,7 @@ import com.taipei.iot.auth.entity.ChangePasswordLogEntity;
 import com.taipei.iot.auth.entity.UserEntity;
 import com.taipei.iot.auth.repository.ChangePasswordLogRepository;
 import com.taipei.iot.auth.repository.UserRepository;
+import com.taipei.iot.auth.service.UserSessionService;
 import com.taipei.iot.common.enums.ErrorCode;
 import com.taipei.iot.common.exception.BusinessException;
 import com.taipei.iot.user.dto.request.ChangePasswordRequest;
@@ -27,122 +28,159 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserSelfServiceTest {
 
-    @InjectMocks
-    private UserSelfService userSelfService;
+	@InjectMocks
+	private UserSelfService userSelfService;
 
-    @Mock private UserRepository userRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @Mock private PasswordValidator passwordValidator;
-    @Mock private PasswordHistoryRepository passwordHistoryRepository;
-    @Mock private ChangePasswordLogRepository changePasswordLogRepository;
-    @Mock private UserAuditService userAuditService;
+	@Mock
+	private UserRepository userRepository;
 
-    private UserEntity testUser;
+	@Mock
+	private PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    void setUp() {
-        testUser = UserEntity.builder()
-                .userId("user-001")
-                .email("user@test.com")
-                .displayName("Test User")
-                .phone("0912345678")
-                .passwordHash("$2a$10$existingHash")
-                .enabled(true)
-                .locked(false)
-                .loginFailCount(0)
-                .isSuperAdmin(false)
-                .build();
-    }
+	@Mock
+	private PasswordValidator passwordValidator;
 
-    @Test
-    void updateOwnProfile_shouldUpdateDisplayNameAndPhone() {
-        when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
-        when(userRepository.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+	@Mock
+	private PasswordHistoryRepository passwordHistoryRepository;
 
-        UpdateOwnProfileRequest req = UpdateOwnProfileRequest.builder()
-                .displayName("New Name")
-                .phone("0987654321")
-                .build();
+	@Mock
+	private ChangePasswordLogRepository changePasswordLogRepository;
 
-        UserEntity result = userSelfService.updateOwnProfile("user-001", req);
+	@Mock
+	private UserAuditService userAuditService;
 
-        assertEquals("New Name", result.getDisplayName());
-        assertEquals("0987654321", result.getPhone());
-        verify(userAuditService).logAction(eq("UPDATE"), eq("user-001"), eq("user-001"), anyString());
-    }
+	@Mock
+	private UserSessionService userSessionService;
 
-    @Test
-    void changePassword_success() {
-        when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
-        when(passwordEncoder.encode("NewPass123")).thenReturn("$2a$10$newHash");
-        when(userRepository.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(passwordHistoryRepository.save(any(PasswordHistoryEntity.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
-        when(changePasswordLogRepository.save(any(ChangePasswordLogEntity.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+	private UserEntity testUser;
 
-        ChangePasswordRequest req = ChangePasswordRequest.builder()
-                .oldPassword("OldPass000")
-                .newPassword("NewPass123")
-                .build();
+	@BeforeEach
+	void setUp() {
+		testUser = UserEntity.builder()
+			.userId("user-001")
+			.email("user@test.com")
+			.displayName("Test User")
+			.phone("0912345678")
+			.passwordHash("$2a$10$existingHash")
+			.enabled(true)
+			.locked(false)
+			.loginFailCount(0)
+			.isSuperAdmin(false)
+			.build();
+	}
 
-        userSelfService.changePassword("user-001", req);
+	@Test
+	void updateOwnProfile_shouldUpdateDisplayNameAndPhone() {
+		when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+		when(userRepository.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        assertEquals("$2a$10$newHash", testUser.getPasswordHash());
-        verify(passwordValidator).validate("NewPass123");
-        verify(passwordValidator).checkNotRecentlyUsed("user-001", "NewPass123");
-        verify(passwordHistoryRepository).save(any(PasswordHistoryEntity.class));
-        verify(changePasswordLogRepository).save(any(ChangePasswordLogEntity.class));
-        verify(userAuditService).logAction(eq("UPDATE"), eq("user-001"), eq("user-001"), anyString());
-    }
+		UpdateOwnProfileRequest req = UpdateOwnProfileRequest.builder()
+			.displayName("New Name")
+			.phone("0987654321")
+			.build();
 
-    @Test
-    void changePassword_oldPasswordIncorrect_shouldThrow() {
-        when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("WrongPass", "$2a$10$existingHash")).thenReturn(false);
+		UserEntity result = userSelfService.updateOwnProfile("user-001", req);
 
-        ChangePasswordRequest req = ChangePasswordRequest.builder()
-                .oldPassword("WrongPass")
-                .newPassword("NewPass123")
-                .build();
+		assertEquals("New Name", result.getDisplayName());
+		assertEquals("0987654321", result.getPhone());
+		verify(userAuditService).logAction(eq("UPDATE"), eq("user-001"), eq("user-001"), anyString());
+	}
 
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> userSelfService.changePassword("user-001", req));
-        assertEquals(ErrorCode.OLD_PASSWORD_INCORRECT, ex.getErrorCode());
-    }
+	@Test
+	void changePassword_success() {
+		when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+		when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
+		when(passwordEncoder.encode("NewPass123")).thenReturn("$2a$10$newHash");
+		when(userRepository.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+		when(passwordHistoryRepository.save(any(PasswordHistoryEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+		when(changePasswordLogRepository.save(any(ChangePasswordLogEntity.class)))
+			.thenAnswer(inv -> inv.getArgument(0));
 
-    @Test
-    void changePassword_invalidFormat_shouldThrowResetPasswordError() {
-        when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
-        doThrow(new BusinessException(ErrorCode.RESET_PASSWORD_ERROR, "密碼長度至少 8 字元"))
-                .when(passwordValidator).validate("short");
+		ChangePasswordRequest req = ChangePasswordRequest.builder()
+			.oldPassword("OldPass000")
+			.newPassword("NewPass123")
+			.build();
 
-        ChangePasswordRequest req = ChangePasswordRequest.builder()
-                .oldPassword("OldPass000")
-                .newPassword("short")
-                .build();
+		userSelfService.changePassword("user-001", req, "session-jti-current");
 
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> userSelfService.changePassword("user-001", req));
-        assertEquals(ErrorCode.RESET_PASSWORD_ERROR, ex.getErrorCode());
-    }
+		assertEquals("$2a$10$newHash", testUser.getPasswordHash());
+		verify(passwordValidator).validate(any(), eq("NewPass123"), any());
+		verify(passwordValidator).checkNotRecentlyUsed(any(), eq("user-001"), eq("NewPass123"));
+		verify(passwordHistoryRepository).save(any(PasswordHistoryEntity.class));
+		verify(changePasswordLogRepository).save(any(ChangePasswordLogEntity.class));
+		verify(userAuditService).logAction(eq("UPDATE"), eq("user-001"), eq("user-001"), anyString());
+		// N-4: 驗證密碼變更後撤銷其他 session
+		verify(userSessionService).revokeAllExceptCurrent("user-001", "session-jti-current");
+	}
 
-    @Test
-    void changePassword_recentlyUsed_shouldThrowPasswordRecentlyUsed() {
-        when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
-        doThrow(new BusinessException(ErrorCode.PASSWORD_RECENTLY_USED))
-                .when(passwordValidator).checkNotRecentlyUsed("user-001", "OldPass123");
+	@Test
+	void changePassword_oldPasswordIncorrect_shouldThrow() {
+		when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+		when(passwordEncoder.matches("WrongPass", "$2a$10$existingHash")).thenReturn(false);
 
-        ChangePasswordRequest req = ChangePasswordRequest.builder()
-                .oldPassword("OldPass000")
-                .newPassword("OldPass123")
-                .build();
+		ChangePasswordRequest req = ChangePasswordRequest.builder()
+			.oldPassword("WrongPass")
+			.newPassword("NewPass123")
+			.build();
 
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> userSelfService.changePassword("user-001", req));
-        assertEquals(ErrorCode.PASSWORD_RECENTLY_USED, ex.getErrorCode());
-    }
+		BusinessException ex = assertThrows(BusinessException.class,
+				() -> userSelfService.changePassword("user-001", req, null));
+		assertEquals(ErrorCode.OLD_PASSWORD_INCORRECT, ex.getErrorCode());
+	}
+
+	@Test
+	void changePassword_invalidFormat_shouldThrowResetPasswordError() {
+		when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+		when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
+		doThrow(new BusinessException(ErrorCode.RESET_PASSWORD_ERROR, "密碼長度至少 8 字元")).when(passwordValidator)
+			.validate(any(), eq("short"), any());
+
+		ChangePasswordRequest req = ChangePasswordRequest.builder()
+			.oldPassword("OldPass000")
+			.newPassword("short")
+			.build();
+
+		BusinessException ex = assertThrows(BusinessException.class,
+				() -> userSelfService.changePassword("user-001", req, null));
+		assertEquals(ErrorCode.RESET_PASSWORD_ERROR, ex.getErrorCode());
+	}
+
+	@Test
+	void changePassword_recentlyUsed_shouldThrowPasswordRecentlyUsed() {
+		when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+		when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
+		doThrow(new BusinessException(ErrorCode.PASSWORD_RECENTLY_USED)).when(passwordValidator)
+			.checkNotRecentlyUsed(any(), eq("user-001"), eq("OldPass123"));
+
+		ChangePasswordRequest req = ChangePasswordRequest.builder()
+			.oldPassword("OldPass000")
+			.newPassword("OldPass123")
+			.build();
+
+		BusinessException ex = assertThrows(BusinessException.class,
+				() -> userSelfService.changePassword("user-001", req, null));
+		assertEquals(ErrorCode.PASSWORD_RECENTLY_USED, ex.getErrorCode());
+	}
+
+	@Test
+	void changePassword_withNullJti_shouldRevokeAllSessions() {
+		when(userRepository.findById("user-001")).thenReturn(Optional.of(testUser));
+		when(passwordEncoder.matches("OldPass000", "$2a$10$existingHash")).thenReturn(true);
+		when(passwordEncoder.encode("NewPass123")).thenReturn("$2a$10$newHash");
+		when(userRepository.save(any(UserEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+		when(passwordHistoryRepository.save(any(PasswordHistoryEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+		when(changePasswordLogRepository.save(any(ChangePasswordLogEntity.class)))
+			.thenAnswer(inv -> inv.getArgument(0));
+
+		ChangePasswordRequest req = ChangePasswordRequest.builder()
+			.oldPassword("OldPass000")
+			.newPassword("NewPass123")
+			.build();
+
+		userSelfService.changePassword("user-001", req, null);
+
+		// JTI 為 null 時，revokeAllExceptCurrent 應仍被呼叫（內部會撤銷所有 session）
+		verify(userSessionService).revokeAllExceptCurrent("user-001", null);
+	}
+
 }

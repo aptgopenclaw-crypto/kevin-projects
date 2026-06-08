@@ -12,20 +12,21 @@ import java.util.Optional;
 
 public interface DeptInfoRepository extends JpaRepository<DeptInfoEntity, Long>, TenantScopedRepository {
 
-    List<DeptInfoEntity> findAllByStatusOrderByDeptSortAsc(Short status);
+	List<DeptInfoEntity> findAllByStatusOrderByDeptSortAsc(Short status);
 
-    @Query("SELECT d FROM DeptInfoEntity d WHERE d.status = 1 AND d.hierarchyPath LIKE :prefix% ORDER BY d.deptSort ASC")
-    List<DeptInfoEntity> findByHierarchyPathStartingWith(@Param("prefix") String prefix);
+	@Query("SELECT d FROM DeptInfoEntity d WHERE d.status = 1 AND d.hierarchyPath LIKE :prefix% ORDER BY d.deptSort ASC")
+	List<DeptInfoEntity> findByHierarchyPathStartingWith(@Param("prefix") String prefix);
 
-    Optional<DeptInfoEntity> findByDeptId(Long deptId);
+	Optional<DeptInfoEntity> findByDeptId(Long deptId);
 
-    List<DeptInfoEntity> findByDeptIdIn(Collection<Long> deptIds);
+	List<DeptInfoEntity> findByDeptIdIn(Collection<Long> deptIds);
 
-    List<DeptInfoEntity> findByPid(Long pid);
+	List<DeptInfoEntity> findByPid(Long pid);
 
-    boolean existsByPid(Long pid);
+	boolean existsByPid(Long pid);
 
-    boolean existsByTenantIdAndDeptNameAndPid(String tenantId, String deptName, Long pid);
+	boolean existsByTenantIdAndDeptNameAndPid(String tenantId, String deptName, Long pid);
 
-    Optional<DeptInfoEntity> findByTenantIdAndDeptName(String tenantId, String deptName);
+	Optional<DeptInfoEntity> findByTenantIdAndDeptName(String tenantId, String deptName);
+
 }

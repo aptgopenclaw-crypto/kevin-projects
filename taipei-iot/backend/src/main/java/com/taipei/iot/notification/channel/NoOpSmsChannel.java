@@ -8,14 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class NoOpSmsChannel implements NotificationChannel {
 
-    @Override
-    public String channelType() {
-        return "SMS";
-    }
+	@Override
+	public String channelType() {
+		return "SMS";
+	}
 
-    @Override
-    public void send(NotificationPayload payload) {
-        log.debug("NoOp SMS channel — no SMS gateway configured, skipping send for {} users",
-                payload.getUserIds().size());
-    }
+	@Override
+	public void send(NotificationPayload payload) {
+		log.debug("NoOp SMS channel — no SMS gateway configured, skipping send for {} users",
+				payload.getUserIds().size());
+	}
+
 }

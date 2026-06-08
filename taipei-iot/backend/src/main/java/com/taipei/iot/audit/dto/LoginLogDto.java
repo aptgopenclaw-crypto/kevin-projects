@@ -15,15 +15,26 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LoginLogDto {
 
-    private Long id;
-    private String userId;
-    private String tenantId;
-    private String email;
-    private String displayName;
-    private String eventType;
-    private String detail;
-    private String ipAddress;
-    private String userAgent;
-    private Long deptId;
-    private LocalDateTime createTime;
+	private Long id;
+
+	private String userId;
+
+	private String tenantId;
+
+	private String email;
+
+	private String displayName;
+
+	private String eventType;
+
+	private String detail;
+
+	private String ipAddress;
+
+	private String userAgent;
+
+	private Long deptId;
+
+	private LocalDateTime createTime;
+
 }

@@ -22,48 +22,54 @@ import java.time.LocalDateTime;
 
 /**
  * 公告附件。
- * <p>實體檔案儲存在 {@code ./uploads/announcement/{announcementId}/...}，
- * 由 {@code FileStorageService} 管理；本表僅保存中繼資料與相對路徑。
+ * <p>
+ * 實體檔案儲存在 {@code ./uploads/announcement/{announcementId}/...}， 由
+ * {@code FileStorageService} 管理；本表僅保存中繼資料與相對路徑。
  */
 @Entity
 @Table(name = "announcement_attachments")
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
-@EntityListeners({TenantEntityListener.class, AuditingEntityListener.class})
-@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+@EntityListeners({ TenantEntityListener.class, AuditingEntityListener.class })
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AnnouncementAttachment implements TenantAware {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(name = "tenant_id", nullable = false, length = 50)
-    private String tenantId;
+	@Column(name = "tenant_id", nullable = false, length = 50)
+	private String tenantId;
 
-    @Column(name = "announcement_id", nullable = false)
-    private Long announcementId;
+	@Column(name = "announcement_id", nullable = false)
+	private Long announcementId;
 
-    @Column(name = "file_name", nullable = false, length = 255)
-    private String fileName;
+	@Column(name = "file_name", nullable = false, length = 255)
+	private String fileName;
 
-    @Column(name = "file_size", nullable = false)
-    private Long fileSize;
+	@Column(name = "file_size", nullable = false)
+	private Long fileSize;
 
-    @Column(name = "mime_type", nullable = false, length = 150)
-    private String mimeType;
+	@Column(name = "mime_type", nullable = false, length = 150)
+	private String mimeType;
 
-    /** FileStorageService 回傳的相對路徑（不對外暴露） */
-    @Column(name = "file_path", nullable = false, length = 500)
-    private String filePath;
+	/** FileStorageService 回傳的相對路徑（不對外暴露） */
+	@Column(name = "file_path", nullable = false, length = 500)
+	private String filePath;
 
-    @Column(name = "created_by", length = 50)
-    private String createdBy;
+	@Column(name = "created_by", length = 50)
+	private String createdBy;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+	@CreatedDate
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-    @Override
-    public String getTenantId() {
-        return tenantId;
-    }
+	@Override
+	public String getTenantId() {
+		return tenantId;
+	}
+
 }

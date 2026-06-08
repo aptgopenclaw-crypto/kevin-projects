@@ -10,22 +10,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NoOpEmailChannelTest {
 
-    private final NoOpEmailChannel channel = new NoOpEmailChannel();
+	private final NoOpEmailChannel channel = new NoOpEmailChannel();
 
-    @Test
-    void channelType_shouldReturnEmail() {
-        assertEquals("EMAIL", channel.channelType());
-    }
+	@Test
+	void channelType_shouldReturnEmail() {
+		assertEquals("EMAIL", channel.channelType());
+	}
 
-    @Test
-    void send_shouldNotThrow() {
-        NotificationPayload payload = NotificationPayload.builder()
-                .tenantId("T1")
-                .userIds(List.of("u1"))
-                .type(NotificationType.INFO)
-                .title("Test")
-                .build();
+	@Test
+	void send_shouldNotThrow() {
+		NotificationPayload payload = NotificationPayload.builder()
+			.tenantId("T1")
+			.userIds(List.of("u1"))
+			.type(NotificationType.INFO)
+			.title("Test")
+			.build();
 
-        assertDoesNotThrow(() -> channel.send(payload));
-    }
+		assertDoesNotThrow(() -> channel.send(payload));
+	}
+
 }

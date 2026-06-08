@@ -145,7 +145,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   color: var(--text-heading);

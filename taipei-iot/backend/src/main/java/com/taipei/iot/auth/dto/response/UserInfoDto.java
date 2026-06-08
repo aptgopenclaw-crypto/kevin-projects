@@ -15,16 +15,28 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoDto {
-    private String userId;
-    private String email;
-    private String displayName;
-    private String tenantId;
-    private String tenantName;
-    private List<String> roles;
-    private String deptId;
-    private String deptName;
-    private List<String> permissions;
-    @JsonProperty("isSuperAdmin")
-    private boolean isSuperAdmin;
-    private List<TenantOption> availableTenants;
+
+	private String userId;
+
+	private String email;
+
+	private String displayName;
+
+	private String tenantId;
+
+	private String tenantName;
+
+	private List<String> roles;
+
+	private String deptId;
+
+	private String deptName;
+
+	private List<String> permissions;
+
+	@JsonProperty("isSuperAdmin")
+	private boolean isSuperAdmin;
+
+	private List<TenantOption> availableTenants;
+
 }

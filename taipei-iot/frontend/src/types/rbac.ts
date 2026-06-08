@@ -61,8 +61,11 @@ export interface MenuDto {
   visible: boolean
   keepAlive: boolean
   redirect: string | null
+  scope: MenuScope
   children: MenuDto[]
 }
+
+export type MenuScope = 'PLATFORM' | 'TENANT' | 'PUBLIC'
 
 export interface UserMenuDto {
   menuId: number
@@ -75,6 +78,7 @@ export interface UserMenuDto {
   icon: string | null
   sortOrder: number
   redirect: string | null
+  scope: MenuScope
   children: UserMenuDto[]
 }
 
@@ -93,6 +97,7 @@ export interface CreateMenuRequest {
   visible: boolean
   keepAlive: boolean
   redirect: string | null
+  scope: MenuScope
 }
 
 export interface UpdateMenuRequest extends CreateMenuRequest {

@@ -21,10 +21,18 @@ public class AgencyFilterController {
     @GetMapping
     @PreAuthorize("hasAuthority('tender:config:view')")
     public BaseResponse<List<AgencyFilterResponse>> list(
-            @RequestParam(defaultValue = "false") boolean includeInactive) {
-        List<AgencyFilterResponse> result = includeInactive
-                ? service.listAllIncludeInactive()
-                : service.listAll();
+            @RequestParam(defaultValue = "false") boolean includeInactive,
+            @RequestParam(required = false) String solution) {
+        List<AgencyFilterResponse> result;
+        if (solution != null && !solution.isBlank()) {
+            result = includeInactive
+                    ? service.listBySolutionIncludeInactive(solution)
+                    : service.listBySolution(solution);
+        } else {
+            result = includeInactive
+                    ? service.listAllIncludeInactive()
+                    : service.listAll();
+        }
         return BaseResponse.success(result);
     }
 

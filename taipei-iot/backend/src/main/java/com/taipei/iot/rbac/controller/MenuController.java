@@ -11,6 +11,7 @@ import com.taipei.iot.rbac.service.MenuService;
 import com.taipei.iot.tenant.TenantContext;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,48 +33,59 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MenuController {
 
-    private final MenuService menuService;
+	private final MenuService menuService;
 
-    @GetMapping("/tree")
-    public BaseResponse<List<MenuDto>> getMenuTree() {
-        return BaseResponse.success(menuService.getMenuTree());
-    }
+	@GetMapping("/tree")
+	@PreAuthorize("hasAuthority('MENU_LIST')")
+	public BaseResponse<List<MenuDto>> getMenuTree() {
+		return BaseResponse.success(menuService.getMenuTree());
+	}
 
-    @GetMapping("/my")
-    public BaseResponse<List<UserMenuDto>> getMyMenus(Authentication authentication) {
-        // Extract role IDs from authorities (e.g., ROLE_ADMIN -> ROLE_ADMIN)
-        List<String> roleIds = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+	@GetMapping("/my")
+	@PreAuthorize("isAuthenticated()")
+	public BaseResponse<List<UserMenuDto>> getMyMenus(Authentication authentication) {
+		// Extract role IDs from authorities (e.g., ROLE_ADMIN -> ROLE_ADMIN)
+		List<String> roleIds = authentication.getAuthorities()
+			.stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.toList());
 
-        String tenantId = TenantContext.getCurrentTenantId();
-        return BaseResponse.success(menuService.getMyMenus(roleIds, tenantId));
-    }
+		// [Phase B fix] SUPER_ADMIN in SYSTEM context: JwtAuthenticationFilter
+		// sets the "SYSTEM" marker as tenantId. MenuService treats any non-null
+		// tenantId as "in tenant context" → wrong scope. Normalise to null so
+		// PLATFORM-scoped menus are returned.
+		String tenantId = TenantContext.isSystemContext() ? null : TenantContext.getCurrentTenantId();
+		return BaseResponse.success(menuService.getMyMenus(roleIds, tenantId));
+	}
 
-    @PostMapping
-    @AuditEvent(AuditEventType.CREATE_MENU)
-    public BaseResponse<MenuDto> createMenu(@Valid @RequestBody CreateMenuRequest request) {
-        return BaseResponse.success(menuService.createMenu(request));
-    }
+	@PostMapping
+	@PreAuthorize("hasAuthority('MENU_CREATE')")
+	@AuditEvent(AuditEventType.CREATE_MENU)
+	public BaseResponse<MenuDto> createMenu(@Valid @RequestBody CreateMenuRequest request) {
+		return BaseResponse.success(menuService.createMenu(request));
+	}
 
-    @PutMapping
-    @AuditEvent(AuditEventType.UPDATE_MENU)
-    public BaseResponse<MenuDto> updateMenu(@Valid @RequestBody UpdateMenuRequest request) {
-        return BaseResponse.success(menuService.updateMenu(request));
-    }
+	@PutMapping
+	@PreAuthorize("hasAuthority('MENU_UPDATE')")
+	@AuditEvent(AuditEventType.UPDATE_MENU)
+	public BaseResponse<MenuDto> updateMenu(@Valid @RequestBody UpdateMenuRequest request) {
+		return BaseResponse.success(menuService.updateMenu(request));
+	}
 
-    @DeleteMapping("/{menuId}")
-    @AuditEvent(AuditEventType.DELETE_MENU)
-    public BaseResponse<Void> deleteMenu(@PathVariable Long menuId) {
-        menuService.deleteMenu(menuId);
-        return BaseResponse.success(null);
-    }
+	@DeleteMapping("/{menuId}")
+	@PreAuthorize("hasAuthority('MENU_DELETE')")
+	@AuditEvent(AuditEventType.DELETE_MENU)
+	public BaseResponse<Void> deleteMenu(@PathVariable Long menuId) {
+		menuService.deleteMenu(menuId);
+		return BaseResponse.success(null);
+	}
 
-    @PatchMapping("/{menuId}/visible")
-    @AuditEvent(AuditEventType.TOGGLE_VISIBLE)
-    public BaseResponse<Void> toggleVisible(@PathVariable Long menuId,
-                                            @RequestParam boolean visible) {
-        menuService.toggleVisible(menuId, visible);
-        return BaseResponse.success(null);
-    }
+	@PatchMapping("/{menuId}/visible")
+	@PreAuthorize("hasAuthority('MENU_UPDATE')")
+	@AuditEvent(AuditEventType.TOGGLE_VISIBLE)
+	public BaseResponse<Void> toggleVisible(@PathVariable Long menuId, @RequestParam boolean visible) {
+		menuService.toggleVisible(menuId, visible);
+		return BaseResponse.success(null);
+	}
+
 }

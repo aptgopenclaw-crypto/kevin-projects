@@ -15,23 +15,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserRequest {
-    @NotBlank
-    @Email
-    private String email;
 
-    @NotBlank
-    private String displayName;
+	@NotBlank
+	@Email
+	private String email;
 
-    private String phone;
+	@NotBlank
+	private String displayName;
 
-    @NotBlank
-    @Size(min = 8)
-    private String initialPassword;
+	private String phone;
 
-    private String tenantId;
+	@NotBlank
+	@Size(min = 8)
+	private String initialPassword;
 
-    @NotBlank
-    private String roleId;
+	private String tenantId;
 
-    private Long deptId;
+	@NotBlank
+	private String roleId;
+
+	private Long deptId;
+
 }

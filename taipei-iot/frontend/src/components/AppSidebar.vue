@@ -11,7 +11,6 @@ import {
   Home,
   UserCog,
   KeyRound,
-  Building2,
 } from 'lucide-vue-next'
 import MenuNode from '@/components/MenuNode.vue'
 import TenantSwitcher from '@/components/TenantSwitcher.vue'
@@ -43,7 +42,6 @@ function handleMenuSelect(index: string) {
 const displayName = computed(() => authStore.userInfo?.displayName ?? '')
 const tenantName = computed(() => authStore.userInfo?.tenantName ?? '')
 const availableTenants = computed(() => authStore.userInfo?.availableTenants ?? [])
-const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 </script>
 
 <template>
@@ -98,12 +96,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
             <template #title><span>{{ t('nav.changePassword') }}</span></template>
           </el-menu-item>
         </template>
-
-        <!-- SUPER_ADMIN only: Tenant Management -->
-        <el-menu-item v-if="isSuperAdmin" index="/admin/system/tenants" @click="router.push('/admin/system/tenants')">
-          <el-icon><Building2 /></el-icon>
-          <template #title><span>{{ t('tenant.navLabel') }}</span></template>
-        </el-menu-item>
       </el-menu>
     </nav>
   </aside>
@@ -134,7 +126,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 }
 
 .brand-text {
-  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #FF6363;
@@ -165,7 +156,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 }
 
 .user-name {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -173,7 +163,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 }
 
 .user-tenant {
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 400;
   color: var(--text-muted);
@@ -208,7 +197,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 }
 
 .sidebar-el-menu :deep(.el-menu-item) {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -230,7 +218,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
 }
 
 .sidebar-el-menu :deep(.el-sub-menu__title) {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -256,7 +243,6 @@ const isSuperAdmin = computed(() => authStore.userInfo?.isSuperAdmin === true)
   border-radius: 6px;
   cursor: pointer;
   transition: background 150ms ease;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);

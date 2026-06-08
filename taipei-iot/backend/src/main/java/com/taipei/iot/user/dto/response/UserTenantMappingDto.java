@@ -12,13 +12,23 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserTenantMappingDto {
-    private Long mappingId;
-    private String tenantId;
-    private String tenantName;
-    private String roleId;
-    private String roleCode;
-    private String roleName;
-    private Long deptId;
-    private String deptName;
-    private boolean enabled;
+
+	private Long mappingId;
+
+	private String tenantId;
+
+	private String tenantName;
+
+	private String roleId;
+
+	private String roleCode;
+
+	private String roleName;
+
+	private Long deptId;
+
+	private String deptName;
+
+	private boolean enabled;
+
 }

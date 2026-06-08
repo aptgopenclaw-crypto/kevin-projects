@@ -12,8 +12,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PermissionDto {
-    private String permissionId;
-    private String code;
-    private String name;
-    private String groupName;
+
+	private String permissionId;
+
+	private String code;
+
+	private String name;
+
+	private String groupName;
+
 }

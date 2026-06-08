@@ -7,13 +7,19 @@ spring:
     redis:
       password: ${REDIS_PASSWORD:Kali1234!}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GMAIL_APP_PASSWORD}
+    host: ${O_MAILSER:smtp.office365.com}
+    port: ${O_MAILPORT:587}
+    username: ${O_MAILUSER:fetprivatenetwork@feto365.tw}
+    password: ${O_MAILPASS:FET5gpns}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+
+tender:
+  mail:
+    alias: ${O_ALIAS:政府採購公告}
+    recipients:
+      - kevinchang4@fareastone.com.tw
 
 jwt:
   secret: ${JWT_SECRET:x7G2kLp9QzRtW4vN8mYfA3hJ6bD0sCeU1oXiPaZqTnMwKyBrVdEj5lFgHuI}

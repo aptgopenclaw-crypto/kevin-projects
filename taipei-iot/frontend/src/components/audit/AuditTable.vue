@@ -65,6 +65,15 @@ function handleSizeChange(val: number) {
         </template>
       </el-table-column>
       <el-table-column prop="ipAddress" :label="t('audit.colIp')" width="130" show-overflow-tooltip />
+      <el-table-column prop="impersonatedBy" :label="t('audit.colImpersonator')" width="150" show-overflow-tooltip>
+        <template #default="{ row }">
+          <span v-if="row.impersonatedBy">
+            <el-tag type="warning" size="small" effect="dark">{{ t('audit.impersonatedBadge') }}</el-tag>
+            <span style="margin-left:6px">{{ row.impersonatedBy }}</span>
+          </span>
+          <span v-else>—</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="executionTime" :label="t('audit.colExecTime')" width="90" align="right" sortable="custom" />
       <el-table-column prop="createTime" :label="t('audit.colTime')" min-width="160" sortable="custom">
         <template #default="{ row }">

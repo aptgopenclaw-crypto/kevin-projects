@@ -20,62 +20,63 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class InAppChannelTest {
 
-    @Mock
-    private NotificationRepository notificationRepository;
+	@Mock
+	private NotificationRepository notificationRepository;
 
-    @Mock
-    private SimpMessagingTemplate messagingTemplate;
+	@Mock
+	private SimpMessagingTemplate messagingTemplate;
 
-    @InjectMocks
-    private InAppChannel inAppChannel;
+	@InjectMocks
+	private InAppChannel inAppChannel;
 
-    @Test
-    void channelType_shouldReturnInApp() {
-        assertEquals("IN_APP", inAppChannel.channelType());
-    }
+	@Test
+	void channelType_shouldReturnInApp() {
+		assertEquals("IN_APP", inAppChannel.channelType());
+	}
 
-    @Test
-    void send_shouldSaveOneNotificationPerUser() {
-        NotificationPayload payload = NotificationPayload.builder()
-                .tenantId("T1")
-                .userIds(List.of("u1", "u2"))
-                .type(NotificationType.TODO)
-                .title("New fault")
-                .content("Fault F-001 assigned")
-                .build();
+	@Test
+	void send_shouldSaveOneNotificationPerUser() {
+		NotificationPayload payload = NotificationPayload.builder()
+			.tenantId("T1")
+			.userIds(List.of("u1", "u2"))
+			.type(NotificationType.TODO)
+			.title("New fault")
+			.content("Fault F-001 assigned")
+			.build();
 
-        when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+		when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        inAppChannel.send(payload);
+		inAppChannel.send(payload);
 
-        ArgumentCaptor<NotificationEntity> captor = ArgumentCaptor.forClass(NotificationEntity.class);
-        verify(notificationRepository, times(2)).save(captor.capture());
+		ArgumentCaptor<NotificationEntity> captor = ArgumentCaptor.forClass(NotificationEntity.class);
+		verify(notificationRepository, times(2)).save(captor.capture());
 
-        List<NotificationEntity> saved = captor.getAllValues();
-        assertEquals("u1", saved.get(0).getUserId());
-        assertEquals("u2", saved.get(1).getUserId());
-        assertEquals("New fault", saved.get(0).getTitle());
-        assertEquals(NotificationType.TODO, saved.get(0).getType());
+		List<NotificationEntity> saved = captor.getAllValues();
+		assertEquals("u1", saved.get(0).getUserId());
+		assertEquals("u2", saved.get(1).getUserId());
+		assertEquals("New fault", saved.get(0).getTitle());
+		assertEquals(NotificationType.TODO, saved.get(0).getType());
 
-        // Verify WebSocket push
-        verify(messagingTemplate, times(2)).convertAndSendToUser(anyString(), eq("/queue/notifications"), any());
-    }
+		// Verify WebSocket push
+		verify(messagingTemplate, times(2)).convertAndSendToUser(anyString(), eq("/queue/notifications"), any());
+	}
 
-    @Test
-    void send_shouldSetTenantIdOnEntity() {
-        NotificationPayload payload = NotificationPayload.builder()
-                .tenantId("TENANT_A")
-                .userIds(List.of("u1"))
-                .type(NotificationType.INFO)
-                .title("Info")
-                .build();
+	@Test
+	void send_shouldSetTenantIdOnEntity() {
+		NotificationPayload payload = NotificationPayload.builder()
+			.tenantId("TENANT_A")
+			.userIds(List.of("u1"))
+			.type(NotificationType.INFO)
+			.title("Info")
+			.build();
 
-        when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+		when(notificationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        inAppChannel.send(payload);
+		inAppChannel.send(payload);
 
-        ArgumentCaptor<NotificationEntity> captor = ArgumentCaptor.forClass(NotificationEntity.class);
-        verify(notificationRepository).save(captor.capture());
-        assertEquals("TENANT_A", captor.getValue().getTenantId());
-    }
+		ArgumentCaptor<NotificationEntity> captor = ArgumentCaptor.forClass(NotificationEntity.class);
+		verify(notificationRepository).save(captor.capture());
+		assertEquals("TENANT_A", captor.getValue().getTenantId());
+	}
+
 }

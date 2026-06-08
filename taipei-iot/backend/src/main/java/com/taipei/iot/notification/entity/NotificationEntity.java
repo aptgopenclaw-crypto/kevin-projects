@@ -28,49 +28,57 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications")
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
-@EntityListeners({TenantEntityListener.class, AuditingEntityListener.class})
-@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+@EntityListeners({ TenantEntityListener.class, AuditingEntityListener.class })
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NotificationEntity implements TenantAware {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(name = "tenant_id", nullable = false, length = 50)
-    private String tenantId;
+	@Column(name = "tenant_id", nullable = false, length = 50)
+	private String tenantId;
 
-    @Column(name = "user_id", nullable = false, length = 50)
-    private String userId;
+	@Column(name = "user_id", nullable = false, length = 50)
+	private String userId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20)
-    private NotificationType type;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type", nullable = false, length = 20)
+	private NotificationType type;
 
-    @Column(name = "title", nullable = false, length = 200)
-    private String title;
+	@Column(name = "title", nullable = false, length = 200)
+	private String title;
 
-    @Column(name = "content", length = 2000)
-    private String content;
+	@Column(name = "content", length = 2000)
+	private String content;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ref_type", length = 50)
-    private NotificationRefType refType;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "ref_type", length = 50)
+	private NotificationRefType refType;
 
-    @Column(name = "ref_id", length = 50)
-    private String refId;
+	@Column(name = "ref_id", length = 50)
+	private String refId;
 
-    @Column(name = "read", nullable = false)
-    @Builder.Default
-    private Boolean read = false;
+	@Column(name = "read", nullable = false)
+	@Builder.Default
+	private Boolean read = false;
 
-    @Column(name = "read_at")
-    private LocalDateTime readAt;
+	@Column(name = "read_at")
+	private LocalDateTime readAt;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+	@CreatedDate
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+	@LastModifiedDate
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
+
+	@Column(name = "archived_at")
+	private LocalDateTime archivedAt;
+
 }

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import {
   listNotifications,
   getNotificationUnreadCount,
@@ -8,117 +9,188 @@ import {
 import type { NotificationItem } from '@/types/notification'
 import { Client } from '@stomp/stompjs'
 
-export const useNotificationStore = defineStore('notification', {
-  state: () => ({
-    unreadCount: 0,
-    items: [] as NotificationItem[],
-    pollTimer: null as ReturnType<typeof setInterval> | null,
-    stompClient: null as Client | null,
-  }),
+export const useNotificationStore = defineStore('notification', () => {
+  const unreadCount = ref(0)
+  const items = ref<NotificationItem[]>([])
+  const pollTimer = ref<ReturnType<typeof setInterval> | null>(null)
+  let stompClient: Client | null = null
+  const wsConnected = ref(false)
+  const userIdle = ref(false)
+  let visibilityHandler: (() => void) | null = null
 
-  actions: {
-    async fetchUnreadCount() {
-      try {
-        const res = await getNotificationUnreadCount()
-        if (res.errorCode === '00000') {
-          this.unreadCount = res.body.count
-        }
-      } catch {
-        // silently fail
+  async function fetchUnreadCount() {
+    try {
+      const res = await getNotificationUnreadCount()
+      if (res.errorCode === '00000') {
+        unreadCount.value = res.body.count
       }
-    },
+    } catch (err: any) {
+      const status = err?.response?.status
+      if (status === 401 || status === 403) throw err
+      console.warn('[notification] fetchUnreadCount failed', err)
+    }
+  }
 
-    async fetchItems() {
-      try {
-        const res = await listNotifications({ page: 0, size: 10 })
-        if (res.errorCode === '00000') {
-          this.items = res.body.content
-        }
-      } catch {
-        // silently fail
+  async function fetchItems() {
+    try {
+      const res = await listNotifications({ page: 0, size: 10 })
+      if (res.errorCode === '00000') {
+        items.value = res.body.content
       }
-    },
+    } catch (err: any) {
+      const status = err?.response?.status
+      if (status === 401 || status === 403) throw err
+      console.warn('[notification] fetchItems failed', err)
+    }
+  }
 
-    async markRead(id: number) {
-      try {
-        await markNotificationRead(id)
-        const item = this.items.find(i => i.id === id)
-        if (item && !item.read) {
-          item.read = true
-          this.unreadCount = Math.max(0, this.unreadCount - 1)
-        }
-      } catch {
-        // silently fail
+  async function markRead(id: number) {
+    try {
+      await markNotificationRead(id)
+      const item = items.value.find(i => i.id === id)
+      if (item && !item.read) {
+        item.read = true
+        unreadCount.value = Math.max(0, unreadCount.value - 1)
       }
-    },
+    } catch (err: any) {
+      const status = err?.response?.status
+      if (status === 401 || status === 403) throw err
+      console.warn('[notification] markRead failed', err)
+    }
+  }
 
-    async markAllRead() {
-      try {
-        await markAllNotificationsRead()
-        this.unreadCount = 0
-        this.items.forEach(i => { i.read = true })
-      } catch {
-        // silently fail
+  async function markAllRead() {
+    try {
+      await markAllNotificationsRead()
+      unreadCount.value = 0
+      items.value.forEach(i => { i.read = true })
+    } catch (err: any) {
+      const status = err?.response?.status
+      if (status === 401 || status === 403) throw err
+      console.warn('[notification] markAllRead failed', err)
+    }
+  }
+
+  function connectWebSocket(token: string) {
+    if (stompClient?.active) return
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws`
+
+    stompClient = new Client({
+      brokerURL: wsUrl,
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      onConnect: () => {
+        wsConnected.value = true
+        // Stop polling — WS will deliver real-time updates
+        clearPollTimer()
+
+        stompClient?.subscribe('/user/queue/notifications', (message) => {
+          const notification = JSON.parse(message.body) as NotificationItem
+          items.value.unshift(notification)
+          if (items.value.length > 10) items.value.pop()
+          unreadCount.value += 1
+        })
+      },
+      onDisconnect: () => {
+        wsConnected.value = false
+        // Resume polling as fallback
+        resumePolling()
+      },
+      onStompError: (frame) => {
+        wsConnected.value = false
+        resumePolling()
+        console.warn('STOMP error:', frame.headers['message'])
+      },
+    })
+
+    stompClient.activate()
+  }
+
+  function disconnectWebSocket() {
+    if (stompClient?.active) {
+      stompClient.deactivate()
+      stompClient = null
+    }
+  }
+
+  function startPolling(token?: string) {
+    fetchUnreadCount()
+    fetchItems()
+
+    // Try WebSocket first, fallback to polling
+    if (token) {
+      connectWebSocket(token)
+    }
+
+    // Start polling initially; will be stopped once WS connects
+    if (!wsConnected.value) {
+      resumePolling()
+    }
+
+    // Pause polling when tab is hidden
+    _startIdleDetection()
+  }
+
+  /** Resume the 60s polling interval (used as WS fallback) */
+  function resumePolling() {
+    if (pollTimer.value) return // already running
+    pollTimer.value = setInterval(() => {
+      fetchUnreadCount()
+    }, 60 * 1000)
+  }
+
+  /** Clear the polling timer without disconnecting WS */
+  function clearPollTimer() {
+    if (pollTimer.value) {
+      clearInterval(pollTimer.value)
+      pollTimer.value = null
+    }
+  }
+
+  function stopPolling() {
+    clearPollTimer()
+    disconnectWebSocket()
+    wsConnected.value = false
+    _stopIdleDetection()
+  }
+
+  /** Pause polling when user is idle (tab hidden); resume on return */
+  function _onVisibilityChange() {
+    if (document.visibilityState === 'hidden') {
+      userIdle.value = true
+      clearPollTimer()
+    } else {
+      userIdle.value = false
+      // Immediately fetch then resume interval
+      fetchUnreadCount()
+      if (!wsConnected.value) {
+        resumePolling()
       }
-    },
+    }
+  }
 
-    connectWebSocket(token: string) {
-      if (this.stompClient?.active) return
+  function _startIdleDetection() {
+    if (visibilityHandler) return
+    visibilityHandler = _onVisibilityChange
+    document.addEventListener('visibilitychange', visibilityHandler)
+  }
 
-      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsUrl = `${wsProtocol}//${window.location.host}/ws`
+  function _stopIdleDetection() {
+    if (visibilityHandler) {
+      document.removeEventListener('visibilitychange', visibilityHandler)
+      visibilityHandler = null
+    }
+    userIdle.value = false
+  }
 
-      this.stompClient = new Client({
-        brokerURL: wsUrl,
-        connectHeaders: { Authorization: `Bearer ${token}` },
-        reconnectDelay: 5000,
-        heartbeatIncoming: 10000,
-        heartbeatOutgoing: 10000,
-        onConnect: () => {
-          this.stompClient?.subscribe('/user/queue/notifications', (message) => {
-            const notification = JSON.parse(message.body) as NotificationItem
-            this.items.unshift(notification)
-            if (this.items.length > 10) this.items.pop()
-            this.unreadCount += 1
-          })
-        },
-        onStompError: (frame) => {
-          console.warn('STOMP error:', frame.headers['message'])
-        },
-      })
-
-      this.stompClient.activate()
-    },
-
-    disconnectWebSocket() {
-      if (this.stompClient?.active) {
-        this.stompClient.deactivate()
-        this.stompClient = null
-      }
-    },
-
-    startPolling(token?: string) {
-      this.fetchUnreadCount()
-      this.fetchItems()
-
-      // Try WebSocket first, fallback to polling
-      if (token) {
-        this.connectWebSocket(token)
-      }
-
-      // Keep polling as fallback (reduced interval when WS is active)
-      if (this.pollTimer) clearInterval(this.pollTimer)
-      this.pollTimer = setInterval(() => {
-        this.fetchUnreadCount()
-      }, 60 * 1000)
-    },
-
-    stopPolling() {
-      if (this.pollTimer) {
-        clearInterval(this.pollTimer)
-        this.pollTimer = null
-      }
-      this.disconnectWebSocket()
-    },
-  },
+  return {
+    unreadCount, items, wsConnected, pollTimer, userIdle,
+    fetchUnreadCount, fetchItems, markRead, markAllRead,
+    connectWebSocket, disconnectWebSocket, startPolling,
+    resumePolling, clearPollTimer, stopPolling,
+  }
 })

@@ -546,17 +546,123 @@ export async function getPendingTasks() {
 
 ## 十三、建議優先級摘要
 
-| 優先級 | 項目 | 類型 |
-|--------|------|------|
-| ✅ **P2** | 統一分頁型別為 `PageResponse<T>` (移除 `PageData` / 專用 XxxPageResponse) | Consistency |
-| ✅ **P2** | 安裝 Vitest + 撰寫 authStore / 路由守衛基礎測試 | Quality |
-| ✅ **P3** | 抽出 API 錯誤處理共用 composable | DX |
-| ✅ **P3** | Element Plus 改用 auto-import (unplugin-vue-components) | Performance |
-| ✅ **P3** | 共用頁面佈局樣式抽出為 layout CSS / component | DX |
-| **P4** | API 請求加入 AbortController (搜尋 / 分頁) | UX |
-| **P4** | 生產環境 CSP nonce + 關閉 source map | Security |
-| **P4** | 加入環境變數 `.env` 管理 | Ops |
-| **P5** | HomeView 恢復 Dashboard 內容 | UX |
-| **P5** | 加入 Sentry 或前端錯誤監控 | Ops |
-| **P5** | 考慮 virtual scroll for 大資料表格 | Performance |
-| **P5** | 移除 workflow stub 或標記 TODO | Cleanup |
+| 優先級 | 項目 | 類型 | v2 修復狀態 |
+|--------|------|------|-------------|
+| ✅ **P2** | 統一分頁型別為 `PageResponse<T>` (移除 `PageData` / 專用 XxxPageResponse) | Consistency | ⚠️ 部分完成 — 新模組已統一，既有 `PageData` 未遷移（低影響） |
+| ✅ **P2** | 安裝 Vitest + 撰寫 authStore / 路由守衛基礎測試 | Quality | ✅ **v2 已完成** — 219 案例 / 31 檔案 (F-10 + 各項 N/F 附帶測試) |
+| ✅ **P3** | 抽出 API 錯誤處理共用 composable | DX | ✅ **v2 已完成** — `useApiError` (N-9) + `useApiRequest` (F-3) |
+| ✅ **P3** | Element Plus 改用 auto-import (unplugin-vue-components) | Performance | ⏭️ 未處理 — 改以 `server.deps.inline` 解決測試問題，bundle 未明顯增大 |
+| ✅ **P3** | 共用頁面佈局樣式抽出為 layout CSS / component | DX | ✅ **v2 已完成** — `PageLayout.vue` + `PageHeader.vue` (F-4) + `page-layout.css` (N-13) |
+| **P4** | API 請求加入 AbortController (搜尋 / 分頁) | UX | ✅ **v2 已完成** — `useCancelableRequest` composable (N-9) |
+| **P4** | 生產環境 CSP nonce + 關閉 source map | Security | ⏭️ 部署層設定 — Nginx 配置範疇 |
+| **P4** | 加入環境變數 `.env` 管理 | Ops | ✅ **v2 已完成** — `.env` 系列 + typed env.d.ts + feature flags (N-8 + F-7) |
+| **P5** | HomeView 恢復 Dashboard 內容 | UX | ⏭️ 未處理 — Dashboard 模組 locale 已備齊，待後續整合 |
+| **P5** | 加入 Sentry 或前端錯誤監控 | Ops | ✅ **v2 已完成** — global error boundary (N-3/F-2) + `VITE_SENTRY_DSN` env 預留 (F-7) |
+| **P5** | 考慮 virtual scroll for 大資料表格 | Performance | ⏭️ 未處理 — 目前資料量尚可，低優先 |
+| **P5** | 移除 workflow stub 或標記 TODO | Cleanup | ✅ **v2 已完成** — IoT/workflow skeleton 及路由全部移除 (N-16) |
+
+---
+
+## 十四、v2 複查追溯（2026-05-28）
+
+> 以下為 [frontend-code-review-v2.md](frontend-code-review-v2.md) 修復後，對照 v1 各議題的最終狀態。
+
+### 安全性議題 (Section 二)
+
+| # | v1 議題 | v2 狀態 |
+|---|---------|---------|
+| 1 | [低] CSP 含 `unsafe-inline` 和 `unsafe-eval` | ⏭️ 部署層 — Nginx 設定範疇，非前端程式碼 |
+| 2 | [低] `passExam` 可被手動設定 | ✅ 接受風險 — 僅為快速判斷，後端 JWT 為真正認證 |
+| 3 | [低] WebSocket 連線使用頁面 origin | ✅ 接受 — STOMP over same origin，由 CORS + cookie 保護 |
+
+### 程式碼品質議題 (Section 三)
+
+| # | v1 議題 | v2 狀態 |
+|---|---------|---------|
+| 8 | [中等] `PageData<T>` 與 `PageResponse<T>` 不統一 | ⚠️ 部分 — 新模組已統一用 `PageResponse<T>`，audit 既有 `PageData` 未遷移 |
+| 9 | [中等] 分頁回應型別多重定義 | ⚠️ 同上 — notification/announcement 仍保留專用 type |
+| 10 | [中等] 路由守衛動態 import 可提取 | ✅ 接受現狀 — dynamic import 效能影響極小，避免循環依賴 |
+| 11 | [低] `BaseResponse<T>` 定義在 `types/auth.ts` | ⚠️ 未搬遷 — 低影響，import path 不影響功能 |
+| 12 | [低] 錯誤處理重複模式 | ✅ **已修復** — `useApiError` composable (v2 N-9) + `useApiRequest` (v2 F-3) |
+| 13 | [低] HomeView 空白頁面 | ⏭️ 未處理 — Dashboard locale 已備齊，待 UI 整合 |
+| 14 | [低] Workflow API 為 Stub | ✅ **已修復** — IoT/workflow 全部移除 (v2 N-16) |
+
+### 狀態管理議題 (Section 四)
+
+| v1 議題 | v2 狀態 |
+|---------|---------|
+| authStore 無 token 過期前主動 refresh | ✅ **已修復** — JWT exp 解析 + 60s 預判主動刷新 (v2 N-18) |
+| announcementStore polling 間隔固定 | ✅ **已修復** — visibility-aware polling，頁面不可見時暫停 (v2 N-17) |
+| Store 風格混用 (Options / Composition) | ✅ **已修復** — 全 10 store 轉 Composition API (v2 N-6 + F-5) |
+
+### API 層議題 (Section 六)
+
+| v1 議題 | v2 狀態 |
+|---------|---------|
+| 無 request 取消 (race condition) | ✅ **已修復** — `useCancelableRequest` + AbortController (v2 N-9) |
+| timeout 統一 15s (匯出超時) | ✅ **已修復** — blob/export 自動延長 timeout (v2 N-10) |
+| 無 retry 機制 | ✅ **已修復** — GET retry exponential backoff，max 2 次 (v2 N-11) |
+
+### 效能議題 (Section 七)
+
+| v1 議題 | v2 狀態 |
+|---------|---------|
+| Notification polling 持續每分鐘 | ✅ **已修復** — WS 連線後停 polling，斷線恢復 (v2 N-5) + visibility-aware (v2 N-17) |
+| Element Plus 全量引入 | ⏭️ 未處理 — tree-shaking 已去除未使用元件，bundle 影響可接受 |
+| 無 virtual scroll | ⏭️ 未處理 — 目前資料量 <100 row，低優先 |
+
+### UI/UX 與可維護性議題 (Section 八)
+
+| v1 議題 | v2 狀態 |
+|---------|---------|
+| 無 loading skeleton | ✅ **已修復** — UserListView + AnnouncementListView 加入 `<el-skeleton>` (v2 F-11) |
+| 無 optimistic update | ✅ **已修復** — handleDisable/handleSoftDelete 本地樂觀更新 + rollback (v2 F-11) |
+| CSS 大量 `:deep()` 覆蓋 | ✅ **已修復** — 提取至 `element-overrides.css` 全域覆蓋 (v2 N-12) |
+| 固定 font-family 重複宣告 | ✅ **已修復** — 集中 App.vue root + inherit，移除 104 筆冗餘 (v2 N-13) |
+| page-container/page-title 重複 | ✅ **已修復** — `PageLayout` / `PageHeader` 共用元件 (v2 F-4) + `page-layout.css` (v2 N-13) |
+
+### 跨模組一致性議題 (Section 九)
+
+| v1 議題 | v2 狀態 |
+|---------|---------|
+| Store 風格混用 | ✅ **已修復** — 10/10 Composition API (v2 N-6 + F-5) |
+| 分頁型別不統一 | ⚠️ 部分 — 新程式已統一 `PageResponse<T>`，舊模組未遷移 |
+| 錯誤處理重複 | ✅ **已修復** — `useApiError` + `useApiRequest` (v2 N-9 + F-3) |
+| 載入狀態管理不一致 | ✅ **已修復** — `useApiRequest` 提供統一 loading ref (v2 F-3) |
+
+### 測試覆蓋 (Section 十)
+
+| v1 狀態 | v2 狀態 |
+|---------|---------|
+| 0 測試 / 無測試框架 | ✅ **219 案例 / 31 測試檔案** — Vitest 4.1 + @vue/test-utils + vitest-axe |
+| 無 store 測試 | ✅ stores/ 覆蓋：notificationStore / tenantStore / compositionApi / idlePolling |
+| 無 component 測試 | ✅ components/ 覆蓋：RichTextRenderer / PageLayout / PageHeader |
+| 無 view 測試 | ✅ views/ 覆蓋：LoginView / UserListView / AnnouncementManagementView |
+| 無 a11y 測試 | ✅ axe-core runtime WCAG 檢測 (F-8) |
+| 無 i18n 測試 | ✅ 三語 key 對齊 CI 檢查 (F-12) |
+
+### 部署相關 (Section 十一)
+
+| v1 議題 | v2 狀態 |
+|---------|---------|
+| 無 `.env` 檔案 | ✅ **已修復** — `.env` / `.env.development` / `.env.staging` / `.env.production` + typed env.d.ts (v2 N-8 + F-7) |
+| 無錯誤監控 | ✅ **已修復** — global error boundary (v2 N-3/F-2) + `VITE_SENTRY_DSN` 預留 (v2 F-7) |
+| Security Headers 需 Nginx | ⏭️ 部署層設定 |
+| Source Map 生產關閉 | ⏭️ 部署層設定 |
+| Bundle 分析 | ⏭️ 未處理 — 低優先 |
+
+---
+
+### v2 修復統計
+
+| 指標 | v1 審查時 | v2 複查後 |
+|------|-----------|-----------|
+| 安全性評分 | 9/10 | **9.5/10** |
+| 架構設計 | 9/10 | **9.5/10** |
+| 程式碼品質 | 8.5/10 | **9.5/10** |
+| 效能 | 8/10 | **9.5/10** |
+| 可維護性 | 8.5/10 | **9.5/10** |
+| 測試覆蓋 | 2/10 | **8.5/10** |
+| **總分** | **8.2/10** | **9.3/10** |
+| 測試案例數 | 0 | **219** |
+| 修復議題數 | — | **30 項 (N-1~N-18 + F-1~F-12)** |

@@ -166,7 +166,19 @@ describe('authStore', () => {
     it('should reset all auth state', () => {
       const store = useAuthStore()
       store.accessToken = 'some-token'
-      store.userInfo = { userId: 'u1' } as any
+      store.userInfo = {
+        userId: 'u1',
+        email: 'test@example.com',
+        displayName: 'Test',
+        tenantId: 't1',
+        tenantName: 'Tenant',
+        roles: [],
+        deptId: null,
+        deptName: null,
+        permissions: [],
+        isSuperAdmin: false,
+        availableTenants: [],
+      }
       store.temporaryToken = 'temp'
       sessionStorage.setItem('passExam', 'true')
 

@@ -14,14 +14,19 @@ import lombok.Setter;
 @Entity
 @Table(name = "announcement_depts")
 @IdClass(AnnouncementDeptId.class)
-@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AnnouncementDept {
 
-    @Id
-    @Column(name = "announcement_id", nullable = false)
-    private Long announcementId;
+	@Id
+	@Column(name = "announcement_id", nullable = false)
+	private Long announcementId;
 
-    @Id
-    @Column(name = "dept_id", nullable = false)
-    private Long deptId;
+	@Id
+	@Column(name = "dept_id", nullable = false)
+	private Long deptId;
+
 }

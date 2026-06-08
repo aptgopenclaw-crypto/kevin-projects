@@ -1,5 +1,6 @@
 package com.taipei.iot.audit.dto;
 
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,10 +8,22 @@ import lombok.Setter;
 @Setter
 public class AuditQueryRequest {
 
-    private String userName;
-    private String eventDesc;
-    private String startTimestamp;
-    private String endTimestamp;
-    private String sortBy;
-    private String sort;
+	@Size(max = 100)
+	private String userName;
+
+	@Size(max = 50)
+	private String eventDesc;
+
+	@Size(max = 30)
+	private String startTimestamp;
+
+	@Size(max = 30)
+	private String endTimestamp;
+
+	@Size(max = 50)
+	private String sortBy;
+
+	@Size(max = 10)
+	private String sort;
+
 }

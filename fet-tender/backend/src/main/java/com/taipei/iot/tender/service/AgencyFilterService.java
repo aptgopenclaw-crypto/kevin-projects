@@ -27,6 +27,18 @@ public class AgencyFilterService {
         return repository.findAll().stream().map(AgencyFilterResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<AgencyFilterResponse> listBySolution(String solution) {
+        return repository.findBySolutionAndIsActiveTrue(solution)
+                .stream().map(AgencyFilterResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgencyFilterResponse> listBySolutionIncludeInactive(String solution) {
+        return repository.findBySolutionOrderByAgencyKeywordAsc(solution)
+                .stream().map(AgencyFilterResponse::from).toList();
+    }
+
     @Transactional
     public AgencyFilterResponse create(AgencyFilterRequest req) {
         AnnouncementAgencyFilter entity = req.toEntity();

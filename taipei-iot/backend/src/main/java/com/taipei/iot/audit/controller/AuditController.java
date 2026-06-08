@@ -6,17 +6,18 @@ import com.taipei.iot.audit.enums.AuditCategory;
 import com.taipei.iot.audit.enums.AuditEventType;
 import com.taipei.iot.audit.service.AuditService;
 import com.taipei.iot.audit.annotation.AuditEvent;
+import com.taipei.iot.common.annotation.RateLimit;
 import com.taipei.iot.common.dto.PageResponse;
 import com.taipei.iot.common.response.BaseResponse;
+import com.taipei.iot.common.util.PageConversionHelper;
+import com.taipei.iot.common.util.SecurityContextUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,123 +28,72 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/v1/auth/audit")
 @RequiredArgsConstructor
 public class AuditController {
 
-    private final AuditService auditService;
+	private final AuditService auditService;
 
-    @GetMapping("/categories")
-    public BaseResponse<List<String>> getCategories() {
-        List<String> categories = Arrays.stream(AuditCategory.values())
-                .map(AuditCategory::getValue)
-                .toList();
-        return BaseResponse.success(categories);
-    }
+	@GetMapping("/categories")
+	public BaseResponse<List<String>> getCategories() {
+		List<String> categories = Arrays.stream(AuditCategory.values()).map(AuditCategory::getValue).toList();
+		return BaseResponse.success(categories);
+	}
 
-    @GetMapping("/user/usage/history/export")
-    @PreAuthorize("hasAuthority('AUDIT_LIST')")
-    @AuditEvent(AuditEventType.EXPORT_AUDIT)
-    public void exportUsageHistory(
-            @RequestParam(required = false) String userName,
-            @RequestParam(required = false) String eventDesc,
-            @RequestParam(required = false) String startTimestamp,
-            @RequestParam(required = false) String endTimestamp,
-            @RequestParam(defaultValue = "csv") String format,
-            HttpServletResponse response) throws Exception {
+	@GetMapping("/user/usage/history/export")
+	@PreAuthorize("hasAuthority('AUDIT_LIST')")
+	@RateLimit(key = "audit-export", limit = 5, period = 60)
+	@AuditEvent(AuditEventType.EXPORT_AUDIT)
+	public void exportUsageHistory(@Valid AuditQueryRequest request, @RequestParam(defaultValue = "csv") String format,
+			HttpServletResponse response) throws Exception {
 
-        AuditQueryRequest request = new AuditQueryRequest();
-        request.setUserName(userName);
-        request.setEventDesc(eventDesc);
-        request.setStartTimestamp(startTimestamp);
-        request.setEndTimestamp(endTimestamp);
+		boolean isAdmin = SecurityContextUtils.hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_DEPT_ADMIN");
+		List<UserEventLogDto> logs = auditService.queryForExport(request, isAdmin);
 
-        boolean isAdmin = isAdminRole();
-        List<UserEventLogDto> logs = auditService.queryForExport(request, isAdmin);
+		response.setCharacterEncoding("UTF-8");
+		if ("xlsx".equalsIgnoreCase(format)) {
+			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			response.setHeader("Content-Disposition", "attachment; filename=audit-logs.xlsx");
+			auditService.exportXlsx(logs, response.getOutputStream());
+		}
+		else {
+			response.setContentType("text/csv; charset=UTF-8");
+			response.setHeader("Content-Disposition", "attachment; filename=audit-logs.csv");
+			auditService.exportCsv(logs, response.getOutputStream());
+		}
+	}
 
-        response.setCharacterEncoding("UTF-8");
-        if ("xlsx".equalsIgnoreCase(format)) {
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-Disposition", "attachment; filename=audit-logs.xlsx");
-            auditService.exportXlsx(logs, response.getOutputStream());
-        } else {
-            response.setContentType("text/csv; charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=audit-logs.csv");
-            auditService.exportCsv(logs, response.getOutputStream());
-        }
-    }
+	@GetMapping("/user/usage/history")
+	@PreAuthorize("hasAuthority('AUDIT_LIST')")
+	public BaseResponse<PageResponse<UserEventLogDto>> getUserUsageHistory(@Valid AuditQueryRequest request,
+			@RequestParam(defaultValue = "20") int pageSize, @RequestParam(defaultValue = "0") int page) {
 
-    @GetMapping("/user/usage/history")
-    @PreAuthorize("hasAuthority('AUDIT_LIST')")
-    public BaseResponse<PageResponse<UserEventLogDto>> getUserUsageHistory(
-            @RequestParam(required = false) String userName,
-            @RequestParam(required = false) String eventDesc,
-            @RequestParam(required = false) String startTimestamp,
-            @RequestParam(required = false) String endTimestamp,
-            @RequestParam(required = false, defaultValue = "createTime") String sortBy,
-            @RequestParam(required = false, defaultValue = "DESC") String sort,
-            @RequestParam(defaultValue = "20") int pageSize,
-            @RequestParam(defaultValue = "0") int page) {
+		boolean isAdmin = SecurityContextUtils.hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_DEPT_ADMIN");
 
-        AuditQueryRequest request = new AuditQueryRequest();
-        request.setUserName(userName);
-        request.setEventDesc(eventDesc);
-        request.setStartTimestamp(startTimestamp);
-        request.setEndTimestamp(endTimestamp);
-        request.setSortBy(sortBy);
-        request.setSort(sort);
+		Page<UserEventLogDto> result = auditService.getUserUsageHistory(request, isAdmin,
+				PageRequest.of(page, pageSize));
+		return BaseResponse.success(PageConversionHelper.from(result));
+	}
 
-        boolean isAdmin = isAdminRole();
+	@GetMapping("/user/login/my")
+	public BaseResponse<PageResponse<UserEventLogDto>> getMyLoginLog(@RequestParam(required = false) String eventType,
+			@RequestParam(required = false) String startTimestamp, @RequestParam(required = false) String endTimestamp,
+			@RequestParam(required = false, defaultValue = "DESC") String sort,
+			@RequestParam(defaultValue = "20") int pageSize, @RequestParam(defaultValue = "0") int page) {
 
-        Page<UserEventLogDto> result = auditService.getUserUsageHistory(
-                request, isAdmin, PageRequest.of(page, pageSize));
-        return BaseResponse.success(toPageResponse(result));
-    }
+		LocalDateTime start = startTimestamp != null && !startTimestamp.isBlank()
+				? OffsetDateTime.parse(startTimestamp).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
+				: null;
+		LocalDateTime end = endTimestamp != null && !endTimestamp.isBlank()
+				? OffsetDateTime.parse(endTimestamp).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime() : null;
 
-    @GetMapping("/user/login/my")
-    public BaseResponse<PageResponse<UserEventLogDto>> getMyLoginLog(
-            @RequestParam(required = false) String eventType,
-            @RequestParam(required = false) String startTimestamp,
-            @RequestParam(required = false) String endTimestamp,
-            @RequestParam(required = false, defaultValue = "DESC") String sort,
-            @RequestParam(defaultValue = "20") int pageSize,
-            @RequestParam(defaultValue = "0") int page) {
+		Sort.Direction direction = "ASC".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-        LocalDateTime start = startTimestamp != null && !startTimestamp.isBlank()
-                ? OffsetDateTime.parse(startTimestamp).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime() : null;
-        LocalDateTime end = endTimestamp != null && !endTimestamp.isBlank()
-                ? OffsetDateTime.parse(endTimestamp).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime() : null;
+		Page<UserEventLogDto> result = auditService.getMyEventLogs(eventType, start, end,
+				PageRequest.of(page, pageSize, Sort.by(direction, "createTime")));
+		return BaseResponse.success(PageConversionHelper.from(result));
+	}
 
-        Sort.Direction direction = "ASC".equalsIgnoreCase(sort)
-                ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-        Page<UserEventLogDto> result = auditService.getMyEventLogs(
-                eventType, start, end,
-                PageRequest.of(page, pageSize, Sort.by(direction, "createTime")));
-        return BaseResponse.success(toPageResponse(result));
-    }
-
-    private static final Set<String> ADMIN_ROLES = Set.of(
-            "ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_DEPT_ADMIN");
-
-    private boolean isAdminRole() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) return false;
-        return auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(ADMIN_ROLES::contains);
-    }
-
-    private <T> PageResponse<T> toPageResponse(Page<T> page) {
-        return PageResponse.<T>builder()
-                .content(page.getContent())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .build();
-    }
 }

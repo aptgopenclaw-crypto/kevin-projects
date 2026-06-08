@@ -27,18 +27,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PasswordHistoryEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
 
-    @Column(name = "user_id", length = 50, nullable = false)
-    private String userId;
+	@Column(name = "user_id", length = 50, nullable = false)
+	private String userId;
 
-    @Column(name = "password_hash", length = 255, nullable = false)
-    private String passwordHash;
+	@Column(name = "password_hash", length = 255, nullable = false)
+	private String passwordHash;
 
-    @CreatedDate
-    @Column(name = "create_time", nullable = false, updatable = false)
-    private LocalDateTime createTime;
+	@CreatedDate
+	@Column(name = "create_time", nullable = false, updatable = false)
+	private LocalDateTime createTime;
+
 }

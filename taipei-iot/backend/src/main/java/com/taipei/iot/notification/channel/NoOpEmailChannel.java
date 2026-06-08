@@ -10,13 +10,14 @@ import org.springframework.stereotype.Component;
 @Profile("test")
 public class NoOpEmailChannel implements NotificationChannel {
 
-    @Override
-    public String channelType() {
-        return "EMAIL";
-    }
+	@Override
+	public String channelType() {
+		return "EMAIL";
+	}
 
-    @Override
-    public void send(NotificationPayload payload) {
-        log.debug("NoOp email channel — skipping send for {} users", payload.getUserIds().size());
-    }
+	@Override
+	public void send(NotificationPayload payload) {
+		log.debug("NoOp email channel — skipping send for {} users", payload.getUserIds().size());
+	}
+
 }

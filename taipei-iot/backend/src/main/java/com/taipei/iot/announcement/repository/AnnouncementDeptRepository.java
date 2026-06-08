@@ -8,11 +8,12 @@ import java.util.List;
 
 public interface AnnouncementDeptRepository extends JpaRepository<AnnouncementDept, AnnouncementDeptId> {
 
-    List<AnnouncementDept> findByAnnouncementId(Long announcementId);
+	List<AnnouncementDept> findByAnnouncementId(Long announcementId);
 
-    void deleteByAnnouncementId(Long announcementId);
+	void deleteByAnnouncementId(Long announcementId);
 
-    List<AnnouncementDept> findByAnnouncementIdIn(List<Long> announcementIds);
+	List<AnnouncementDept> findByAnnouncementIdIn(List<Long> announcementIds);
 
-    boolean existsByAnnouncementIdAndDeptId(Long announcementId, Long deptId);
+	boolean existsByAnnouncementIdAndDeptId(Long announcementId, Long deptId);
+
 }

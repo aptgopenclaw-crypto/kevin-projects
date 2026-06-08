@@ -273,7 +273,6 @@ function getVisibleLabel(visible: boolean) {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -283,7 +282,6 @@ function getVisibleLabel(visible: boolean) {
 }
 
 .page-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -298,7 +296,6 @@ function getVisibleLabel(visible: boolean) {
   border: 1px solid var(--border-light);
   border-radius: 6px;
   padding: 8px 16px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -324,7 +321,6 @@ function getVisibleLabel(visible: boolean) {
 }
 
 .menu-name {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -355,7 +351,6 @@ function getVisibleLabel(visible: boolean) {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -444,13 +439,5 @@ function getVisibleLabel(visible: boolean) {
 /* Element Plus overrides */
 :deep(.el-table__expand-icon) {
   color: var(--text-secondary);
-}
-
-:deep(.el-table th.el-table__cell) {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 </style>

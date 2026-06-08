@@ -110,11 +110,9 @@ describe('Router Guard Logic', () => {
       return 'pass'
     }
 
-    // 5. superAdminOnly
-    if (route.meta.superAdminOnly) {
-      const isSuperAdmin = mockAuthStore.userInfo?.isSuperAdmin === true
-      return isSuperAdmin ? 'pass' : '/'
-    }
+    // 5. [Phase 4 / 4.1.8] superAdminOnly removed — scope checks live in
+    //    guards.test.ts via `resolveScopeRedirect`. This simulation only
+    //    exercises bootstrap + menu-based access here.
 
     // 6. menu-based access
     if (!mockMenuStore.hasRouteAccess(route.name as string)) {
@@ -192,11 +190,16 @@ describe('Router Guard Logic', () => {
     })
   })
 
-  describe('superAdminOnly routes', () => {
-    it('should allow super admin access', async () => {
+  describe('legacy superAdminOnly meta [Phase 4 / 4.1.8 — retired]', () => {
+    it('is no longer honoured by the guard — menu access alone decides', async () => {
+      // After 4.1.8 the only gates left in this simplified simulation are
+      // bootstrap + menu-based access. A non-super-admin user whose menu
+      // permits the route can now reach it; scope enforcement is delegated
+      // to `resolveScopeRedirect` (covered by guards.test.ts).
       sessionStorage.setItem('passExam', 'true')
       mockMenuStore.initialized = true
-      mockAuthStore.userInfo = { isSuperAdmin: true }
+      mockAuthStore.userInfo = { isSuperAdmin: false }
+      mockMenuStore.hasRouteAccess.mockReturnValue(true)
 
       const result = await runGuard({
         path: '/admin/system/tenants',
@@ -206,10 +209,11 @@ describe('Router Guard Logic', () => {
       expect(result).toBe('pass')
     })
 
-    it('should deny non-super-admin access', async () => {
+    it('falls back to menu denial when the route is not in the user\u2019s menus', async () => {
       sessionStorage.setItem('passExam', 'true')
       mockMenuStore.initialized = true
       mockAuthStore.userInfo = { isSuperAdmin: false }
+      mockMenuStore.hasRouteAccess.mockReturnValue(false)
 
       const result = await runGuard({
         path: '/admin/system/tenants',

@@ -41,7 +41,6 @@ function handleSwitch(tenantId: string | number | object) {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;

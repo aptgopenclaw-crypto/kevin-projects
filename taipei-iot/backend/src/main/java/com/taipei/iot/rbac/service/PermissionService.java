@@ -17,32 +17,31 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class PermissionService {
 
-    private final PermissionRepository permissionRepository;
-    private final RolePermissionRepository rolePermissionRepository;
+	private final PermissionRepository permissionRepository;
 
-    public List<PermissionDto> listPermissions() {
-        return permissionRepository.findAllByOrderByGroupNameAscSortOrderAsc().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
+	private final RolePermissionRepository rolePermissionRepository;
 
-    public List<PermissionDto> getPermissionsByRole(String roleId, String tenantId) {
-        List<RolePermissionEntity> rps = rolePermissionRepository.findByRoleIdAndTenantScope(roleId, tenantId);
-        List<String> permIds = rps.stream()
-                .map(RolePermissionEntity::getPermissionId)
-                .collect(Collectors.toList());
+	public List<PermissionDto> listPermissions() {
+		return permissionRepository.findAllByOrderByGroupNameAscSortOrderAsc()
+			.stream()
+			.map(this::toDto)
+			.collect(Collectors.toList());
+	}
 
-        return permissionRepository.findAllById(permIds).stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
+	public List<PermissionDto> getPermissionsByRole(String roleId, String tenantId) {
+		List<RolePermissionEntity> rps = rolePermissionRepository.findByRoleIdAndTenantScope(roleId, tenantId);
+		List<String> permIds = rps.stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
 
-    private PermissionDto toDto(PermissionEntity entity) {
-        return PermissionDto.builder()
-                .permissionId(entity.getPermissionId())
-                .code(entity.getCode())
-                .name(entity.getName())
-                .groupName(entity.getGroupName())
-                .build();
-    }
+		return permissionRepository.findAllById(permIds).stream().map(this::toDto).collect(Collectors.toList());
+	}
+
+	private PermissionDto toDto(PermissionEntity entity) {
+		return PermissionDto.builder()
+			.permissionId(entity.getPermissionId())
+			.code(entity.getCode())
+			.name(entity.getName())
+			.groupName(entity.getGroupName())
+			.build();
+	}
+
 }

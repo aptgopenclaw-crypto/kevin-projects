@@ -8,8 +8,15 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class AnnouncementDeptId implements Serializable {
-    private Long announcementId;
-    private Long deptId;
+
+	private Long announcementId;
+
+	private Long deptId;
+
 }

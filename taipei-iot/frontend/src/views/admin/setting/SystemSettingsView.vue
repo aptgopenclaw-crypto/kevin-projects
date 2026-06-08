@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { listSettings, updateSetting, type SystemSettingDto } from '@/api/setting'
@@ -14,7 +14,22 @@ const loading = ref(false)
 const editDialogVisible = ref(false)
 const editingRow = ref<SystemSettingDto | null>(null)
 const editValue = ref('')
+const editBoolValue = ref(false)
+const editNumValue = ref(0)
 const saving = ref(false)
+
+type SettingType = 'boolean' | 'number' | 'string'
+
+function detectType(value: string): SettingType {
+  if (value === 'true' || value === 'false') return 'boolean'
+  if (/^\d+$/.test(value)) return 'number'
+  return 'string'
+}
+
+const editType = computed<SettingType>(() => {
+  if (!editingRow.value) return 'string'
+  return detectType(editingRow.value.settingValue)
+})
 
 onMounted(async () => {
   await loadSettings()
@@ -34,15 +49,28 @@ async function loadSettings() {
 
 function openEdit(row: SystemSettingDto) {
   editingRow.value = row
-  editValue.value = row.settingValue
+  const type = detectType(row.settingValue)
+  if (type === 'boolean') {
+    editBoolValue.value = row.settingValue === 'true'
+  } else if (type === 'number') {
+    editNumValue.value = parseInt(row.settingValue, 10)
+  } else {
+    editValue.value = row.settingValue
+  }
   editDialogVisible.value = true
+}
+
+function getSubmitValue(): string {
+  if (editType.value === 'boolean') return String(editBoolValue.value)
+  if (editType.value === 'number') return String(editNumValue.value)
+  return editValue.value
 }
 
 async function handleSaveEdit() {
   if (!editingRow.value) return
   saving.value = true
   try {
-    const res = await updateSetting(editingRow.value.settingKey, editValue.value)
+    const res = await updateSetting(editingRow.value.settingKey, getSubmitValue())
     const idx = settings.value.findIndex(s => s.settingKey === res.body.settingKey)
     if (idx >= 0) settings.value[idx] = res.body
     editDialogVisible.value = false
@@ -67,8 +95,19 @@ async function handleSaveEdit() {
 
       <div class="table-card" v-loading="loading">
         <el-table :data="settings" style="width: 100%" row-class-name="table-row">
-          <el-table-column prop="description" :label="t('setting.colDescription')" min-width="280" />
-          <el-table-column prop="settingValue" :label="t('setting.colValue')" width="180" />
+          <el-table-column :label="t('setting.colDescription')" min-width="280">
+            <template #default="{ row }">
+              {{ t(`setting.keys.${row.settingKey}`, row.description) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="settingValue" :label="t('setting.colValue')" width="180">
+            <template #default="{ row }">
+              <el-tag v-if="detectType(row.settingValue) === 'boolean'" :type="row.settingValue === 'true' ? 'success' : 'info'" size="small">
+                {{ row.settingValue === 'true' ? t('setting.enabled') : t('setting.disabled') }}
+              </el-tag>
+              <span v-else>{{ row.settingValue }}</span>
+            </template>
+          </el-table-column>
           <el-table-column :label="t('setting.colAction')" width="100" align="center" fixed="right">
             <template #default="{ row }">
               <div class="action-group">
@@ -89,14 +128,30 @@ async function handleSaveEdit() {
       width="420px"
       :close-on-click-modal="false"
     >
-      <div class="edit-form">
+      <div class="edit-form" role="form" :aria-label="t('setting.editDialogTitle')">
         <div class="form-row">
           <label class="form-label">{{ t('setting.colDescription') }}</label>
-          <div class="form-value-readonly">{{ editingRow?.description }}</div>
+          <div class="form-value-readonly">{{ editingRow ? t(`setting.keys.${editingRow.settingKey}`, editingRow.description) : '' }}</div>
         </div>
         <div class="form-row">
           <label class="form-label">{{ t('setting.colValue') }}</label>
-          <el-input v-model="editValue" maxlength="500" show-word-limit />
+          <!-- Boolean: switch -->
+          <el-switch
+            v-if="editType === 'boolean'"
+            v-model="editBoolValue"
+            :active-text="t('setting.enabled')"
+            :inactive-text="t('setting.disabled')"
+          />
+          <!-- Numeric: input number -->
+          <el-input-number
+            v-else-if="editType === 'number'"
+            v-model="editNumValue"
+            :min="0"
+            :max="9999"
+            controls-position="right"
+          />
+          <!-- String: text input -->
+          <el-input v-else v-model="editValue" maxlength="500" show-word-limit />
         </div>
       </div>
       <template #footer>
@@ -110,39 +165,7 @@ async function handleSaveEdit() {
 </template>
 
 <style scoped>
-.page-container {
-  padding: 32px 24px;
-  min-height: 100vh;
-  background-color: var(--bg-base);
-}
-
 .page-content {
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-family: 'Inter', sans-serif;
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 1.15;
-  color: var(--text-heading);
-  margin: 0 0 8px 0;
-}
-
-.page-subtitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.6;
-  letter-spacing: 0.2px;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 .table-card {
@@ -188,14 +211,12 @@ async function handleSaveEdit() {
 }
 
 .form-label {
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
 }
 
 .form-value-readonly {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: var(--text-primary);
   padding: 8px 0;

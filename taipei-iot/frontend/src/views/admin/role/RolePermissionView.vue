@@ -14,7 +14,13 @@ import { Shield, ChevronRight, Plus, Pencil } from 'lucide-vue-next'
 import type { RoleDto, PermissionDto } from '@/types/rbac'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
+
+// 將 roleId 對應到 i18n 顯示名稱；無對應條目時回退至後端的 role.name
+const localizedRoleName = (role: { roleId?: string; name: string }) => {
+  const key = role.roleId ? `role.displayNames.${role.roleId}` : ''
+  return key && te(key) ? t(key) : role.name
+}
 
 // ---- Role list ----
 const roles = ref<RoleDto[]>([])
@@ -244,7 +250,7 @@ async function handleDialogSubmit() {
             </div>
             <div class="role-info">
               <div class="role-name-row">
-                <span class="role-name">{{ role.name }}</span>
+                <span class="role-name">{{ localizedRoleName(role) }}</span>
                 <span v-if="role.builtIn" class="badge badge-builtin">{{ t('role.builtInBadge') }}</span>
                 <span v-if="!role.enabled" class="badge badge-disabled">{{ t('role.disabledBadge') }}</span>
               </div>
@@ -319,7 +325,7 @@ async function handleDialogSubmit() {
       width="480px"
       :close-on-click-modal="false"
     >
-      <div class="dialog-form">
+      <div class="dialog-form" role="form" :aria-label="dialogMode === 'create' ? t('role.dialogCreateTitle') : t('role.dialogEditTitle')">
         <div v-if="dialogMode === 'create'" class="form-row">
           <label class="form-label">{{ t('role.codeLabel') }}</label>
           <el-input v-model="roleForm.code" :placeholder="t('role.codePlaceholder')" />
@@ -366,7 +372,6 @@ async function handleDialogSubmit() {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -396,7 +401,6 @@ async function handleDialogSubmit() {
 }
 
 .card-title {
-  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 500;
   color: var(--text-heading);
@@ -414,7 +418,6 @@ async function handleDialogSubmit() {
   border: 1px solid var(--border-light);
   background: transparent;
   color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -430,7 +433,6 @@ async function handleDialogSubmit() {
   border: none;
   background: #55b3ff;
   color: #fff;
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -449,7 +451,6 @@ async function handleDialogSubmit() {
   text-align: center;
   padding: 40px 0;
   color: var(--text-secondary);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -505,7 +506,6 @@ async function handleDialogSubmit() {
 }
 
 .role-name {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -524,7 +524,6 @@ async function handleDialogSubmit() {
   display: inline-block;
   padding: 1px 6px;
   border-radius: 4px;
-  font-family: 'Inter', sans-serif;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -575,7 +574,6 @@ async function handleDialogSubmit() {
 }
 
 .group-title {
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -597,7 +595,6 @@ async function handleDialogSubmit() {
 }
 
 .perm-name {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -632,7 +629,6 @@ async function handleDialogSubmit() {
 }
 
 .form-label {
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);

@@ -11,11 +11,12 @@ import java.util.List;
 
 public interface AnnouncementTranslationRepository extends JpaRepository<AnnouncementTranslation, Long> {
 
-    List<AnnouncementTranslation> findByAnnouncementId(Long announcementId);
+	List<AnnouncementTranslation> findByAnnouncementId(Long announcementId);
 
-    List<AnnouncementTranslation> findByAnnouncementIdIn(Collection<Long> announcementIds);
+	List<AnnouncementTranslation> findByAnnouncementIdIn(Collection<Long> announcementIds);
 
-    @Modifying
-    @Query("DELETE FROM AnnouncementTranslation t WHERE t.announcementId = :announcementId")
-    void deleteByAnnouncementId(@Param("announcementId") Long announcementId);
+	@Modifying
+	@Query("DELETE FROM AnnouncementTranslation t WHERE t.announcementId = :announcementId")
+	void deleteByAnnouncementId(@Param("announcementId") Long announcementId);
+
 }

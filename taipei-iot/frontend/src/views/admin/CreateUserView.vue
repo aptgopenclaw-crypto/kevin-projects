@@ -11,6 +11,7 @@ import { Mail, User, Phone, Lock, Shield } from 'lucide-vue-next'
 import type { RoleDto } from '@/types/rbac'
 import type { DeptOptionVO } from '@/types/dept'
 import { useI18n } from 'vue-i18n'
+import { usePasswordPolicy } from '@/composables/usePasswordPolicy'
 
 const { t } = useI18n()
 
@@ -62,7 +63,8 @@ const form = reactive({
   deptId: null as number | null,
 })
 
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|;':,.<>?/~`]).{8,}$/
+const tenantIdRef = computed(() => form.tenantId ?? undefined)
+const { validatePassword } = usePasswordPolicy(tenantIdRef)
 
 const rules = computed<FormRules>(() => ({
   email: [
@@ -74,10 +76,9 @@ const rules = computed<FormRules>(() => ({
   ],
   initialPassword: [
     { required: true, message: t('user.create.errors.passRequired'), trigger: 'blur' },
-    { min: 8, message: t('user.create.errors.passMinLen'), trigger: 'blur' },
     {
       validator: (_rule, value: string, callback) => {
-        if (value && !passwordPattern.test(value)) {
+        if (value && !validatePassword(value)) {
           callback(new Error(t('user.create.errors.passComplexity')))
         } else {
           callback()
@@ -268,7 +269,6 @@ function goBack() {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -277,7 +277,6 @@ function goBack() {
 }
 
 .page-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -302,7 +301,6 @@ function goBack() {
   left: 0;
   background-color: var(--bg-surface);
   padding-right: 12px;
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -327,7 +325,6 @@ function goBack() {
   border: none;
   border-radius: 6px;
   padding: 8px 16px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -344,7 +341,6 @@ function goBack() {
   border: none;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -354,52 +350,5 @@ function goBack() {
 .submit-btn:hover {
   background: var(--btn-primary-hover);
   color: var(--btn-primary-text);
-}
-
-/* Element Plus dark overrides */
-:deep(.el-form-item__label) {
-  color: var(--text-label);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__wrapper) {
-  background-color: var(--bg-base);
-  border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-:deep(.el-input__wrapper:hover) {
-  border-color: var(--border-strong);
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: rgba(85, 179, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(85, 179, 255, 0.15);
-}
-
-:deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: var(--text-muted);
-}
-
-:deep(.el-form-item__error) {
-  color: #FF6363;
-}
-
-:deep(.el-select .el-input__wrapper) {
-  background-color: var(--bg-base);
-  border: 1px solid var(--border-medium);
-  box-shadow: none;
 }
 </style>

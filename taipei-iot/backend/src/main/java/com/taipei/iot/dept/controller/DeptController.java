@@ -27,47 +27,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DeptController {
 
-    private final DeptService deptService;
+	private final DeptService deptService;
 
-    @GetMapping("/list")
-    public BaseResponse<List<DeptDto>> getDeptTree() {
-        return BaseResponse.success(deptService.getDeptTree());
-    }
+	@GetMapping("/list")
+	@PreAuthorize("hasAuthority('DEPT_LIST')")
+	public BaseResponse<List<DeptDto>> getDeptTree() {
+		return BaseResponse.success(deptService.getDeptTree());
+	}
 
-    @GetMapping("/options")
-    public BaseResponse<List<DeptOptionVO>> getDeptOptions() {
-        return BaseResponse.success(deptService.getDeptOptions());
-    }
+	@GetMapping("/options")
+	@PreAuthorize("isAuthenticated()")
+	public BaseResponse<List<DeptOptionVO>> getDeptOptions() {
+		return BaseResponse.success(deptService.getDeptOptions());
+	}
 
-    @GetMapping("/scope-options")
-    public BaseResponse<List<DeptOptionVO>> getScopedDeptOptions() {
-        return BaseResponse.success(deptService.getScopedDeptOptions());
-    }
+	@GetMapping("/scope-options")
+	@PreAuthorize("isAuthenticated()")
+	public BaseResponse<List<DeptOptionVO>> getScopedDeptOptions() {
+		return BaseResponse.success(deptService.getScopedDeptOptions());
+	}
 
-    @GetMapping("/{deptId}")
-    public BaseResponse<DeptDto> getDeptById(@PathVariable Long deptId) {
-        return BaseResponse.success(deptService.getDeptById(deptId));
-    }
+	@GetMapping("/{deptId}")
+	@PreAuthorize("isAuthenticated()")
+	public BaseResponse<DeptDto> getDeptById(@PathVariable Long deptId) {
+		return BaseResponse.success(deptService.getDeptById(deptId));
+	}
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('DEPT_CREATE')")
-    @AuditEvent(AuditEventType.CREATE_DEPT)
-    public BaseResponse<DeptDto> createDept(@Valid @RequestBody CreateDeptRequest request) {
-        return BaseResponse.success(deptService.createDept(request));
-    }
+	@PostMapping
+	@PreAuthorize("hasAuthority('DEPT_CREATE')")
+	@AuditEvent(AuditEventType.CREATE_DEPT)
+	public BaseResponse<DeptDto> createDept(@Valid @RequestBody CreateDeptRequest request) {
+		return BaseResponse.success(deptService.createDept(request));
+	}
 
-    @PutMapping
-    @PreAuthorize("hasAuthority('DEPT_UPDATE')")
-    @AuditEvent(AuditEventType.UPDATE_DEPT)
-    public BaseResponse<DeptDto> updateDept(@Valid @RequestBody UpdateDeptRequest request) {
-        return BaseResponse.success(deptService.updateDept(request));
-    }
+	@PutMapping
+	@PreAuthorize("hasAuthority('DEPT_UPDATE')")
+	@AuditEvent(AuditEventType.UPDATE_DEPT)
+	public BaseResponse<DeptDto> updateDept(@Valid @RequestBody UpdateDeptRequest request) {
+		return BaseResponse.success(deptService.updateDept(request));
+	}
 
-    @DeleteMapping("/{deptId}")
-    @PreAuthorize("hasAuthority('DEPT_DELETE')")
-    @AuditEvent(AuditEventType.DELETE_DEPT)
-    public BaseResponse<Void> deleteDept(@PathVariable Long deptId) {
-        deptService.deleteDept(deptId);
-        return BaseResponse.success(null);
-    }
+	@DeleteMapping("/{deptId}")
+	@PreAuthorize("hasAuthority('DEPT_DELETE')")
+	@AuditEvent(AuditEventType.DELETE_DEPT)
+	public BaseResponse<Void> deleteDept(@PathVariable Long deptId) {
+		deptService.deleteDept(deptId);
+		return BaseResponse.success(null);
+	}
+
 }

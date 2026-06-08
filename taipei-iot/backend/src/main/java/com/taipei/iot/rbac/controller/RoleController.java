@@ -29,53 +29,55 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoleController {
 
-    private final RoleService roleService;
+	private final RoleService roleService;
 
-    @GetMapping
-    public BaseResponse<List<RoleDto>> listRoles() {
-        return BaseResponse.success(roleService.listRoles());
-    }
+	@GetMapping
+	@PreAuthorize("hasAuthority('ROLE_LIST')")
+	public BaseResponse<List<RoleDto>> listRoles() {
+		return BaseResponse.success(roleService.listRoles());
+	}
 
-    @GetMapping("/assignable")
-    public BaseResponse<List<RoleDto>> listAssignableRoles() {
-        return BaseResponse.success(roleService.listAssignableRoles());
-    }
+	@GetMapping("/assignable")
+	@PreAuthorize("hasAuthority('ROLE_LIST')")
+	public BaseResponse<List<RoleDto>> listAssignableRoles() {
+		return BaseResponse.success(roleService.listAssignableRoles());
+	}
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_CREATE')")
-    @AuditEvent(AuditEventType.CREATE_ROLE)
-    public BaseResponse<RoleDto> createRole(@Valid @RequestBody CreateRoleRequest request) {
-        return BaseResponse.success(roleService.createRole(request));
-    }
+	@PostMapping
+	@PreAuthorize("hasAuthority('ROLE_CREATE')")
+	@AuditEvent(AuditEventType.CREATE_ROLE)
+	public BaseResponse<RoleDto> createRole(@Valid @RequestBody CreateRoleRequest request) {
+		return BaseResponse.success(roleService.createRole(request));
+	}
 
-    @PutMapping("/{roleId}")
-    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
-    @AuditEvent(AuditEventType.UPDATE_ROLE)
-    public BaseResponse<RoleDto> updateRole(@PathVariable String roleId,
-                                            @Valid @RequestBody UpdateRoleRequest request) {
-        return BaseResponse.success(roleService.updateRole(roleId, request));
-    }
+	@PutMapping("/{roleId}")
+	@PreAuthorize("hasAuthority('ROLE_UPDATE')")
+	@AuditEvent(AuditEventType.UPDATE_ROLE)
+	public BaseResponse<RoleDto> updateRole(@PathVariable String roleId,
+			@Valid @RequestBody UpdateRoleRequest request) {
+		return BaseResponse.success(roleService.updateRole(roleId, request));
+	}
 
-    @PatchMapping("/{roleId}/enabled")
-    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
-    @AuditEvent(AuditEventType.TOGGLE_ROLE_ENABLED)
-    public BaseResponse<Void> toggleEnabled(@PathVariable String roleId,
-                                            @RequestParam boolean enabled) {
-        roleService.toggleEnabled(roleId, enabled);
-        return BaseResponse.success(null);
-    }
+	@PatchMapping("/{roleId}/enabled")
+	@PreAuthorize("hasAuthority('ROLE_UPDATE')")
+	@AuditEvent(AuditEventType.TOGGLE_ROLE_ENABLED)
+	public BaseResponse<Void> toggleEnabled(@PathVariable String roleId, @RequestParam boolean enabled) {
+		roleService.toggleEnabled(roleId, enabled);
+		return BaseResponse.success(null);
+	}
 
-    @GetMapping("/{roleId}/permissions")
-    public BaseResponse<RolePermissionListDto> getRolePermissions(@PathVariable String roleId) {
-        return BaseResponse.success(roleService.getRolePermissions(roleId));
-    }
+	@GetMapping("/{roleId}/permissions")
+	@PreAuthorize("hasAuthority('ROLE_LIST')")
+	public BaseResponse<RolePermissionListDto> getRolePermissions(@PathVariable String roleId) {
+		return BaseResponse.success(roleService.getRolePermissions(roleId));
+	}
 
-    @PutMapping("/{roleId}/permissions")
-    @PreAuthorize("hasAuthority('ROLE_ASSIGN_PERM')")
-    @AuditEvent(AuditEventType.ASSIGN_ROLE_PERMISSIONS)
-    public BaseResponse<RolePermissionListDto> assignPermissions(
-            @PathVariable String roleId,
-            @Valid @RequestBody AssignRolePermissionsRequest request) {
-        return BaseResponse.success(roleService.assignPermissions(roleId, request));
-    }
+	@PutMapping("/{roleId}/permissions")
+	@PreAuthorize("hasAuthority('ROLE_ASSIGN_PERM')")
+	@AuditEvent(AuditEventType.ASSIGN_ROLE_PERMISSIONS)
+	public BaseResponse<RolePermissionListDto> assignPermissions(@PathVariable String roleId,
+			@Valid @RequestBody AssignRolePermissionsRequest request) {
+		return BaseResponse.success(roleService.assignPermissions(roleId, request));
+	}
+
 }

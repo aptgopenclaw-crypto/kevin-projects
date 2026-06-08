@@ -232,7 +232,6 @@ function getEnabledLabel(enabled: boolean) {
 }
 
 .card-title {
-  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 500;
   line-height: 1.25;
@@ -242,7 +241,6 @@ function getEnabledLabel(enabled: boolean) {
 }
 
 .card-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -257,7 +255,6 @@ function getEnabledLabel(enabled: boolean) {
   border: 1px solid var(--border-light);
   border-radius: 6px;
   padding: 6px 16px;
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -274,7 +271,6 @@ function getEnabledLabel(enabled: boolean) {
   text-align: center;
   padding: 32px;
   color: var(--text-muted);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -313,7 +309,6 @@ function getEnabledLabel(enabled: boolean) {
 }
 
 .mapping-tenant {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -330,7 +325,6 @@ function getEnabledLabel(enabled: boolean) {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -345,7 +339,6 @@ function getEnabledLabel(enabled: boolean) {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -389,7 +382,6 @@ function getEnabledLabel(enabled: boolean) {
 }
 
 .dialog-label {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-label);
@@ -406,7 +398,6 @@ function getEnabledLabel(enabled: boolean) {
   border: none;
   border-radius: 6px;
   padding: 8px 16px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -423,7 +414,6 @@ function getEnabledLabel(enabled: boolean) {
   border: none;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -454,7 +444,6 @@ function getEnabledLabel(enabled: boolean) {
 
 :deep(.el-input__inner) {
   color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -482,7 +471,6 @@ function getEnabledLabel(enabled: boolean) {
 
 :deep(.el-dialog__title) {
   color: var(--text-heading);
-  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 500;
 }

@@ -12,9 +12,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserInfo {
-    private String userId;
-    private String username;
-    private String tenantId;
-    private Long deptId;
-    private String dataScope;
+
+	private String userId;
+
+	private String username;
+
+	private String tenantId;
+
+	private Long deptId;
+
+	private String dataScope;
+
 }

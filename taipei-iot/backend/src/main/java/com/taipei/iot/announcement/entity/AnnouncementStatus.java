@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AnnouncementStatus {
-    DRAFT("DRAFT"),
-    PUBLISHED("PUBLISHED");
 
-    private final String value;
+	DRAFT("DRAFT"), PUBLISHED("PUBLISHED");
+
+	private final String value;
+
 }

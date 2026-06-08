@@ -24,6 +24,21 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: true,
+    css: true,
+    server: {
+      deps: {
+        inline: ['element-plus'],
+      },
+    },
+  },
+  build: {
+    // Strip console.* and debugger statements in production builds
+    // to prevent sensitive error details from leaking to browser devtools
+    minify: 'esbuild',
+    target: 'es2020',
+  },
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
   optimizeDeps: {
     include: [

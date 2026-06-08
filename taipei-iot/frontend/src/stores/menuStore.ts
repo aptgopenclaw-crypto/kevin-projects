@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { getMenuTree, getMyMenus } from '@/api/rbac'
 import type { MenuDto, UserMenuDto, BreadcrumbItem } from '@/types/rbac'
 import router from '@/router'
@@ -9,7 +10,6 @@ const viewModules = import.meta.glob('@/views/**/*.vue')
 
 function resolveComponent(component: string | null) {
   if (!component) return undefined
-  // component stored as e.g. "views/admin/menu/MenuManageView.vue"
   const key = `/src/${component}`
   return viewModules[key]
 }
@@ -19,13 +19,11 @@ function buildRoutesFromMenus(menus: UserMenuDto[]): RouteRecordRaw[] {
   for (const menu of menus) {
     if (menu.menuType === 'BUTTON') continue
     if (menu.menuType === 'DIRECTORY') {
-      // Recurse into children
       if (menu.children?.length) {
         routes.push(...buildRoutesFromMenus(menu.children))
       }
       continue
     }
-    // PAGE type — create route
     if (menu.routeName && menu.routePath) {
       const comp = resolveComponent(menu.component)
       if (comp) {
@@ -57,7 +55,6 @@ function flattenMenuNames(menus: UserMenuDto[]): Set<string> {
   return names
 }
 
-/** Flatten nested menu tree into a flat array */
 function flattenMenuTree(tree: UserMenuDto[]): UserMenuDto[] {
   const result: UserMenuDto[] = []
   for (const menu of tree) {
@@ -91,97 +88,116 @@ function findBreadcrumbItems(
 // Track dynamically added route names so we can remove them on re-fetch
 let dynamicRouteNames: string[] = []
 
-export const useMenuStore = defineStore('menu', {
-  state: () => ({
-    menuTree: [] as MenuDto[],
-    userMenus: [] as UserMenuDto[],
-    loading: false,
-    initialized: false,
-  }),
-  getters: {
-    sidebarMenus: (state) => state.userMenus,
-  },
-  actions: {
-    async fetchMyMenus() {
-      this.loading = true
-      try {
-        const res = await getMyMenus()
-        this.userMenus = res.body
+export const useMenuStore = defineStore('menu', () => {
+  // ── State ──
+  const menuTree = ref<MenuDto[]>([])
+  const userMenus = ref<UserMenuDto[]>([])
+  const loading = ref(false)
+  const initialized = ref(false)
 
-        // Remove previously injected dynamic routes
-        for (const name of dynamicRouteNames) {
-          if (router.hasRoute(name)) {
-            router.removeRoute(name)
-          }
-        }
-        dynamicRouteNames = []
+  // ── Getters ──
+  const sidebarMenus = computed(() => userMenus.value)
 
-        // Dynamically inject routes from menus
-        const routes = buildRoutesFromMenus(this.userMenus)
-        for (const route of routes) {
-          // Only add if route doesn't already exist (static routes take priority)
-          if (route.name && !router.hasRoute(route.name as string)) {
-            router.addRoute(route)
-            dynamicRouteNames.push(route.name as string)
-          }
-        }
-        this.initialized = true
-      } catch (e) {
-        // Degradation: mark initialized but keep userMenus empty
-        this.initialized = true
-        throw e
-      } finally {
-        this.loading = false
-      }
-    },
+  // ── Actions ──
+  async function fetchMyMenus() {
+    loading.value = true
+    try {
+      const res = await getMyMenus()
+      userMenus.value = res.body
 
-    async fetchMenuTree() {
-      this.loading = true
-      try {
-        const res = await getMenuTree()
-        this.menuTree = res.body
-      } finally {
-        this.loading = false
-      }
-    },
-
-    hasRouteAccess(routeName: string | symbol | null | undefined): boolean {
-      if (!routeName || typeof routeName === 'symbol') return false
-      const allowedNames = flattenMenuNames(this.userMenus)
-      // Allow implicit child routes (e.g. EditUser, CreateUser) when parent is accessible
-      const implicitChildren: Record<string, string> = {
-        EditUser: 'UserList',
-        CreateUser: 'UserList',
-        RepairTicketDetail: 'RepairTicket',
-        InspectionRecord: 'InspectionTask',
-        ReplacementOrderDetail: 'ReplacementOrder',
-        ReplacementSelfCheck: 'ReplacementOrder',
-      }
-      const parent = implicitChildren[routeName]
-      if (parent) return allowedNames.has(parent)
-      return allowedNames.has(routeName)
-    },
-
-    getBreadcrumbs(routeName: string): BreadcrumbItem[] {
-      return findBreadcrumbItems(this.userMenus, routeName) ?? []
-    },
-
-    flattenMenuTree(tree?: UserMenuDto[]): UserMenuDto[] {
-      return flattenMenuTree(tree ?? this.userMenus)
-    },
-
-    $reset() {
-      // Remove dynamic routes
+      // Remove previously injected dynamic routes
       for (const name of dynamicRouteNames) {
         if (router.hasRoute(name)) {
           router.removeRoute(name)
         }
       }
       dynamicRouteNames = []
-      this.menuTree = []
-      this.userMenus = []
-      this.loading = false
-      this.initialized = false
-    },
-  },
+
+      // [Phase 4 / 4.1.3] Dynamic routes are nested under the matching layout
+      // shell — `/platform/*` paths render inside PlatformLayout, every other
+      // path renders inside TenantLayout. Both parents are named routes
+      // registered in router/index.ts.
+      const routes = buildRoutesFromMenus(userMenus.value)
+      for (const route of routes) {
+        if (route.name && !router.hasRoute(route.name as string)) {
+          const parentName =
+            typeof route.path === 'string' && route.path.startsWith('/platform')
+              ? 'PlatformRoot'
+              : 'TenantRoot'
+          router.addRoute(parentName, route)
+          dynamicRouteNames.push(route.name as string)
+        }
+      }
+      initialized.value = true
+    } catch (e) {
+      initialized.value = true
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchMenuTree() {
+    loading.value = true
+    try {
+      const res = await getMenuTree()
+      menuTree.value = res.body
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function hasRouteAccess(routeName: string | symbol | null | undefined): boolean {
+    if (!routeName || typeof routeName === 'symbol') return false
+    const allowedNames = flattenMenuNames(userMenus.value)
+    const implicitChildren: Record<string, string> = {
+      EditUser: 'UserList',
+      CreateUser: 'UserList',
+      RepairTicketDetail: 'RepairTicket',
+      InspectionRecord: 'InspectionTask',
+      ReplacementOrderDetail: 'ReplacementOrder',
+      ReplacementSelfCheck: 'ReplacementOrder',
+    }
+    const parent = implicitChildren[routeName]
+    if (parent) return allowedNames.has(parent)
+    return allowedNames.has(routeName)
+  }
+
+  function getBreadcrumbs(routeName: string): BreadcrumbItem[] {
+    return findBreadcrumbItems(userMenus.value, routeName) ?? []
+  }
+
+  function flattenTree(tree?: UserMenuDto[]): UserMenuDto[] {
+    return flattenMenuTree(tree ?? userMenus.value)
+  }
+
+  function $reset() {
+    for (const name of dynamicRouteNames) {
+      if (router.hasRoute(name)) {
+        router.removeRoute(name)
+      }
+    }
+    dynamicRouteNames = []
+    menuTree.value = []
+    userMenus.value = []
+    loading.value = false
+    initialized.value = false
+  }
+
+  return {
+    // State
+    menuTree,
+    userMenus,
+    loading,
+    initialized,
+    // Getters
+    sidebarMenus,
+    // Actions
+    fetchMyMenus,
+    fetchMenuTree,
+    hasRouteAccess,
+    getBreadcrumbs,
+    flattenMenuTree: flattenTree,
+    $reset,
+  }
 })

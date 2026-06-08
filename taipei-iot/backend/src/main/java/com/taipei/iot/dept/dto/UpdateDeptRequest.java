@@ -17,15 +17,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateDeptRequest {
 
-    @NotNull
-    private Long deptId;
+	@NotNull
+	private Long deptId;
 
-    @Size(max = 100)
-    private String deptName;
+	@Size(max = 100)
+	private String deptName;
 
-    private Integer deptSort;
+	private Integer deptSort;
 
-    @Min(0)
-    @Max(1)
-    private Short status;
+	@Min(0)
+	@Max(1)
+	private Short status;
+
 }

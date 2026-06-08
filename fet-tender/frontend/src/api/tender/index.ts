@@ -34,10 +34,10 @@ export const getTenderDashboard = () =>
   axiosIns.get<unknown, BaseResponse<TenderDashboardResponse>>('/tender/dashboard')
 
 // ── 搜尋關鍵字 ────────────────────────────────────────────────
-export const listSearchKeywords = (includeInactive = false) =>
+export const listSearchKeywords = (includeInactive = false, solution?: string) =>
   axiosIns.get<unknown, BaseResponse<SearchKeywordResponse[]>>(
     '/tender/announcement-keywords',
-    { params: { includeInactive } },
+    { params: { includeInactive, ...(solution ? { solution } : {}) } },
   )
 
 export const createSearchKeyword = (payload: SearchKeywordRequest) =>
@@ -63,10 +63,10 @@ export const listConfigSolutions = () =>
   )
 
 // ── 機關過濾設定 ──────────────────────────────────────────────
-export const listAgencyFilters = (includeInactive = false) =>
+export const listAgencyFilters = (includeInactive = false, solution?: string) =>
   axiosIns.get<unknown, BaseResponse<AgencyFilterResponse[]>>(
     '/tender/announcement-agency-filters',
-    { params: { includeInactive } },
+    { params: { includeInactive, ...(solution ? { solution } : {}) } },
   )
 
 export const createAgencyFilter = (payload: AgencyFilterRequest) =>

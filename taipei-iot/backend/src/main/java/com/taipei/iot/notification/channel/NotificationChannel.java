@@ -4,7 +4,8 @@ import com.taipei.iot.notification.dto.NotificationPayload;
 
 public interface NotificationChannel {
 
-    String channelType();
+	String channelType();
 
-    void send(NotificationPayload payload);
+	void send(NotificationPayload payload);
+
 }

@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AuditEvent {
-    /** 事件類型（編譯期強制從 enum 選取） */
-    AuditEventType value();
+
+	/** 事件類型（編譯期強制從 enum 選取） */
+	AuditEventType value();
+
 }

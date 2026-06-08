@@ -15,6 +15,7 @@ import org.hibernate.envers.RevisionEntity;
 @Setter
 public class AuditRevisionEntity extends DefaultRevisionEntity {
 
-    @Column(name = "action_user_id", length = 50)
-    private String actionUserId;
+	@Column(name = "action_user_id", length = 50)
+	private String actionUserId;
+
 }

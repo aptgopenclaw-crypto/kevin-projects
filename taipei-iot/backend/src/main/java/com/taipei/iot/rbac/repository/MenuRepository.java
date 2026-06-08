@@ -8,11 +8,18 @@ import java.util.List;
 
 public interface MenuRepository extends JpaRepository<MenuEntity, Long> {
 
-    List<MenuEntity> findByParentIdOrderBySortOrder(Long parentId);
+	List<MenuEntity> findByParentIdOrderBySortOrder(Long parentId);
 
-    List<MenuEntity> findAllByOrderBySortOrder();
+	List<MenuEntity> findAllByOrderBySortOrder();
 
-    List<MenuEntity> findByPermissionCodeInAndVisibleTrue(Collection<String> codes);
+	List<MenuEntity> findByPermissionCodeInAndVisibleTrue(Collection<String> codes);
 
-    boolean existsByParentId(Long parentId);
+	List<MenuEntity> findByPermissionCodeIsNullAndVisibleTrue();
+
+	List<MenuEntity> findByScopeAndVisibleTrue(String scope);
+
+	List<MenuEntity> findByScopeInAndVisibleTrue(Collection<String> scopes);
+
+	boolean existsByParentId(Long parentId);
+
 }

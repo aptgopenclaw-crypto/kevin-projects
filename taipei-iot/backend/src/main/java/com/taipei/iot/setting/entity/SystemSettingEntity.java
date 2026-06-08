@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "system_settings")
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
-@EntityListeners({TenantEntityListener.class, AuditingEntityListener.class})
+@EntityListeners({ TenantEntityListener.class, AuditingEntityListener.class })
 @Getter
 @Setter
 @Builder
@@ -22,37 +22,42 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SystemSettingEntity implements TenantAware {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(name = "tenant_id", nullable = false, length = 50)
-    private String tenantId;
+	@Column(name = "tenant_id", nullable = false, length = 50)
+	private String tenantId;
 
-    @Column(name = "setting_key", nullable = false, length = 100)
-    private String settingKey;
+	@Column(name = "setting_key", nullable = false, length = 100)
+	private String settingKey;
 
-    @Column(name = "setting_value", nullable = false, length = 500)
-    private String settingValue;
+	@Column(name = "setting_value", nullable = false, length = 500)
+	private String settingValue;
 
-    @Column(name = "description", length = 500)
-    private String description;
+	@Column(name = "description", length = 500)
+	private String description;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+	@CreatedDate
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+	@LastModifiedDate
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 
-    @Override
-    public String getTenantId() {
-        return tenantId;
-    }
+	@Version
+	@Column(name = "version", nullable = false)
+	private Integer version;
 
-    @Override
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
-    }
+	@Override
+	public String getTenantId() {
+		return tenantId;
+	}
+
+	@Override
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
+
 }

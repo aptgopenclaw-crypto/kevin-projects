@@ -19,19 +19,20 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PermissionEntity {
 
-    @Id
-    @Column(name = "permission_id", length = 50)
-    private String permissionId;
+	@Id
+	@Column(name = "permission_id", length = 50)
+	private String permissionId;
 
-    @Column(name = "code", length = 100, nullable = false, unique = true)
-    private String code;
+	@Column(name = "code", length = 100, nullable = false, unique = true)
+	private String code;
 
-    @Column(name = "name", length = 200, nullable = false)
-    private String name;
+	@Column(name = "name", length = 200, nullable = false)
+	private String name;
 
-    @Column(name = "group_name", length = 100)
-    private String groupName;
+	@Column(name = "group_name", length = 100)
+	private String groupName;
 
-    @Column(name = "sort_order")
-    private Integer sortOrder;
+	@Column(name = "sort_order")
+	private Integer sortOrder;
+
 }

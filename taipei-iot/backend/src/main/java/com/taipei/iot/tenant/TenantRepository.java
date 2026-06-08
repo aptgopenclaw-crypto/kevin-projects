@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TenantRepository extends JpaRepository<TenantEntity, String> {
-    Optional<TenantEntity> findByTenantCode(String tenantCode);
-    List<TenantEntity> findByEnabledTrue();
+
+	Optional<TenantEntity> findByTenantCode(String tenantCode);
+
+	List<TenantEntity> findByEnabledTrue();
+
 }

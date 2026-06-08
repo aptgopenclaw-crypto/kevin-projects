@@ -11,7 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SystemSettingDto {
 
-    private String settingKey;
-    private String settingValue;
-    private String description;
+	private String settingKey;
+
+	private String settingValue;
+
+	private String description;
+
 }

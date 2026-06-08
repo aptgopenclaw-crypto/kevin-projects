@@ -11,6 +11,8 @@ public interface AnnouncementSearchKeywordRepository extends JpaRepository<Annou
 
     List<AnnouncementSearchKeyword> findByIsActiveTrueOrderBySolutionAscKeywordAsc();
 
+    List<AnnouncementSearchKeyword> findBySolutionAndIsActiveTrueOrderByKeywordAsc(String solution);
+
     List<AnnouncementSearchKeyword> findBySolutionOrderByKeywordAsc(String solution);
 
     @Query("SELECT DISTINCT k.solution FROM AnnouncementSearchKeyword k WHERE k.solution IS NOT NULL ORDER BY k.solution")

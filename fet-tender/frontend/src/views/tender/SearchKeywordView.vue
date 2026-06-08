@@ -28,11 +28,15 @@ async function fetchSolutions() {
 const loading = ref(false)
 const tableData = ref<SearchKeywordResponse[]>([])
 const includeInactive = ref(false)
+const solutionFilter = ref('')
 
 async function fetchList() {
   loading.value = true
   try {
-    const res = await listSearchKeywords(includeInactive.value)
+    const res = await listSearchKeywords(
+      includeInactive.value,
+      solutionFilter.value || undefined,
+    )
     if (res.errorCode === '00000') tableData.value = res.body
   } finally {
     loading.value = false
@@ -138,6 +142,21 @@ async function handleDelete(row: SearchKeywordResponse) {
       <el-button type="primary" @click="openCreate">
         <el-icon class="mr-1"><Plus /></el-icon>{{ $t('common.add') }}
       </el-button>
+      <el-select
+        v-model="solutionFilter"
+        filterable
+        clearable
+        :placeholder="$t('tender.keyword.solutionPlaceholder')"
+        style="width: 240px; margin-left: 16px;"
+        @change="fetchList"
+      >
+        <el-option
+          v-for="sol in solutionOptions"
+          :key="sol"
+          :label="sol"
+          :value="sol"
+        />
+      </el-select>
       <el-checkbox v-model="includeInactive" class="ml-4" @change="fetchList">
         {{ $t('tender.keyword.showInactive') }}
       </el-checkbox>

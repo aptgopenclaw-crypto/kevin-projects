@@ -22,33 +22,32 @@ import java.util.List;
 @Validated
 public class SystemSettingController {
 
-    private final SystemSettingService settingService;
+	private final SystemSettingService settingService;
 
-    @GetMapping
-    @PreAuthorize("hasAuthority('SYSTEM_SETTINGS_VIEW')")
-    public BaseResponse<List<SystemSettingDto>> listSettings() {
-        return BaseResponse.success(settingService.findAllSettings());
-    }
+	@GetMapping
+	@PreAuthorize("hasAuthority('SYSTEM_SETTINGS_VIEW')")
+	public BaseResponse<List<SystemSettingDto>> listSettings() {
+		return BaseResponse.success(settingService.findAllSettings());
+	}
 
-    @PutMapping("/{key}")
-    @PreAuthorize("hasAuthority('SYSTEM_SETTINGS_MANAGE')")
-    @AuditEvent(AuditEventType.UPDATE_SETTING)
-    public BaseResponse<SystemSettingDto> updateSetting(
-            @PathVariable @NotBlank String key,
-            @RequestParam @NotBlank @Size(max = 500) String value) {
-        return BaseResponse.success(settingService.updateSetting(key, value));
-    }
+	@PutMapping("/{key}")
+	@PreAuthorize("hasAuthority('SYSTEM_SETTINGS_MANAGE')")
+	@AuditEvent(AuditEventType.UPDATE_SETTING)
+	public BaseResponse<SystemSettingDto> updateSetting(@PathVariable @NotBlank String key,
+			@RequestParam @NotBlank @Size(max = 500) String value) {
+		return BaseResponse.success(settingService.updateSetting(key, value));
+	}
 
-    @GetMapping("/idle-timeout")
-    public BaseResponse<Integer> getIdleTimeout() {
-        return BaseResponse.success(settingService.getIdleTimeoutMinutes());
-    }
+	@GetMapping("/idle-timeout")
+	public BaseResponse<Integer> getIdleTimeout() {
+		return BaseResponse.success(settingService.getIdleTimeoutMinutes());
+	}
 
-    @PutMapping("/idle-timeout")
-    @PreAuthorize("hasAuthority('SYSTEM_SETTINGS_MANAGE')")
-    @AuditEvent(AuditEventType.UPDATE_SETTING)
-    public BaseResponse<Integer> updateIdleTimeout(
-            @RequestParam @Min(1) @Max(480) int minutes) {
-        return BaseResponse.success(settingService.updateIdleTimeoutMinutes(minutes));
-    }
+	@PutMapping("/idle-timeout")
+	@PreAuthorize("hasAuthority('SYSTEM_SETTINGS_MANAGE')")
+	@AuditEvent(AuditEventType.UPDATE_SETTING)
+	public BaseResponse<Integer> updateIdleTimeout(@RequestParam @Min(1) @Max(480) int minutes) {
+		return BaseResponse.success(settingService.updateIdleTimeoutMinutes(minutes));
+	}
+
 }

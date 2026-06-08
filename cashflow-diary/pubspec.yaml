@@ -1,0 +1,48 @@
+name: cashflow_diary
+description: 一款專注於日常小額支出的純本地端記帳工具
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.2.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Database
+  sqflite: ^2.3.3+2
+  sqflite_common_ffi: ^2.3.3
+  path: ^1.9.0
+
+  # Charts
+  fl_chart: ^0.68.0
+
+  # UI
+  flutter_slidable: ^3.1.0
+
+  # Biometric Auth
+  local_auth: ^2.2.0
+
+  # Date/Number Formatting
+  intl: ^0.19.0
+
+  # File operations (export/import)
+  csv: ^6.0.0
+  share_plus: ^9.0.0
+  file_picker: ^8.0.3
+
+  # Utilities
+  uuid: ^4.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  mockito: ^5.4.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/sounds/

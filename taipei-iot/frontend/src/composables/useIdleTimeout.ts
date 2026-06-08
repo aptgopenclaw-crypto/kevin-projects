@@ -122,8 +122,12 @@ export function useIdleTimeout() {
       if (res.body && res.body > 0) {
         timeoutMinutes.value = res.body
       }
-    } catch {
+    } catch (err: unknown) {
       timeoutMinutes.value = DEFAULT_IDLE_TIMEOUT_MINUTES
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status !== 401 && status !== 403) {
+        console.warn('[useIdleTimeout] getIdleTimeout failed, using default', err)
+      }
     }
 
     active = true

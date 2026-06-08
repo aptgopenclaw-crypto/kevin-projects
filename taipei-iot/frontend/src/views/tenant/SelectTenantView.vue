@@ -94,7 +94,6 @@ onUnmounted(() => {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -103,7 +102,6 @@ onUnmounted(() => {
 }
 
 .page-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -144,7 +142,6 @@ onUnmounted(() => {
 }
 
 .tenant-name {
-  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 500;
   line-height: 1.25;
@@ -164,7 +161,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.2px;

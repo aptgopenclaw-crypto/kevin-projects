@@ -41,8 +41,6 @@ const { t } = useI18n()
   display: flex; align-items: center; justify-content: center;
   color: #a78bfa;
 }
-.header-title { font-size: 20px; font-weight: 700; color: var(--text-heading); font-family: 'Inter', sans-serif; margin: 0; }
-.header-subtitle { font-size: 13px; color: var(--text-secondary); font-family: 'Inter', sans-serif; margin: 2px 0 0; }
 
 .dashboard-card {
   background: var(--bg-surface);

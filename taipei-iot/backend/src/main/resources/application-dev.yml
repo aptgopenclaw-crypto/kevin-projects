@@ -7,10 +7,10 @@ spring:
     redis:
       password: ${REDIS_PASSWORD:Kali1234!}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GMAIL_APP_PASSWORD}
+    host: ${O_MAILSER:smtp.office365.com}
+    port: ${O_MAILPORT:587}
+    username: ${O_MAILUSER:fetprivatenetwork@feto365.tw}
+    password: ${O_MAILPASS:FET5gpns}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -21,6 +21,9 @@ jwt:
 auth:
   cookie:
     secure: false
+
+cors:
+  allowed-origins: http://localhost:5173
 
 springdoc:
   api-docs:

@@ -10,19 +10,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AuditCategory {
 
-    USER_AUTH("USER_AUTH"),
-    ACCOUNT("ACCOUNT"),
-    SYSTEM("SYSTEM"),
-    ASSET("ASSET"),
-    WORKFLOW("WORKFLOW"),
-    MAINTENANCE("MAINTENANCE"),
-    MATERIAL("MATERIAL"),
-    REPLACEMENT("REPLACEMENT"),
-    KPI("KPI"),
-    DASHBOARD("DASHBOARD"),
-    IOT("IOT"),
-    TENANT("TENANT"),
-    ;
+	USER_AUTH("USER_AUTH"), ACCOUNT("ACCOUNT"), SYSTEM("SYSTEM"), ASSET("ASSET"), WORKFLOW("WORKFLOW"),
+	MAINTENANCE("MAINTENANCE"), MATERIAL("MATERIAL"), REPLACEMENT("REPLACEMENT"), KPI("KPI"), DASHBOARD("DASHBOARD"),
+	IOT("IOT"), TENANT("TENANT"), NOTIFICATION("NOTIFICATION"),;
 
-    private final String value;
+	private final String value;
+
 }

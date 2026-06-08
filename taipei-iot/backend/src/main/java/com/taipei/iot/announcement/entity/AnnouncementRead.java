@@ -16,19 +16,24 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "announcement_reads")
-@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AnnouncementRead {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(name = "announcement_id", nullable = false)
-    private Long announcementId;
+	@Column(name = "announcement_id", nullable = false)
+	private Long announcementId;
 
-    @Column(name = "user_id", nullable = false, length = 50)
-    private String userId;
+	@Column(name = "user_id", nullable = false, length = 50)
+	private String userId;
 
-    @Column(name = "read_at", nullable = false)
-    private LocalDateTime readAt;
+	@Column(name = "read_at", nullable = false)
+	private LocalDateTime readAt;
+
 }

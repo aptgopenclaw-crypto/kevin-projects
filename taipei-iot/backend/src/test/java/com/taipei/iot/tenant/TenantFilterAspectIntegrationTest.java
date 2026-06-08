@@ -21,37 +21,37 @@ import static org.junit.jupiter.api.Assertions.*;
 @Sql(scripts = "/sql/tenant-seed.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class TenantFilterAspectIntegrationTest {
 
-    @Autowired
-    private TestTenantAwareRepository testTenantAwareRepository;
+	@Autowired
+	private TestTenantAwareRepository testTenantAwareRepository;
 
-    @AfterEach
-    void cleanup() {
-        TenantContext.clear();
-    }
+	@AfterEach
+	void cleanup() {
+		TenantContext.clear();
+	}
 
-    @Test
-    void withTenantContext_shouldFilterByTenantId() {
-        TenantContext.setCurrentTenantId("T1");
+	@Test
+	void withTenantContext_shouldFilterByTenantId() {
+		TenantContext.setCurrentTenantId("T1");
 
-        List<TestTenantAwareEntity> result = testTenantAwareRepository.findAll();
+		List<TestTenantAwareEntity> result = testTenantAwareRepository.findAll();
 
-        assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(e -> "T1".equals(e.getTenantId())));
-    }
+		assertEquals(2, result.size());
+		assertTrue(result.stream().allMatch(e -> "T1".equals(e.getTenantId())));
+	}
 
-    @Test
-    void withSystemContext_shouldReturnAll() {
-        TenantContext.setSystemContext();
+	@Test
+	void withSystemContext_shouldReturnAll() {
+		TenantContext.setSystemContext();
 
-        List<TestTenantAwareEntity> result = testTenantAwareRepository.findAll();
+		List<TestTenantAwareEntity> result = testTenantAwareRepository.findAll();
 
-        assertEquals(3, result.size());
-    }
+		assertEquals(3, result.size());
+	}
 
-    @Test
-    void withoutContext_shouldThrowIllegalStateException() {
-        // TenantContext 未設定時，TenantFilterAspect 採 fail-closed 策略，應拋出例外
-        assertThrows(IllegalStateException.class,
-                () -> testTenantAwareRepository.findAll());
-    }
+	@Test
+	void withoutContext_shouldThrowIllegalStateException() {
+		// TenantContext 未設定時，TenantFilterAspect 採 fail-closed 策略，應拋出例外
+		assertThrows(IllegalStateException.class, () -> testTenantAwareRepository.findAll());
+	}
+
 }

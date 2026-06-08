@@ -15,6 +15,8 @@ export interface UserEventLogDto {
   userAgent: string
   executionTime: number
   deptId: number | null
+  /** [Phase B] SUPER_ADMIN 代操者 userId；null = 一般操作 */
+  impersonatedBy: string | null
   createTime: string
 }
 

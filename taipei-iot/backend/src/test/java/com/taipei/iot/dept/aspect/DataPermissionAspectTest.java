@@ -28,158 +28,157 @@ import static org.mockito.Mockito.*;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class DataPermissionAspectTest {
 
-    @InjectMocks
-    private DataPermissionAspect aspect;
+	@InjectMocks
+	private DataPermissionAspect aspect;
 
-    @Mock private DeptInfoRepository deptInfoRepository;
-    @Mock private ProceedingJoinPoint pjp;
-    @Mock private DataPermission dataPermission;
+	@Mock
+	private DeptInfoRepository deptInfoRepository;
 
-    private MockedStatic<SecurityContextUtils> securityContextMock;
+	@Mock
+	private ProceedingJoinPoint pjp;
 
-    @BeforeEach
-    void setUp() {
-        securityContextMock = mockStatic(SecurityContextUtils.class);
-        when(dataPermission.deptIdField()).thenReturn("deptId");
-        when(dataPermission.hierarchyPathField()).thenReturn("hierarchyPath");
-    }
+	@Mock
+	private DataPermission dataPermission;
 
-    @AfterEach
-    void tearDown() {
-        securityContextMock.close();
-        DataScopeContext.clear();
-    }
+	private MockedStatic<SecurityContextUtils> securityContextMock;
 
-    @Test
-    void enforce_ALL_shouldNotSetFilter() throws Throwable {
-        UserInfo user = UserInfo.builder()
-                .userId("user-001").deptId(1L).dataScope("ALL").build();
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
+	@BeforeEach
+	void setUp() {
+		securityContextMock = mockStatic(SecurityContextUtils.class);
+		when(dataPermission.deptIdField()).thenReturn("deptId");
+		when(dataPermission.hierarchyPathField()).thenReturn("hierarchyPath");
+	}
 
-        when(pjp.proceed()).thenReturn("result");
+	@AfterEach
+	void tearDown() {
+		securityContextMock.close();
+		DataScopeContext.clear();
+	}
 
-        Object result = aspect.enforce(pjp, dataPermission);
+	@Test
+	void enforce_ALL_shouldNotSetFilter() throws Throwable {
+		UserInfo user = UserInfo.builder().userId("user-001").deptId(1L).dataScope("ALL").build();
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
 
-        assertEquals("result", result);
-        assertNull(DataScopeContext.get()); // cleared in finally
-        verify(pjp).proceed();
-    }
+		when(pjp.proceed()).thenReturn("result");
 
-    @Test
-    void enforce_THIS_LEVEL_shouldSetExactFilter() throws Throwable {
-        UserInfo user = UserInfo.builder()
-                .userId("user-001").deptId(2L).dataScope("THIS_LEVEL").build();
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
+		Object result = aspect.enforce(pjp, dataPermission);
 
-        final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
-        when(pjp.proceed()).thenAnswer(invocation -> {
-            capturedFilter[0] = DataScopeContext.get();
-            return "result";
-        });
+		assertEquals("result", result);
+		assertNull(DataScopeContext.get()); // cleared in finally
+		verify(pjp).proceed();
+	}
 
-        Object result = aspect.enforce(pjp, dataPermission);
+	@Test
+	void enforce_THIS_LEVEL_shouldSetExactFilter() throws Throwable {
+		UserInfo user = UserInfo.builder().userId("user-001").deptId(2L).dataScope("THIS_LEVEL").build();
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
 
-        assertEquals("result", result);
-        assertNotNull(capturedFilter[0]);
-        assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
-        assertEquals("deptId", capturedFilter[0].getFieldName());
-        assertEquals(2L, capturedFilter[0].getValue());
-    }
+		final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
+		when(pjp.proceed()).thenAnswer(invocation -> {
+			capturedFilter[0] = DataScopeContext.get();
+			return "result";
+		});
 
-    @Test
-    void enforce_THIS_LEVEL_AND_BELOW_shouldSetHierarchyPrefixFilter() throws Throwable {
-        UserInfo user = UserInfo.builder()
-                .userId("user-001").deptId(1L).dataScope("THIS_LEVEL_AND_BELOW").build();
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
+		Object result = aspect.enforce(pjp, dataPermission);
 
-        DeptInfoEntity dept = DeptInfoEntity.builder()
-                .deptId(1L).hierarchyPath("/1/").build();
-        when(deptInfoRepository.findById(1L)).thenReturn(Optional.of(dept));
+		assertEquals("result", result);
+		assertNotNull(capturedFilter[0]);
+		assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
+		assertEquals("deptId", capturedFilter[0].getFieldName());
+		assertEquals(2L, capturedFilter[0].getValue());
+	}
 
-        final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
-        when(pjp.proceed()).thenAnswer(invocation -> {
-            capturedFilter[0] = DataScopeContext.get();
-            return "result";
-        });
+	@Test
+	void enforce_THIS_LEVEL_AND_BELOW_shouldSetHierarchyPrefixFilter() throws Throwable {
+		UserInfo user = UserInfo.builder().userId("user-001").deptId(1L).dataScope("THIS_LEVEL_AND_BELOW").build();
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
 
-        Object result = aspect.enforce(pjp, dataPermission);
+		DeptInfoEntity dept = DeptInfoEntity.builder().deptId(1L).hierarchyPath("/1/").build();
+		when(deptInfoRepository.findById(1L)).thenReturn(Optional.of(dept));
 
-        assertEquals("result", result);
-        assertNotNull(capturedFilter[0]);
-        assertEquals(DataScopeFilter.FilterType.HIERARCHY_PREFIX, capturedFilter[0].getType());
-        assertEquals("hierarchyPath", capturedFilter[0].getHierarchyPathField());
-        assertEquals("/1/", capturedFilter[0].getHierarchyPathPrefix());
-    }
+		final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
+		when(pjp.proceed()).thenAnswer(invocation -> {
+			capturedFilter[0] = DataScopeContext.get();
+			return "result";
+		});
 
-    @Test
-    void enforce_nullDeptId_shouldSetImpossibleFilter() throws Throwable {
-        UserInfo user = UserInfo.builder()
-                .userId("user-001").deptId(null).dataScope("THIS_LEVEL").build();
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
+		Object result = aspect.enforce(pjp, dataPermission);
 
-        final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
-        when(pjp.proceed()).thenAnswer(invocation -> {
-            capturedFilter[0] = DataScopeContext.get();
-            return "result";
-        });
+		assertEquals("result", result);
+		assertNotNull(capturedFilter[0]);
+		assertEquals(DataScopeFilter.FilterType.HIERARCHY_PREFIX, capturedFilter[0].getType());
+		assertEquals("hierarchyPath", capturedFilter[0].getHierarchyPathField());
+		assertEquals("/1/", capturedFilter[0].getHierarchyPathPrefix());
+	}
 
-        Object result = aspect.enforce(pjp, dataPermission);
+	@Test
+	void enforce_nullDeptId_shouldSetImpossibleFilter() throws Throwable {
+		UserInfo user = UserInfo.builder().userId("user-001").deptId(null).dataScope("THIS_LEVEL").build();
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
 
-        assertEquals("result", result);
-        assertNotNull(capturedFilter[0]);
-        assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
-        assertEquals(-1L, capturedFilter[0].getValue());
-    }
+		final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
+		when(pjp.proceed()).thenAnswer(invocation -> {
+			capturedFilter[0] = DataScopeContext.get();
+			return "result";
+		});
 
-    @Test
-    void enforce_THIS_LEVEL_AND_BELOW_hierarchyPathNotFound_shouldSetImpossibleFilter() throws Throwable {
-        UserInfo user = UserInfo.builder()
-                .userId("user-001").deptId(999L).dataScope("THIS_LEVEL_AND_BELOW").build();
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
+		Object result = aspect.enforce(pjp, dataPermission);
 
-        when(deptInfoRepository.findById(999L)).thenReturn(Optional.empty());
+		assertEquals("result", result);
+		assertNotNull(capturedFilter[0]);
+		assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
+		assertEquals(-1L, capturedFilter[0].getValue());
+	}
 
-        final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
-        when(pjp.proceed()).thenAnswer(invocation -> {
-            capturedFilter[0] = DataScopeContext.get();
-            return "result";
-        });
+	@Test
+	void enforce_THIS_LEVEL_AND_BELOW_hierarchyPathNotFound_shouldSetImpossibleFilter() throws Throwable {
+		UserInfo user = UserInfo.builder().userId("user-001").deptId(999L).dataScope("THIS_LEVEL_AND_BELOW").build();
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
 
-        Object result = aspect.enforce(pjp, dataPermission);
+		when(deptInfoRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertNotNull(capturedFilter[0]);
-        assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
-        assertEquals(-1L, capturedFilter[0].getValue());
-    }
+		final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
+		when(pjp.proceed()).thenAnswer(invocation -> {
+			capturedFilter[0] = DataScopeContext.get();
+			return "result";
+		});
 
-    @Test
-    void enforce_nullUserInfo_shouldSetImpossibleFilter() throws Throwable {
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(null);
+		Object result = aspect.enforce(pjp, dataPermission);
 
-        final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
-        when(pjp.proceed()).thenAnswer(invocation -> {
-            capturedFilter[0] = DataScopeContext.get();
-            return "result";
-        });
+		assertNotNull(capturedFilter[0]);
+		assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
+		assertEquals(-1L, capturedFilter[0].getValue());
+	}
 
-        Object result = aspect.enforce(pjp, dataPermission);
+	@Test
+	void enforce_nullUserInfo_shouldSetImpossibleFilter() throws Throwable {
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(null);
 
-        assertNotNull(capturedFilter[0]);
-        assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
-        assertEquals(-1L, capturedFilter[0].getValue());
-    }
+		final DataScopeFilter[] capturedFilter = new DataScopeFilter[1];
+		when(pjp.proceed()).thenAnswer(invocation -> {
+			capturedFilter[0] = DataScopeContext.get();
+			return "result";
+		});
 
-    @Test
-    void enforce_shouldClearContextInFinally() throws Throwable {
-        UserInfo user = UserInfo.builder()
-                .userId("user-001").deptId(2L).dataScope("THIS_LEVEL").build();
-        securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
+		Object result = aspect.enforce(pjp, dataPermission);
 
-        when(pjp.proceed()).thenThrow(new RuntimeException("test error"));
+		assertNotNull(capturedFilter[0]);
+		assertEquals(DataScopeFilter.FilterType.EXACT, capturedFilter[0].getType());
+		assertEquals(-1L, capturedFilter[0].getValue());
+	}
 
-        assertThrows(RuntimeException.class, () -> aspect.enforce(pjp, dataPermission));
+	@Test
+	void enforce_shouldClearContextInFinally() throws Throwable {
+		UserInfo user = UserInfo.builder().userId("user-001").deptId(2L).dataScope("THIS_LEVEL").build();
+		securityContextMock.when(SecurityContextUtils::getUserInfo).thenReturn(user);
 
-        // DataScopeContext should be cleared even on exception
-        assertNull(DataScopeContext.get());
-    }
+		when(pjp.proceed()).thenThrow(new RuntimeException("test error"));
+
+		assertThrows(RuntimeException.class, () -> aspect.enforce(pjp, dataPermission));
+
+		// DataScopeContext should be cleared even on exception
+		assertNull(DataScopeContext.get());
+	}
+
 }

@@ -12,6 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CaptchaResponse {
-    private String captchaKey;
-    private String captchaImage;
+
+	private String captchaKey;
+
+	private String captchaImage;
+
 }

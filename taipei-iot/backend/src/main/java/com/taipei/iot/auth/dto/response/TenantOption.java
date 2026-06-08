@@ -12,9 +12,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TenantOption {
-    private String tenantId;
-    private String tenantCode;
-    private String tenantName;
-    private String roleName;
-    private String deptName;
+
+	private String tenantId;
+
+	private String tenantCode;
+
+	private String tenantName;
+
+	private String roleName;
+
+	private String deptName;
+
 }

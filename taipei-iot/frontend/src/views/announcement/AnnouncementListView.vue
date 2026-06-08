@@ -7,6 +7,9 @@ import { useAnnouncementStore } from '@/stores/announcementStore'
 import type { AnnouncementResponse, AnnouncementAttachmentResponse } from '@/types/announcement'
 import { ANNOUNCEMENT_CATEGORIES } from '@/types/announcement'
 import { downloadAnnouncementAttachment } from '@/api/announcement'
+import { listPlatformAnnouncementsPublished } from '@/api/platformAnnouncement'
+import type { PlatformAnnouncementResponse } from '@/types/platformAnnouncement'
+import RichTextRenderer from '@/components/RichTextRenderer.vue'
 
 const { t } = useI18n()
 const { locale } = useI18n()
@@ -107,8 +110,44 @@ async function handleDownload(item: AnnouncementResponse, att: AnnouncementAttac
   }
 }
 
-onMounted(() => {
-  announcementStore.fetchListPage(0)
+const initialLoading = ref(true)
+
+// ── Platform announcements (cross-tenant) ───────────────────────────────
+const platformItems = ref<PlatformAnnouncementResponse[]>([])
+const expandedPlatformId = ref<number | null>(null)
+
+function togglePlatformExpand(item: PlatformAnnouncementResponse) {
+  expandedPlatformId.value = expandedPlatformId.value === item.id ? null : item.id
+}
+
+function platformCategoryLabel(cat: string): string {
+  const map: Record<string, string> = { SYSTEM: '系統', MAINTENANCE: '維護', GENERAL: '一般' }
+  return map[cat] ?? cat
+}
+
+function platformCategoryTagType(cat: string): 'danger' | 'warning' | 'info' {
+  if (cat === 'MAINTENANCE') return 'danger'
+  if (cat === 'SYSTEM') return 'warning'
+  return 'info'
+}
+
+async function fetchPlatformAnnouncements() {
+  try {
+    const res = await listPlatformAnnouncementsPublished({ page: 0, size: 20 })
+    if (res.errorCode === '00000') {
+      platformItems.value = res.body.content
+    }
+  } catch {
+    // Silent fail — platform announcements are supplementary
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([
+    announcementStore.fetchListPage(0),
+    fetchPlatformAnnouncements(),
+  ])
+  initialLoading.value = false
 })
 </script>
 
@@ -136,10 +175,41 @@ onMounted(() => {
       </el-select>
     </div>
 
-    <div v-loading="loading" class="announcement-list">
-      <div v-if="items.length === 0 && !loading" class="empty-state">
-        {{ t('announcement.bell.empty') }}
-      </div>
+    <el-skeleton :rows="6" :loading="initialLoading" animated>
+      <template #default>
+        <!-- Platform-wide announcements (cross-tenant) -->
+        <div v-if="platformItems.length > 0" class="platform-announcements-section">
+          <div class="platform-section-title">📢 平台公告</div>
+          <div
+            v-for="item in platformItems"
+            :key="`platform-${item.id}`"
+            class="announcement-card platform-card"
+            :class="{ 'is-expanded': expandedPlatformId === item.id }"
+            @click="togglePlatformExpand(item)"
+          >
+            <div class="card-header">
+              <div class="card-title-row">
+                <el-tag size="small" :type="platformCategoryTagType(item.category)" effect="dark">
+                  {{ platformCategoryLabel(item.category) }}
+                </el-tag>
+                <span class="card-title is-unread">{{ item.title }}</span>
+              </div>
+              <div class="card-meta">
+                {{ formatDate(item.publishAt ?? item.createdAt) }}
+              </div>
+            </div>
+            <transition name="expand">
+              <div v-if="expandedPlatformId === item.id" class="card-content">
+                <RichTextRenderer class="content-html" :html="item.content" />
+              </div>
+            </transition>
+          </div>
+        </div>
+
+        <div v-loading="loading" class="announcement-list">
+          <div v-if="items.length === 0 && !loading" class="empty-state">
+            {{ t('announcement.bell.empty') }}
+          </div>
 
       <div
         v-for="item in items"
@@ -181,8 +251,8 @@ onMounted(() => {
 
         <transition name="expand">
           <div v-if="expandedId === item.id" class="card-content">
-            <!-- content 已由後端 OWASP HTML Sanitizer 清洗，可安全使用 v-html 渲染 -->
-            <div class="content-html" v-html="item.content" />
+            <!-- content 經後端 OWASP HTML Sanitizer + 前端 DOMPurify 雙重清洗 -->
+            <RichTextRenderer class="content-html" :html="item.content" />
             <div v-if="item.attachments && item.attachments.length > 0" class="attachments-section">
               <div class="attachments-title">{{ t('announcement.attachments.title') }}</div>
               <ul class="attachments-list">
@@ -221,6 +291,8 @@ onMounted(() => {
         </transition>
       </div>
     </div>
+      </template>
+    </el-skeleton>
 
     <div class="pagination-bar">
       <el-pagination
@@ -450,6 +522,20 @@ onMounted(() => {
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px dashed var(--el-color-warning-light-5);
+}
+
+.platform-announcements-section {
+  margin-bottom: 16px;
+}
+.platform-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--el-color-warning);
+  margin-bottom: 8px;
+}
+.platform-card {
+  border-left: 3px solid var(--el-color-warning);
+  background: var(--el-color-warning-light-9, #fdf6ec);
 }
 .ack-confirmed {
   color: var(--el-color-success);

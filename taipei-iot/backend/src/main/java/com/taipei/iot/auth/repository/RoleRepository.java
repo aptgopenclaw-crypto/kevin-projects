@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface RoleRepository extends JpaRepository<RoleEntity, String> {
 
-    boolean existsByCode(String code);
+	boolean existsByCode(String code);
 
-    List<RoleEntity> findAllByOrderByBuiltInDescCodeAsc();
+	List<RoleEntity> findAllByOrderByBuiltInDescCodeAsc();
+
+	List<RoleEntity> findAllByOrderByBuiltInDescCreateTimeDesc();
+
 }

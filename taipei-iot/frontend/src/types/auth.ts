@@ -24,6 +24,13 @@ export interface LoginResult {
   needsSelection: boolean
   isSuperAdmin: boolean
   tenants: TenantOption[] | null
+  /**
+   * [Phase 3] When true, `accessToken` is a short-lived `password_change`
+   * temporary token (not a regular access token). The UI must redirect to
+   * the force-change-password page and call POST /noauth/user/force-change-password
+   * with this token. The user is NOT logged in until that succeeds.
+   */
+  passwordChangeRequired?: boolean
 }
 
 export interface TenantOption {

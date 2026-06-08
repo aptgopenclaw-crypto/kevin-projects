@@ -1,11 +1,28 @@
 import axios from 'axios'
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
+interface RetryConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean
+  _retryCount?: number
+}
+
+/** Max retry attempts for idempotent GET requests */
+export const MAX_RETRIES = 2
+/** Base delay in ms (exponential: 1000, 2000) */
+export const RETRY_BASE_DELAY = 1000
+/** HTTP status codes eligible for retry */
+export const RETRYABLE_STATUS = new Set([503, 504])
+/** Axios error codes eligible for retry */
+export const RETRYABLE_CODES = new Set(['ECONNABORTED', 'ERR_NETWORK', 'ETIMEDOUT'])
+
 const axiosIns: AxiosInstance = axios.create({
-  baseURL: '/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/v1',
   timeout: 15000,
   withCredentials: true,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+  },
 })
 
 // --- Callback injection (avoid circular import with authStore) ---
@@ -39,6 +56,15 @@ axiosIns.interceptors.request.use((config) => {
   } catch {
     // localStorage 在 SSR / 隱私模式可能失效；忽略
   }
+
+  // N-10: Extend timeout for download / export requests (blob or matching URL patterns)
+  if (
+    config.responseType === 'blob' ||
+    /\/(export|download)\b/.test(config.url ?? '')
+  ) {
+    config.timeout = 60_000
+  }
+
   return config
 })
 
@@ -49,7 +75,8 @@ let refreshPromise: Promise<string> | null = null
 axiosIns.interceptors.response.use(
   (res) => res.data,
   async (err) => {
-    const originalRequest = err.config as InternalAxiosRequestConfig & { _retry?: boolean }
+    const originalRequest = err.config as RetryConfig
+    // --- 401 token refresh logic ---
     if (
       err.response?.status === 401 &&
       !originalRequest._retry &&
@@ -75,6 +102,22 @@ axiosIns.interceptors.response.use(
         return Promise.reject(err)
       }
     }
+
+    // --- N-11: GET retry with exponential backoff ---
+    const method = (originalRequest.method ?? '').toUpperCase()
+    const retryCount = originalRequest._retryCount ?? 0
+    const isRetryableMethod = method === 'GET' || method === 'HEAD'
+    const isRetryableError =
+      RETRYABLE_CODES.has(err.code ?? '') ||
+      RETRYABLE_STATUS.has(err.response?.status ?? 0)
+
+    if (isRetryableMethod && isRetryableError && retryCount < MAX_RETRIES) {
+      originalRequest._retryCount = retryCount + 1
+      const delay = RETRY_BASE_DELAY * Math.pow(2, retryCount) // 1000, 2000
+      await new Promise(resolve => setTimeout(resolve, delay))
+      return axiosIns(originalRequest)
+    }
+
     return Promise.reject(err)
   },
 )

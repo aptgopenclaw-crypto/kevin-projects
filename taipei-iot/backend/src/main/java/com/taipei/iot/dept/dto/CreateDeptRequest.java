@@ -15,11 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CreateDeptRequest {
 
-    @NotBlank
-    @Size(max = 100)
-    private String deptName;
+	@NotBlank
+	@Size(max = 100)
+	private String deptName;
 
-    private Long pid;
+	private Long pid;
 
-    private Integer deptSort;
+	private Integer deptSort;
+
 }

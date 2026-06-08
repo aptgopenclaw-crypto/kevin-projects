@@ -31,6 +31,18 @@ public class SearchKeywordService {
         return repository.findAll().stream().map(SearchKeywordResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<SearchKeywordResponse> listBySolution(String solution) {
+        return repository.findBySolutionAndIsActiveTrueOrderByKeywordAsc(solution)
+                .stream().map(SearchKeywordResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchKeywordResponse> listBySolutionIncludeInactive(String solution) {
+        return repository.findBySolutionOrderByKeywordAsc(solution)
+                .stream().map(SearchKeywordResponse::from).toList();
+    }
+
     @Transactional
     public SearchKeywordResponse create(SearchKeywordRequest req) {
         AnnouncementSearchKeyword entity = req.toEntity();

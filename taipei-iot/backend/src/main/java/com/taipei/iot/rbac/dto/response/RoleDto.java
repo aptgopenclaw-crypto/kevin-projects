@@ -12,11 +12,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleDto {
-    private String roleId;
-    private String code;
-    private String name;
-    private String description;
-    private boolean builtIn;
-    private boolean enabled;
-    private String dataScope;
+
+	private String roleId;
+
+	private String code;
+
+	private String name;
+
+	private String description;
+
+	private boolean builtIn;
+
+	private boolean enabled;
+
+	private String dataScope;
+
 }

@@ -188,6 +188,15 @@ async function handleExport(format: 'csv' | 'xlsx') {
             </template>
           </el-table-column>
           <el-table-column prop="ipAddress" :label="t('audit.colIp')" width="140" show-overflow-tooltip />
+          <el-table-column prop="impersonatedBy" :label="t('audit.colImpersonator')" width="160" show-overflow-tooltip>
+            <template #default="{ row }">
+              <span v-if="row.impersonatedBy" class="impersonator-cell">
+                <el-tag type="warning" size="small" effect="dark">{{ t('audit.impersonatedBadge') }}</el-tag>
+                <span class="impersonator-id">{{ row.impersonatedBy }}</span>
+              </span>
+              <span v-else class="impersonator-empty">—</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="createTime" :label="t('audit.colTime')" min-width="170" sortable="custom">
             <template #default="{ row }">
               <span class="time-text">{{ formatDateTime(row.createTime) }}</span>
@@ -254,7 +263,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -264,7 +272,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
 }
 
 .page-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -294,7 +301,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -316,7 +322,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
 }
 
 .event-type-text {
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -330,14 +335,12 @@ async function handleExport(format: 'csv' | 'xlsx') {
 
 .code-success {
   color: #5fc992;
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
 }
 
 .code-error {
   color: #FF6363;
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
 }
@@ -349,7 +352,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
 }
 
 .time-text {
-  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -366,7 +368,6 @@ async function handleExport(format: 'csv' | 'xlsx') {
   text-align: center;
   padding: 40px 0;
   color: var(--text-secondary);
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -405,16 +406,7 @@ async function handleExport(format: 'csv' | 'xlsx') {
   font-size: 12px;
 }
 
-:deep(.el-table th.el-table__cell) {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
 :deep(.el-table td.el-table__cell) {
-  font-family: 'Inter', sans-serif;
   font-size: 13px;
 }
 </style>

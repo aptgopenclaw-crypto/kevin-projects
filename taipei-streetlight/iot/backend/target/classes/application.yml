@@ -9,11 +9,11 @@ spring:
     active: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mydb?currentSchema=taipei_streetlight
+    url: jdbc:postgresql://localhost:5432/mydb?currentSchema=iotdb
     username: postgres
     password: ${DB_PASSWORD:Kali1234!}
     hikari:
-      schema: taipei_streetlight
+      schema: iotdb
       maximum-pool-size: 10
 
   jpa:
@@ -21,14 +21,14 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        default_schema: taipei_streetlight
+        default_schema: iotdb
 
   flyway:
     enabled: true
     out-of-order: true
     schemas:
-      - taipei_streetlight
-    default-schema: taipei_streetlight
+      - iotdb
+    default-schema: iotdb
     locations: classpath:db/migration
 
   data:

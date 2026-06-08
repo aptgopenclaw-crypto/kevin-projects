@@ -5,6 +5,7 @@ import com.taipei.iot.auth.security.JwtUtil;
 import com.taipei.iot.common.enums.ErrorCode;
 import com.taipei.iot.common.exception.BusinessException;
 import com.taipei.iot.common.exception.GlobalExceptionHandler;
+import com.taipei.iot.config.CorsProperties;
 import com.taipei.iot.config.SecurityConfig;
 import com.taipei.iot.dept.dto.CreateDeptRequest;
 import com.taipei.iot.dept.dto.DeptDto;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.taipei.iot.common.interceptor.RateLimitInterceptor;
 import com.taipei.iot.tenant.TenantInterceptor;
@@ -36,171 +38,173 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(DeptController.class)
-@Import({SecurityConfig.class, GlobalExceptionHandler.class})
+@Import({ SecurityConfig.class, GlobalExceptionHandler.class, CorsProperties.class })
+@TestPropertySource(properties = "cors.allowed-origins=http://localhost")
 class DeptControllerTest {
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockitoBean private DeptService deptService;
-    @MockitoBean private JwtUtil jwtUtil;
-    @MockitoBean private StringRedisTemplate stringRedisTemplate;
-    @MockitoBean private TenantEnabledCache tenantEnabledCache;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    private String validToken() {
-        return "valid.jwt.token";
-    }
+	@MockitoBean
+	private DeptService deptService;
 
-    private void mockJwtValid(String token, String userId, String tenantId, List<String> roles) {
-        mockJwtValid(token, userId, tenantId, roles, List.of());
-    }
+	@MockitoBean
+	private JwtUtil jwtUtil;
 
-    private void mockJwtValid(String token, String userId, String tenantId,
-                               List<String> roles, List<String> permissions) {
-        Map<String, Object> claimsMap = new HashMap<>();
-        claimsMap.put("uid", userId);
-        claimsMap.put("tenantId", tenantId);
-        claimsMap.put("roles", roles);
-        claimsMap.put("permissions", permissions);
-        claimsMap.put("deptId", "1");
-        claimsMap.put("dataScope", "ALL");
-        claimsMap.put("sub", "test@test.com");
-        claimsMap.put("exp", new Date(System.currentTimeMillis() + 3600000));
-        claimsMap.put("iat", new Date());
-        Claims claims = new DefaultClaims(claimsMap);
-        when(jwtUtil.parseToken(token)).thenReturn(claims);
-    }
+	@MockitoBean
+	private StringRedisTemplate stringRedisTemplate;
 
-    @Test
-    void getDeptTree_authenticated_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
-                List.of("DEPT_LIST", "DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
+	@MockitoBean
+	private TenantEnabledCache tenantEnabledCache;
 
-        DeptDto root = DeptDto.builder().id(1L).deptName("總公司").build();
-        when(deptService.getDeptTree()).thenReturn(List.of(root));
+	private String validToken() {
+		return "valid.jwt.token";
+	}
 
-        mockMvc.perform(get("/v1/auth/dept/list")
-                        .header("Authorization", "Bearer " + validToken()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("00000"))
-                .andExpect(jsonPath("$.body[0].deptName").value("總公司"));
-    }
+	private void mockJwtValid(String token, String userId, String tenantId, List<String> roles) {
+		mockJwtValid(token, userId, tenantId, roles, List.of());
+	}
 
-    @Test
-    void getDeptTree_noToken_shouldReturn401() throws Exception {
-        mockMvc.perform(get("/v1/auth/dept/list"))
-                .andExpect(status().isUnauthorized());
-    }
+	private void mockJwtValid(String token, String userId, String tenantId, List<String> roles,
+			List<String> permissions) {
+		Map<String, Object> claimsMap = new HashMap<>();
+		claimsMap.put("uid", userId);
+		claimsMap.put("tenantId", tenantId);
+		claimsMap.put("roles", roles);
+		claimsMap.put("permissions", permissions);
+		claimsMap.put("deptId", "1");
+		claimsMap.put("dataScope", "ALL");
+		claimsMap.put("sub", "test@test.com");
+		claimsMap.put("exp", new Date(System.currentTimeMillis() + 3600000));
+		claimsMap.put("iat", new Date());
+		Claims claims = new DefaultClaims(claimsMap);
+		when(jwtUtil.parseToken(token)).thenReturn(claims);
+	}
 
-    @Test
-    void getDeptOptions_authenticated_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-001", "TENANT_A", List.of("VIEWER"));
+	@Test
+	void getDeptTree_authenticated_shouldReturn200() throws Exception {
+		mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+				List.of("DEPT_LIST", "DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
 
-        DeptOptionVO option = DeptOptionVO.builder().value(1L).label("總公司").build();
-        when(deptService.getDeptOptions()).thenReturn(List.of(option));
+		DeptDto root = DeptDto.builder().id(1L).deptName("總公司").build();
+		when(deptService.getDeptTree()).thenReturn(List.of(root));
 
-        mockMvc.perform(get("/v1/auth/dept/options")
-                        .header("Authorization", "Bearer " + validToken()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("00000"))
-                .andExpect(jsonPath("$.body[0].label").value("總公司"));
-    }
+		mockMvc.perform(get("/v1/auth/dept/list").header("Authorization", "Bearer " + validToken()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.errorCode").value("00000"))
+			.andExpect(jsonPath("$.body[0].deptName").value("總公司"));
+	}
 
-    @Test
-    void getDeptById_authenticated_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-001", "TENANT_A", List.of("ADMIN"));
+	@Test
+	void getDeptTree_noToken_shouldReturn401() throws Exception {
+		mockMvc.perform(get("/v1/auth/dept/list")).andExpect(status().isUnauthorized());
+	}
 
-        DeptDto dept = DeptDto.builder().id(1L).deptName("總公司").status((short) 1).build();
-        when(deptService.getDeptById(1L)).thenReturn(dept);
+	@Test
+	void getDeptOptions_authenticated_shouldReturn200() throws Exception {
+		mockJwtValid(validToken(), "user-001", "TENANT_A", List.of("VIEWER"));
 
-        mockMvc.perform(get("/v1/auth/dept/1")
-                        .header("Authorization", "Bearer " + validToken()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body.id").value(1))
-                .andExpect(jsonPath("$.body.deptName").value("總公司"));
-    }
+		DeptOptionVO option = DeptOptionVO.builder().value(1L).label("總公司").build();
+		when(deptService.getDeptOptions()).thenReturn(List.of(option));
 
-    @Test
-    void getDeptById_notFound_shouldReturn404() throws Exception {
-        mockJwtValid(validToken(), "user-001", "TENANT_A", List.of("ADMIN"));
+		mockMvc.perform(get("/v1/auth/dept/options").header("Authorization", "Bearer " + validToken()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.errorCode").value("00000"))
+			.andExpect(jsonPath("$.body[0].label").value("總公司"));
+	}
 
-        when(deptService.getDeptById(999L)).thenThrow(new BusinessException(ErrorCode.DEPT_NOT_FOUND));
+	@Test
+	void getDeptById_authenticated_shouldReturn200() throws Exception {
+		mockJwtValid(validToken(), "user-001", "TENANT_A", List.of("ADMIN"));
 
-        mockMvc.perform(get("/v1/auth/dept/999")
-                        .header("Authorization", "Bearer " + validToken()))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("40001"));
-    }
+		DeptDto dept = DeptDto.builder().id(1L).deptName("總公司").status((short) 1).build();
+		when(deptService.getDeptById(1L)).thenReturn(dept);
 
-    @Test
-    void createDept_adminRole_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
-                List.of("DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
+		mockMvc.perform(get("/v1/auth/dept/1").header("Authorization", "Bearer " + validToken()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.body.id").value(1))
+			.andExpect(jsonPath("$.body.deptName").value("總公司"));
+	}
 
-        CreateDeptRequest request = CreateDeptRequest.builder()
-                .deptName("新部門").pid(1L).deptSort(5).build();
+	@Test
+	void getDeptById_notFound_shouldReturn404() throws Exception {
+		mockJwtValid(validToken(), "user-001", "TENANT_A", List.of("ADMIN"));
 
-        DeptDto response = DeptDto.builder().id(10L).deptName("新部門").pid(1L).build();
-        when(deptService.createDept(any())).thenReturn(response);
+		when(deptService.getDeptById(999L)).thenThrow(new BusinessException(ErrorCode.DEPT_NOT_FOUND));
 
-        mockMvc.perform(post("/v1/auth/dept")
-                        .header("Authorization", "Bearer " + validToken())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("00000"))
-                .andExpect(jsonPath("$.body.id").value(10));
-    }
+		mockMvc.perform(get("/v1/auth/dept/999").header("Authorization", "Bearer " + validToken()))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.errorCode").value("40001"));
+	}
 
-    @Test
-    void createDept_viewerRole_shouldReturn403() throws Exception {
-        mockJwtValid(validToken(), "user-viewer-001", "TENANT_A", List.of("VIEWER"));
+	@Test
+	void createDept_adminRole_shouldReturn200() throws Exception {
+		mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+				List.of("DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
 
-        CreateDeptRequest request = CreateDeptRequest.builder()
-                .deptName("新部門").pid(1L).deptSort(5).build();
+		CreateDeptRequest request = CreateDeptRequest.builder().deptName("新部門").pid(1L).deptSort(5).build();
 
-        mockMvc.perform(post("/v1/auth/dept")
-                        .header("Authorization", "Bearer " + validToken())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
-    }
+		DeptDto response = DeptDto.builder().id(10L).deptName("新部門").pid(1L).build();
+		when(deptService.createDept(any())).thenReturn(response);
 
-    @Test
-    void updateDept_adminRole_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
-                List.of("DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
+		mockMvc
+			.perform(post("/v1/auth/dept").header("Authorization", "Bearer " + validToken())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.errorCode").value("00000"))
+			.andExpect(jsonPath("$.body.id").value(10));
+	}
 
-        UpdateDeptRequest request = UpdateDeptRequest.builder()
-                .deptId(2L).deptName("新名稱").deptSort(10).build();
+	@Test
+	void createDept_viewerRole_shouldReturn403() throws Exception {
+		mockJwtValid(validToken(), "user-viewer-001", "TENANT_A", List.of("VIEWER"));
 
-        DeptDto response = DeptDto.builder().id(2L).deptName("新名稱").deptSort(10).build();
-        when(deptService.updateDept(any())).thenReturn(response);
+		CreateDeptRequest request = CreateDeptRequest.builder().deptName("新部門").pid(1L).deptSort(5).build();
 
-        mockMvc.perform(put("/v1/auth/dept")
-                        .header("Authorization", "Bearer " + validToken())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.body.deptName").value("新名稱"));
-    }
+		mockMvc
+			.perform(post("/v1/auth/dept").header("Authorization", "Bearer " + validToken())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isForbidden());
+	}
 
-    @Test
-    void deleteDept_adminRole_shouldReturn200() throws Exception {
-        mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
-                List.of("DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
+	@Test
+	void updateDept_adminRole_shouldReturn200() throws Exception {
+		mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+				List.of("DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
 
-        doNothing().when(deptService).deleteDept(2L);
+		UpdateDeptRequest request = UpdateDeptRequest.builder().deptId(2L).deptName("新名稱").deptSort(10).build();
 
-        mockMvc.perform(delete("/v1/auth/dept/2")
-                        .header("Authorization", "Bearer " + validToken()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("00000"));
-    }
+		DeptDto response = DeptDto.builder().id(2L).deptName("新名稱").deptSort(10).build();
+		when(deptService.updateDept(any())).thenReturn(response);
 
-    @Test
-    void deleteDept_noToken_shouldReturn401() throws Exception {
-        mockMvc.perform(delete("/v1/auth/dept/2"))
-                .andExpect(status().isUnauthorized());
-    }
+		mockMvc
+			.perform(put("/v1/auth/dept").header("Authorization", "Bearer " + validToken())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.body.deptName").value("新名稱"));
+	}
+
+	@Test
+	void deleteDept_adminRole_shouldReturn200() throws Exception {
+		mockJwtValid(validToken(), "user-admin-001", "TENANT_A", List.of("ADMIN"),
+				List.of("DEPT_CREATE", "DEPT_UPDATE", "DEPT_DELETE"));
+
+		doNothing().when(deptService).deleteDept(2L);
+
+		mockMvc.perform(delete("/v1/auth/dept/2").header("Authorization", "Bearer " + validToken()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.errorCode").value("00000"));
+	}
+
+	@Test
+	void deleteDept_noToken_shouldReturn401() throws Exception {
+		mockMvc.perform(delete("/v1/auth/dept/2")).andExpect(status().isUnauthorized());
+	}
+
 }

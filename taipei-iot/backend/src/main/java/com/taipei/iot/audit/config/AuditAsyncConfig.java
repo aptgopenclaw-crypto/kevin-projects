@@ -12,15 +12,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 public class AuditAsyncConfig {
 
-    @Bean("auditExecutor")
-    public TaskExecutor auditExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(8);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("audit-async-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor;
-    }
+	@Bean("auditExecutor")
+	public TaskExecutor auditExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(2);
+		executor.setMaxPoolSize(8);
+		executor.setQueueCapacity(500);
+		executor.setThreadNamePrefix("audit-async-");
+		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+		executor.initialize();
+		return executor;
+	}
+
 }

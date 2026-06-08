@@ -16,15 +16,18 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateRoleRequest {
 
-    @NotBlank
-    @Size(max = 100)
-    private String name;
+	@NotBlank
+	@Size(max = 100)
+	private String name;
 
-    @Size(max = 500)
-    private String description;
+	@Size(max = 500)
+	private String description;
 
-    private boolean enabled;
+	private boolean enabled;
 
-    @Pattern(regexp = "ALL|THIS_LEVEL|THIS_LEVEL_AND_BELOW", message = "dataScope 必須為 ALL、THIS_LEVEL 或 THIS_LEVEL_AND_BELOW")
-    private String dataScope;
+	@NotBlank(message = "dataScope 不能為空")
+	@Pattern(regexp = "ALL|THIS_LEVEL|THIS_LEVEL_AND_BELOW",
+			message = "dataScope 必須為 ALL、THIS_LEVEL 或 THIS_LEVEL_AND_BELOW")
+	private String dataScope;
+
 }

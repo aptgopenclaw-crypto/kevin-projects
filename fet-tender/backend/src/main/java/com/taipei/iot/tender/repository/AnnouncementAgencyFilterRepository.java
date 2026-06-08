@@ -13,6 +13,8 @@ public interface AnnouncementAgencyFilterRepository extends JpaRepository<Announ
 
     List<AnnouncementAgencyFilter> findBySolutionAndIsActiveTrue(String solution);
 
+    List<AnnouncementAgencyFilter> findBySolutionOrderByAgencyKeywordAsc(String solution);
+
     @Query("SELECT DISTINCT f.solution FROM AnnouncementAgencyFilter f WHERE f.solution IS NOT NULL ORDER BY f.solution")
     List<String> findDistinctSolutions();
 }

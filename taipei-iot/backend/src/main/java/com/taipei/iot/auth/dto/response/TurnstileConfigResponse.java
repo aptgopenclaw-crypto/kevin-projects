@@ -15,9 +15,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TurnstileConfigResponse {
-    /** Turnstile 是否已啟用 */
-    private boolean enabled;
 
-    /** Turnstile site key（前端初始化 widget 用） */
-    private String siteKey;
+	/** Turnstile 是否已啟用 */
+	private boolean enabled;
+
+	/** Turnstile site key（前端初始化 widget 用） */
+	private String siteKey;
+
 }

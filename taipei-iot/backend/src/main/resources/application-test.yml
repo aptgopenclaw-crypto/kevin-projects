@@ -46,3 +46,6 @@ user:
     require-digit: true
     max-age-days: 90
     history-count: 5
+
+cors:
+  allowed-origins: http://localhost:5173

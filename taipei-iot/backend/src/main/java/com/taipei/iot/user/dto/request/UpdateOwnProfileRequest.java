@@ -12,8 +12,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateOwnProfileRequest {
-    private String displayName;
-    private String phone;
-    private Boolean notifySmsFlag;
-    private Boolean notifyEmailFlag;
+
+	private String displayName;
+
+	private String phone;
+
+	private Boolean notifySmsFlag;
+
+	private Boolean notifyEmailFlag;
+
 }

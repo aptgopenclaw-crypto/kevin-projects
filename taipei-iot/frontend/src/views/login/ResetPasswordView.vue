@@ -2,10 +2,11 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { Lock, ArrowLeft, Check, X } from 'lucide-vue-next'
+import { Lock, ArrowLeft } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import { resetPassword } from '@/api/auth'
+import PasswordRulesHint from '@/components/PasswordRulesHint.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -27,28 +28,14 @@ const form = reactive({
   confirmPassword: '',
 })
 
-const passwordChecks = computed(() => [
-  { label: t('resetPassword.rules.minLength'), pass: form.newPassword.length >= 8 },
-  { label: t('resetPassword.rules.uppercase'), pass: /[A-Z]/.test(form.newPassword) },
-  { label: t('resetPassword.rules.lowercase'), pass: /[a-z]/.test(form.newPassword) },
-  { label: t('resetPassword.rules.digit'), pass: /\d/.test(form.newPassword) },
-])
-
-const allChecksPassed = computed(() => passwordChecks.value.every(c => c.pass))
-
+// Hint UI (PasswordRulesHint) provides per-rule visual feedback against the
+// effective policy; the server remains the source of truth. We keep a minimal
+// length floor here so the submit button surfaces a friendly error before the
+// API round-trip — anything stronger is enforced by the backend response.
 const rules = computed<FormRules>(() => ({
   newPassword: [
     { required: true, message: t('resetPassword.errors.passwordRequired'), trigger: 'blur' },
-    {
-      validator: (_rule: unknown, _value: string, callback: (err?: Error) => void) => {
-        if (!allChecksPassed.value) {
-          callback(new Error(t('resetPassword.errors.passwordWeak')))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur',
-    },
+    { min: 8, message: t('resetPassword.errors.passwordWeak'), trigger: 'blur' },
   ],
   confirmPassword: [
     { required: true, message: t('resetPassword.errors.confirmRequired'), trigger: 'blur' },
@@ -119,18 +106,7 @@ async function handleSubmit() {
           </el-input>
         </el-form-item>
 
-        <!-- Password strength indicators -->
-        <div v-if="form.newPassword" class="password-checks">
-          <div
-            v-for="check in passwordChecks"
-            :key="check.label"
-            class="check-item"
-            :class="{ pass: check.pass }"
-          >
-            <component :is="check.pass ? Check : X" :size="14" />
-            <span>{{ check.label }}</span>
-          </div>
-        </div>
+        <PasswordRulesHint :password="form.newPassword" />
 
         <el-form-item prop="confirmPassword">
           <el-input
@@ -190,7 +166,6 @@ async function handleSubmit() {
 }
 
 .login-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -199,7 +174,6 @@ async function handleSubmit() {
 }
 
 .login-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -239,7 +213,6 @@ async function handleSubmit() {
   border: none;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -265,38 +238,5 @@ async function handleSubmit() {
 
 .back-link:hover {
   text-decoration: underline;
-}
-
-/* Element Plus dark overrides */
-:deep(.el-input__wrapper) {
-  background-color: var(--bg-base);
-  border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-:deep(.el-input__wrapper:hover) {
-  border-color: var(--border-strong);
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: rgba(85, 179, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(85, 179, 255, 0.15);
-}
-
-:deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: var(--text-muted);
-}
-
-:deep(.el-form-item__error) {
-  color: #FF6363;
 }
 </style>

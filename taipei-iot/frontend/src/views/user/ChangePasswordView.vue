@@ -7,6 +7,8 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { Lock } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import PasswordRulesHint from '@/components/PasswordRulesHint.vue'
+import { usePasswordPolicy } from '@/composables/usePasswordPolicy'
 
 const { t } = useI18n()
 
@@ -14,6 +16,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const { validatePassword } = usePasswordPolicy()
 
 const form = reactive({
   oldPassword: '',
@@ -21,18 +24,15 @@ const form = reactive({
   confirmPassword: '',
 })
 
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|;':,.<>?/~`]).{8,}$/
-
 const rules = computed<FormRules>(() => ({
   oldPassword: [
     { required: true, message: t('password.errors.oldPassRequired'), trigger: 'blur' },
   ],
   newPassword: [
     { required: true, message: t('password.errors.newPassRequired'), trigger: 'blur' },
-    { min: 8, message: t('password.errors.newPassMinLen'), trigger: 'blur' },
     {
       validator: (_rule, value: string, callback) => {
-        if (value && !passwordPattern.test(value)) {
+        if (value && !validatePassword(value)) {
           callback(new Error(t('password.errors.newPassComplexity')))
         } else {
           callback()
@@ -127,6 +127,11 @@ async function handleSubmit() {
           </el-input>
         </el-form-item>
 
+        <PasswordRulesHint
+          :password="form.newPassword"
+          :email="authStore.userInfo?.email"
+        />
+
         <el-form-item :label="t('password.confirmPassLabel')" prop="confirmPassword">
           <el-input
             v-model="form.confirmPassword"
@@ -181,7 +186,6 @@ async function handleSubmit() {
 }
 
 .page-title {
-  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
@@ -190,7 +194,6 @@ async function handleSubmit() {
 }
 
 .page-subtitle {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -216,7 +219,6 @@ async function handleSubmit() {
   flex: 1;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -229,7 +231,6 @@ async function handleSubmit() {
   border: none;
   border-radius: 86px;
   padding: 8px 24px;
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -239,46 +240,5 @@ async function handleSubmit() {
 .submit-btn:hover {
   background: var(--btn-primary-hover);
   color: var(--btn-primary-text);
-}
-
-/* Element Plus dark overrides */
-:deep(.el-form-item__label) {
-  color: var(--text-label);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__wrapper) {
-  background-color: var(--bg-base);
-  border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-:deep(.el-input__wrapper:hover) {
-  border-color: var(--border-strong);
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: rgba(85, 179, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(85, 179, 255, 0.15);
-}
-
-:deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-:deep(.el-input__inner::placeholder) {
-  color: var(--text-muted);
-}
-
-:deep(.el-form-item__error) {
-  color: #FF6363;
 }
 </style>

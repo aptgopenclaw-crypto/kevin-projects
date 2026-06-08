@@ -100,6 +100,7 @@ const pieChartOption = computed(() => {
   if (!data.value) return {}
   const dist = data.value.solutionDistribution
   return {
+    color: ['#5470C6', '#91CC75', '#FAC858', '#EE6666', '#73C0DE', '#9A60B4', '#FC8452', '#3BA272', '#EA7CCC', '#36CFC9'],
     tooltip: { trigger: 'item', formatter: '{b}: {c} 件 ({d}%)' },
     legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 12 } },
     series: [{

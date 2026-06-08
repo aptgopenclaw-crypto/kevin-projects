@@ -14,22 +14,36 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateMenuRequest {
-    private Long parentId;
 
-    @NotBlank
-    private String name;
+	private Long parentId;
 
-    @NotBlank
-    @Pattern(regexp = "DIRECTORY|PAGE|BUTTON", message = "menuType 必須為 DIRECTORY、PAGE 或 BUTTON")
-    private String menuType;
+	@NotBlank
+	private String name;
 
-    private String routeName;
-    private String routePath;
-    private String component;
-    private String permissionCode;
-    private String icon;
-    private int sortOrder;
-    private boolean visible;
-    private boolean keepAlive;
-    private String redirect;
+	@NotBlank
+	@Pattern(regexp = "DIRECTORY|PAGE|BUTTON", message = "menuType 必須為 DIRECTORY、PAGE 或 BUTTON")
+	private String menuType;
+
+	private String routeName;
+
+	private String routePath;
+
+	private String component;
+
+	@Pattern(regexp = "^$|^[A-Z][A-Z0-9_]*$", message = "permissionCode 必須為空或符合 UPPER_SNAKE_CASE")
+	private String permissionCode;
+
+	private String icon;
+
+	private int sortOrder;
+
+	private boolean visible;
+
+	private boolean keepAlive;
+
+	private String redirect;
+
+	@Pattern(regexp = "PLATFORM|TENANT|PUBLIC", message = "scope 必須為 PLATFORM、TENANT 或 PUBLIC")
+	private String scope;
+
 }
