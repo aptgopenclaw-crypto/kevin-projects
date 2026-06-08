@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { searchTenderAwards, listSearchKeywords } from '@/api/tender'
+import { useI18n } from 'vue-i18n'
+import { ElMessage } from 'element-plus'
+import { Download } from '@element-plus/icons-vue'
+import { searchTenderAwards, listSearchKeywords, exportTenderAwards } from '@/api/tender'
 import type { TenderAwardResponse, TenderAwardQueryRequest } from '@/types/tender'
 
-// ── 篩選條件 ──────────────────────────────────────────────────
+// ── 筌選條件 ──────────────────────────────────────────────────────
+const { t } = useI18n()
 const filter = reactive<TenderAwardQueryRequest>({
   solution: '',
   keyword: '',
@@ -118,6 +122,36 @@ onMounted(() => {
   loadSolutions()
   fetchList()
 })
+
+// ── 匯出 ──────────────────────────────────────────────────────
+const exporting = ref(false)
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const params: TenderAwardQueryRequest = {
+      solution: filter.solution || undefined,
+      keyword: filter.keyword || undefined,
+      agency: filter.agency || undefined,
+      name: filter.name || undefined,
+      vendorName: filter.vendorName || undefined,
+      dateFrom: filter.dateFrom || undefined,
+      dateTo: filter.dateTo || undefined,
+    }
+    const blob = await exportTenderAwards(params)
+    const url = URL.createObjectURL(blob as unknown as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'tender-awards.xlsx'
+    a.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success(t('common.exportSuccess'))
+  } catch {
+    ElMessage.error(t('common.exportFailed'))
+  } finally {
+    exporting.value = false
+  }
+}
 </script>
 
 <template>
@@ -162,6 +196,10 @@ onMounted(() => {
         <el-form-item>
           <el-button type="primary" native-type="submit">查詢</el-button>
           <el-button @click="handleReset">重置</el-button>
+          <el-button type="success" :loading="exporting" @click="handleExport">
+            <el-icon style="margin-right:4px"><Download /></el-icon>
+            匯出
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>

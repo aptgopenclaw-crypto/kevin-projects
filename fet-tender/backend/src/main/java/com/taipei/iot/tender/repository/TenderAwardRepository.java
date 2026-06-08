@@ -76,6 +76,33 @@ public interface TenderAwardRepository extends JpaRepository<TenderAward, Long>,
             @Param("dateTo")     String dateTo,
             Pageable pageable);
 
+    @Query(
+        nativeQuery = true,
+        value = """
+            SELECT DISTINCT ON (tender_number, award_announce_date, award_announce_seq, vendor_order_seq)
+                *
+            FROM tender_award
+            WHERE tenant_id = :tenantId
+              AND (:solution   IS NULL OR solution       = :solution)
+              AND (:keyword    IS NULL OR matched_keyword ILIKE CONCAT('%', :keyword,    '%'))
+              AND (:agency     IS NULL OR agency_name     ILIKE CONCAT('%', :agency,     '%'))
+              AND (:name       IS NULL OR tender_name     ILIKE CONCAT('%', :name,       '%'))
+              AND (:vendorName IS NULL OR vendor_name     ILIKE CONCAT('%', :vendorName, '%'))
+              AND (CAST(:dateFrom AS DATE) IS NULL OR award_announce_date >= CAST(:dateFrom AS DATE))
+              AND (CAST(:dateTo   AS DATE) IS NULL OR award_announce_date <= CAST(:dateTo   AS DATE))
+            ORDER BY tender_number, award_announce_date, award_announce_seq, vendor_order_seq
+        """
+    )
+    List<TenderAward> searchForExport(
+            @Param("tenantId")   String tenantId,
+            @Param("solution")   String solution,
+            @Param("keyword")    String keyword,
+            @Param("agency")     String agency,
+            @Param("name")       String name,
+            @Param("vendorName") String vendorName,
+            @Param("dateFrom")   String dateFrom,
+            @Param("dateTo")     String dateTo);
+
     // ── 廠商 Dashboard 查詢 ───────────────────────────────────────────────────
 
     /**

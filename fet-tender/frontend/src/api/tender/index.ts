@@ -133,6 +133,9 @@ export const deleteTenderAnnouncement = (id: number) =>
     `/tender/announcements/${id}`,
   )
 
+export const exportTenderAnnouncements = (params: TenderAnnouncementQueryRequest) =>
+  axiosIns.get('/tender/announcements/export', { params, responseType: 'blob' })
+
 // ── AI 聊天 ───────────────────────────────────────────────────
 export const tenderChat = (payload: TenderChatRequest, signal?: AbortSignal) =>
   axiosIns.post<unknown, BaseResponse<TenderChatResponse>>(
@@ -157,6 +160,9 @@ export const deleteTenderAward = (id: number) =>
   axiosIns.delete<unknown, BaseResponse<void>>(
     `/tender/awards/${id}`,
   )
+
+export const exportTenderAwards = (params: TenderAwardQueryRequest) =>
+  axiosIns.get('/tender/awards/export', { params, responseType: 'blob' })
 
 // ── 廠商 Dashboard ────────────────────────────────────────────
 export const suggestVendors = (q: string) =>

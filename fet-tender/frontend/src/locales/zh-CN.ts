@@ -24,7 +24,7 @@ export default {
     enabled: '启用',
     disabled: '停用',
     confirmDelete: '确认删除',
-    retryLater: '请稍后再试',    other: '其他',  },
+    retryLater: '请稍后再试',    other: '其他',    export: '汇出',    exportSuccess: '汇出成功',    exportFailed: '汇出失败',  },
   lang: {
     zhTW: '繁體中文',
     zhCN: '简体中文',

@@ -26,6 +26,9 @@ export default {
     confirmDelete: 'Confirm Delete',
     retryLater: 'Please try again later',
     other: 'Other',
+    export: 'Export',
+    exportSuccess: 'Export successful',
+    exportFailed: 'Export failed',
   },
   lang: {
     zhTW: '繁體中文',

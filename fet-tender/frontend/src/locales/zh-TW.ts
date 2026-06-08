@@ -27,6 +27,9 @@ export default {
     retryLater: '請稍後再試',
     maxLength: '長度不可超過 {max} 字',
     other: '其他',
+    export: '匯出',
+    exportSuccess: '匯出成功',
+    exportFailed: '匯出失敗',
   },
   lang: {
     zhTW: '繁體中文',

@@ -1,18 +1,23 @@
 package com.taipei.iot.tender.controller;
 
+import com.taipei.iot.audit.annotation.AuditEvent;
+import com.taipei.iot.audit.enums.AuditEventType;
 import com.taipei.iot.common.response.BaseResponse;
 import com.taipei.iot.tender.dto.AwardScrapeResult;
 import com.taipei.iot.tender.dto.TenderAwardQueryRequest;
 import com.taipei.iot.tender.dto.TenderAwardResponse;
+import com.taipei.iot.tender.service.TenderAwardExcelExporter;
 import com.taipei.iot.tender.service.TenderAwardScraperService;
 import com.taipei.iot.tender.service.TenderAwardService;
 import com.taipei.iot.common.dto.PageResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 @RestController
@@ -22,6 +27,7 @@ public class TenderAwardController {
 
     private final TenderAwardService service;
     private final TenderAwardScraperService scraperService;
+    private final TenderAwardExcelExporter excelExporter;
 
     @GetMapping
     @PreAuthorize("hasAuthority('tender:award:view')")
@@ -40,6 +46,17 @@ public class TenderAwardController {
     public BaseResponse<Void> delete(@PathVariable Long id) {
         service.deleteById(id);
         return BaseResponse.success(null);
+    }
+
+    @GetMapping("/export")
+    @PreAuthorize("hasAuthority('tender:award:export')")
+    @AuditEvent(AuditEventType.EXPORT_TENDER_AWARD)
+    public void export(@Valid TenderAwardQueryRequest req,
+                       HttpServletResponse response) throws IOException {
+        var rows = service.queryForExport(req);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=tender-awards.xlsx");
+        response.getOutputStream().write(excelExporter.export(rows));
     }
 
     /**

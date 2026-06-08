@@ -2,6 +2,7 @@ package com.taipei.iot.tender.service;
 
 import com.taipei.iot.tender.dto.TenderAnnouncementQueryRequest;
 import com.taipei.iot.tender.dto.TenderAnnouncementResponse;
+import com.taipei.iot.tender.entity.TenderAnnouncement;
 import com.taipei.iot.tender.repository.TenderAnnouncementRepository;
 import com.taipei.iot.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,18 @@ public class TenderAnnouncementService {
                 .page(page.getNumber())
                 .size(page.getSize())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TenderAnnouncement> queryForExport(TenderAnnouncementQueryRequest req) {
+        return repository.searchForExport(
+                req.getSolution(),
+                req.getKeyword(),
+                req.getAgency(),
+                req.getName(),
+                req.getDateFrom(),
+                req.getDateTo()
+        );
     }
 
     @Transactional(readOnly = true)

@@ -2,7 +2,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { searchTenderAnnouncements, listSearchKeywords } from '@/api/tender'
+import { Download } from '@element-plus/icons-vue'
+import { searchTenderAnnouncements, listSearchKeywords, exportTenderAnnouncements } from '@/api/tender'
 import type { TenderAnnouncementResponse, TenderAnnouncementQueryRequest } from '@/types/tender'
 
 const { t } = useI18n()
@@ -124,6 +125,35 @@ onMounted(() => {
   loadSolutions()
   fetchList()
 })
+
+// ── 匯出 ──────────────────────────────────────────────────────
+const exporting = ref(false)
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const params: TenderAnnouncementQueryRequest = {
+      solution: filter.solution || undefined,
+      keyword: filter.keyword || undefined,
+      agency: filter.agency || undefined,
+      name: filter.name || undefined,
+      dateFrom: filter.dateFrom || undefined,
+      dateTo: filter.dateTo || undefined,
+    }
+    const blob = await exportTenderAnnouncements(params)
+    const url = URL.createObjectURL(blob as unknown as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'tender-announcements.xlsx'
+    a.click()
+    URL.revokeObjectURL(url)
+    ElMessage.success(t('common.exportSuccess'))
+  } catch {
+    ElMessage.error(t('common.exportFailed'))
+  } finally {
+    exporting.value = false
+  }
+}
 </script>
 
 <template>
@@ -185,6 +215,10 @@ onMounted(() => {
         <el-form-item>
           <el-button type="primary" native-type="submit">{{ $t('common.query') }}</el-button>
           <el-button @click="handleReset">{{ $t('common.reset') }}</el-button>
+          <el-button type="success" :loading="exporting" @click="handleExport">
+            <el-icon style="margin-right:4px"><Download /></el-icon>
+            {{ $t('common.export') }}
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>

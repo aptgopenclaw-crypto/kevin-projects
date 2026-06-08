@@ -37,6 +37,24 @@ public interface TenderAnnouncementRepository extends JpaRepository<TenderAnnoun
             @Param("dateTo")   LocalDate dateTo,
             Pageable pageable);
 
+    @Query("""
+        SELECT t FROM TenderAnnouncement t
+        WHERE (:solution IS NULL OR t.solution = :solution)
+          AND (:keyword  IS NULL OR t.matchedKeyword LIKE %:keyword%)
+          AND (:agency   IS NULL OR t.agencyName    LIKE %:agency%)
+          AND (:name     IS NULL OR t.tenderName    LIKE %:name%)
+          AND (:dateFrom IS NULL OR t.announcementDate >= :dateFrom)
+          AND (:dateTo   IS NULL OR t.announcementDate <= :dateTo)
+        ORDER BY t.announcementDate DESC, t.id DESC
+    """)
+    List<TenderAnnouncement> searchForExport(
+            @Param("solution") String solution,
+            @Param("keyword")  String keyword,
+            @Param("agency")   String agency,
+            @Param("name")     String name,
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo")   LocalDate dateTo);
+
     // ── AI Function Calling 專用查詢 ──────────────────────────────────────────
 
     @Query("""

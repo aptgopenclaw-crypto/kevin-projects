@@ -22,6 +22,7 @@ public enum AuditCategory {
     DASHBOARD("DASHBOARD"),
     IOT("IOT"),
     TENANT("TENANT"),
+    TENDER("TENDER"),
     ;
 
     private final String value;

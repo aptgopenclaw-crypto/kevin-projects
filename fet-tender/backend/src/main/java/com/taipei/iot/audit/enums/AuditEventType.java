@@ -126,6 +126,10 @@ public enum AuditEventType {
     CREATE_TENANT("CREATE_TENANT", AuditCategory.TENANT, true),
     UPDATE_TENANT("UPDATE_TENANT", AuditCategory.TENANT, true),
     TOGGLE_TENANT_ENABLED("TOGGLE_TENANT_ENABLED", AuditCategory.TENANT, true),
+
+    // ── TENDER（採購標案） ──
+    EXPORT_TENDER_ANNOUNCEMENT("EXPORT_TENDER_ANNOUNCEMENT", AuditCategory.TENDER, true),
+    EXPORT_TENDER_AWARD("EXPORT_TENDER_AWARD", AuditCategory.TENDER, true),
     ;
 
     /** 存入 DB 的字串值 */
