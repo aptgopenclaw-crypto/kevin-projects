@@ -1,3 +1,8 @@
+
+┌──(kevin㉿kali)-[~/workspaces/kevin-projects/zen-timer]
+└─$ export PATH="$PATH:/home/kevin/workspaces/kevin-github/flutter/bin"
+flutter build apk --release
+
 # zen_timer
 
 A new Flutter project.

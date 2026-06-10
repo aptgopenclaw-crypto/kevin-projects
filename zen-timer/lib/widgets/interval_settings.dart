@@ -69,10 +69,11 @@ class IntervalSettings extends StatelessWidget {
     required ValueChanged<int> onChanged,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           label,
+          textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -89,7 +90,7 @@ class IntervalSettings extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             SizedBox(
-              width: 80,
+              width: 100,
               child: Text(
                 '$value $unit',
                 textAlign: TextAlign.center,
@@ -110,6 +111,7 @@ class IntervalSettings extends StatelessWidget {
         const SizedBox(height: 8),
         Wrap(
           alignment: WrapAlignment.center,
+          runSpacing: 8,
           spacing: 8,
           children: presets.map((p) {
             final selected = value == p;
@@ -120,6 +122,8 @@ class IntervalSettings extends StatelessWidget {
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                constraints: const BoxConstraints(minWidth: 60),
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: selected ? AppTheme.primary : AppTheme.surface,
                   borderRadius: BorderRadius.circular(20),
@@ -129,6 +133,7 @@ class IntervalSettings extends StatelessWidget {
                 ),
                 child: Text(
                   '$p分',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
                     color: selected ? Colors.white : AppTheme.textDark,
