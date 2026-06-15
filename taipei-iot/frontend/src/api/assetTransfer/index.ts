@@ -14,6 +14,12 @@ export const createApplication = (req: AssetTransferCreateRequest) =>
     req,
   )
 
+export const createAndSubmitApplication = (req: AssetTransferCreateRequest) =>
+  axiosIns.post<unknown, BaseResponse<AssetTransferApplicationDto>>(
+    '/auth/asset-transfer/create-and-submit',
+    req,
+  )
+
 export const submitApplication = (id: number) =>
   axiosIns.post<unknown, BaseResponse<AssetTransferApplicationDto>>(
     `/auth/asset-transfer/submit/${id}`,

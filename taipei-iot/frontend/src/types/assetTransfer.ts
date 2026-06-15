@@ -2,7 +2,6 @@ export type AssetTransferStatus = 'DRAFT' | 'PROCESSING' | 'COMPLETED' | 'REJECT
 
 export interface AssetTransferApplicationDto {
   id: number
-  tenantId: string
   applicationNo: string
   applicantId: string
   applicantName: string | null
@@ -14,13 +13,12 @@ export interface AssetTransferApplicationDto {
   targetDepartmentId: number | null
   reason: string | null
   assetValue: number | null
-  workflowInstanceId: number | null
   status: AssetTransferStatus
   currentAssignee: string | null
+  currentAssigneeName: string | null
   createdAt: string
   createdBy: string | null
   updatedAt: string
-  updatedBy: string | null
   approvedAt: string | null
   approvedBy: string | null
   rejectReason: string | null

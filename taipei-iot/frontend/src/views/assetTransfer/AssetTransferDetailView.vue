@@ -6,6 +6,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/authStore'
 import { useDeptStore } from '@/stores/deptStore'
 import { getApplication, approveApplication, rejectApplication, resubmitApplication, getRejectTargets } from '@/api/assetTransfer'
+import { useApiError } from '@/composables/useApiError'
 import type { AssetTransferApplicationDto, AssetTransferStatus, RejectTargetOption } from '@/types/assetTransfer'
 
 const props = defineProps<{ id: string }>()
@@ -14,6 +15,7 @@ const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 const deptStore = useDeptStore()
+const { handleError } = useApiError()
 
 // Ensure dept names are loaded
 if (!deptStore.initialized) {
@@ -54,9 +56,9 @@ const stepActiveIndex = computed(() => {
     case 'PROCESSING':
       return 1
     case 'COMPLETED':
-      return 3
+      return 4
     case 'REJECTED':
-      return 3
+      return 4
     case 'CANCELLED':
       return 0
     default:
@@ -65,7 +67,7 @@ const stepActiveIndex = computed(() => {
 })
 
 const stepStatus = computed(() => {
-  if (app.value?.status === 'APPROVED') return 'success'
+  if (app.value?.status === 'COMPLETED') return 'success'
   if (app.value?.status === 'REJECTED') return 'error'
   return 'process'
 })
@@ -77,8 +79,8 @@ async function loadData() {
   try {
     const res = await getApplication(Number(props.id))
     app.value = res.body
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {}, t('assetTransfer.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -99,8 +101,12 @@ async function handleApprove() {
     const res = await approveApplication(Number(props.id), {})
     app.value = res.body
     ElMessage.success(t('assetTransfer.approvedSuccess'))
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {
+      '91001': t('assetTransfer.errorPermissionDenied'),
+      '91002': t('assetTransfer.errorNotFound'),
+      '91003': t('assetTransfer.errorInvalidStatus'),
+    }, t('assetTransfer.loadFailed'))
   } finally {
     acting.value = false
   }
@@ -119,7 +125,7 @@ function openRejectDialog() {
         rejectTargetStep.value = res.body[0].stepId
       }
     })
-    .catch(() => ElMessage.error(t('assetTransfer.loadFailed')))
+    .catch((err) => handleError(err, {}, t('assetTransfer.loadFailed')))
     .finally(() => {
       rejectTargetsLoading.value = false
     })
@@ -139,8 +145,12 @@ async function handleRejectConfirm() {
     })
     app.value = res.body
     ElMessage.success(t('assetTransfer.rejectedSuccess'))
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {
+      '91001': t('assetTransfer.errorPermissionDenied'),
+      '91002': t('assetTransfer.errorNotFound'),
+      '91003': t('assetTransfer.errorInvalidStatus'),
+    }, t('assetTransfer.loadFailed'))
   } finally {
     acting.value = false
   }
@@ -152,8 +162,12 @@ async function handleResubmit() {
     const res = await resubmitApplication(Number(props.id), {})
     app.value = res.body
     ElMessage.success(t('assetTransfer.submittedSuccess'))
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {
+      '91001': t('assetTransfer.errorPermissionDenied'),
+      '91002': t('assetTransfer.errorNotFound'),
+      '91004': t('assetTransfer.errorWorkflowNotStarted'),
+    }, t('assetTransfer.loadFailed'))
   } finally {
     acting.value = false
   }
@@ -282,11 +296,7 @@ function formatDate(dateStr: string | null) {
                 </div>
                 <div v-if="app.currentAssignee" class="info-row">
                   <span class="info-label">{{ t('assetTransfer.currentAssigneeLabel') }}</span>
-                  <span class="info-value mono">{{ app.currentAssignee }}</span>
-                </div>
-                <div v-if="app.workflowInstanceId" class="info-row">
-                  <span class="info-label">{{ t('assetTransfer.workflowInstanceLabel') }}</span>
-                  <span class="info-value mono">{{ app.workflowInstanceId }}</span>
+                  <span class="info-value">{{ app.currentAssigneeName || app.currentAssignee }}</span>
                 </div>
               </div>
             </div>

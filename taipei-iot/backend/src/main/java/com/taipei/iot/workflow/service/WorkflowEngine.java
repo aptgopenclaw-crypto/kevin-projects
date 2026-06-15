@@ -44,7 +44,8 @@ public class WorkflowEngine {
 	 * 啟動新流程，建立實例並建立第一步驟待辦。
 	 */
 	@Transactional
-	public WorkflowInstanceEntity start(String workflowCode, String businessId, String businessType,WorkflowContext context) {
+	public WorkflowInstanceEntity start(String workflowCode, String businessId, String businessType,
+			WorkflowContext context) {
 
 		// 1. 讀取流程定義
 		WorkflowDefinitionEntity def = definitionRepo.findByCodeAndEnabledTrue(workflowCode)
@@ -54,7 +55,7 @@ public class WorkflowEngine {
 		WorkflowStepsJson stepsJson = parseStepsJson(def.getStepsJson());
 		StepDefinition firstStep = findStep(stepsJson, stepsJson.getInitialStep());
 
-		// 2. 建立流程實例	
+		// 2. 建立流程實例
 		WorkflowInstanceEntity instance = WorkflowInstanceEntity.builder()
 			.workflowDefId(def.getId())
 			.businessId(businessId)
@@ -63,7 +64,7 @@ public class WorkflowEngine {
 			.status("IN_PROGRESS")
 			.contextJson(toJson(context))
 			.build();
-		
+
 		// 3. 寫入資料庫
 		instance = instanceRepo.save(instance);
 
@@ -87,7 +88,7 @@ public class WorkflowEngine {
 		WorkflowStepLogEntity currentLog = requireCurrentLog(instanceId);
 		validateAssignee(currentLog, userId);
 
-		//（這裡的狀態檢查主要是為了避免重複審核同一個步驟，造成流程狀態異常；
+		// （這裡的狀態檢查主要是為了避免重複審核同一個步驟，造成流程狀態異常；
 		// 實際上在 controller 層也會檢查待辦清單，理論上不太可能發生，但還是加上這層保險）
 		if (currentLog.getCompletedAt() != null) {
 			throw new WorkflowStepAlreadyCompletedException(currentLog.getStepName());
@@ -146,7 +147,7 @@ public class WorkflowEngine {
 		// end step 的 assigneeUserId 為 null，不做審核人驗證；其他步驟則驗證 userId 是否與 assigneeUserId 相符
 		validateAssignee(currentLog, userId);
 
-		//（這裡的狀態檢查主要是為了避免重複審核同一個步驟，造成流程狀態異常；
+		// （這裡的狀態檢查主要是為了避免重複審核同一個步驟，造成流程狀態異常；
 		// 實際上在 controller 層也會檢查待辦清單，理論上不太可能發生，但還是加上這層保險）
 		if (currentLog.getCompletedAt() != null) {
 			throw new WorkflowStepAlreadyCompletedException(currentLog.getStepName());
@@ -154,7 +155,7 @@ public class WorkflowEngine {
 
 		// 讀取流程定義與步驟資訊，驗證流程定義與目標步驟存在，並驗證目標步驟是目前步驟的 reject_target
 		WorkflowStepsJson stepsJson = parseStepsJson(loadDef(instance).getStepsJson());
-		
+
 		// 讀取目前步驟資訊，驗證流程定義與目前步驟存在
 		StepDefinition currentStep = findStep(stepsJson, currentLog.getStepId());
 

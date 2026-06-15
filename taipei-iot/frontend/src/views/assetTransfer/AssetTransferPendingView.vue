@@ -4,11 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { getMyApplications, getPendingTasks } from '@/api/assetTransfer'
+import { useApiError } from '@/composables/useApiError'
 import type { AssetTransferApplicationDto, AssetTransferStatus } from '@/types/assetTransfer'
 
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
+const { handleError } = useApiError()
 
 /** When meta.mode === 'my' we fetch the user's own applications, otherwise pending tasks */
 const isMyMode = computed(() => route.meta?.mode === 'my')
@@ -34,8 +36,8 @@ async function loadData() {
   try {
     const res = isMyMode.value ? await getMyApplications() : await getPendingTasks()
     items.value = res.body
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {}, t('assetTransfer.loadFailed'))
   } finally {
     loading.value = false
   }

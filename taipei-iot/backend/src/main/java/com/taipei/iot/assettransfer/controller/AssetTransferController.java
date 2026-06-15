@@ -3,8 +3,8 @@ package com.taipei.iot.assettransfer.controller;
 import com.taipei.iot.assettransfer.dto.AssetTransferActionRequest;
 import com.taipei.iot.assettransfer.dto.AssetTransferCreateRequest;
 import com.taipei.iot.assettransfer.dto.AssetTransferRejectRequest;
+import com.taipei.iot.assettransfer.dto.AssetTransferResponse;
 import com.taipei.iot.assettransfer.dto.RejectTargetDto;
-import com.taipei.iot.assettransfer.entity.AssetTransferApplicationEntity;
 import com.taipei.iot.assettransfer.service.AssetTransferService;
 import com.taipei.iot.audit.annotation.AuditEvent;
 import com.taipei.iot.audit.enums.AuditEventType;
@@ -49,16 +49,25 @@ public class AssetTransferController {
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_CREATE')")
 	@AuditEvent(AuditEventType.CREATE_ASSET_TRANSFER)
 	@Operation(summary = "建立資產異動申請", description = "建立新的資產異動申請草稿，回傳建立後的申請資料")
-	public BaseResponse<AssetTransferApplicationEntity> create(@Valid @RequestBody AssetTransferCreateRequest req) {
+	public BaseResponse<AssetTransferResponse> create(@Valid @RequestBody AssetTransferCreateRequest req) {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.create(req, currentUserId));
+	}
+
+	@PostMapping("/create-and-submit")
+	@PreAuthorize("hasAuthority('ASSET_TRANSFER_CREATE')")
+	@AuditEvent(AuditEventType.CREATE_ASSET_TRANSFER)
+	@Operation(summary = "建立並送出資產異動申請", description = "建立草稿後立即啟動簽核流程（原子操作），避免草稿孤兒化")
+	public BaseResponse<AssetTransferResponse> createAndSubmit(@Valid @RequestBody AssetTransferCreateRequest req) {
+		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
+		return BaseResponse.success(service.createAndSubmit(req, currentUserId));
 	}
 
 	@PostMapping("/submit/{id}")
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_CREATE')")
 	@AuditEvent(AuditEventType.WORKFLOW_SUBMIT)
 	@Operation(summary = "送出資產異動申請", description = "將草稿送出並啟動簽核流程")
-	public BaseResponse<AssetTransferApplicationEntity> submit(@PathVariable Long id) {
+	public BaseResponse<AssetTransferResponse> submit(@PathVariable Long id) {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.submit(id, currentUserId));
 	}
@@ -67,7 +76,7 @@ public class AssetTransferController {
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_APPROVE')")
 	@AuditEvent(AuditEventType.WORKFLOW_APPROVE)
 	@Operation(summary = "審核通過資產異動申請", description = "核准目前簽核步驟，並推進到下一步")
-	public BaseResponse<AssetTransferApplicationEntity> approve(@PathVariable Long id,
+	public BaseResponse<AssetTransferResponse> approve(@PathVariable Long id,
 			@Valid @RequestBody AssetTransferActionRequest req) {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.approve(id, currentUserId, req.comment()));
@@ -77,7 +86,7 @@ public class AssetTransferController {
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_APPROVE')")
 	@AuditEvent(AuditEventType.WORKFLOW_REJECT)
 	@Operation(summary = "退回資產異動申請", description = "將申請退回到指定步驟；targetStepId 需符合流程定義中的 reject_target")
-	public BaseResponse<AssetTransferApplicationEntity> reject(@PathVariable Long id,
+	public BaseResponse<AssetTransferResponse> reject(@PathVariable Long id,
 			@Valid @RequestBody AssetTransferRejectRequest req) {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.reject(id, currentUserId, req.comment(), req.targetStepId()));
@@ -87,7 +96,7 @@ public class AssetTransferController {
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_CREATE')")
 	@AuditEvent(AuditEventType.WORKFLOW_RESUBMIT)
 	@Operation(summary = "補件重送資產異動申請", description = "將已退回的申請重送回流程，回到最近一次退回來源步驟")
-	public BaseResponse<AssetTransferApplicationEntity> resubmit(@PathVariable Long id,
+	public BaseResponse<AssetTransferResponse> resubmit(@PathVariable Long id,
 			@Valid @RequestBody AssetTransferActionRequest req) {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.resubmit(id, currentUserId, req.comment()));
@@ -96,7 +105,7 @@ public class AssetTransferController {
 	@GetMapping("/{id}")
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_VIEW')")
 	@Operation(summary = "查詢資產異動申請明細", description = "依申請 ID 查詢單筆申請資料與目前流程狀態")
-	public BaseResponse<AssetTransferApplicationEntity> getById(@PathVariable Long id) {
+	public BaseResponse<AssetTransferResponse> getById(@PathVariable Long id) {
 		return BaseResponse.success(service.getById(id));
 	}
 
@@ -110,7 +119,7 @@ public class AssetTransferController {
 	@GetMapping("/my")
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_VIEW')")
 	@Operation(summary = "查詢我的資產異動申請", description = "列出目前登入者建立的資產異動申請清單")
-	public BaseResponse<List<AssetTransferApplicationEntity>> myApplications() {
+	public BaseResponse<List<AssetTransferResponse>> myApplications() {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.getMyApplications(currentUserId));
 	}
@@ -118,7 +127,7 @@ public class AssetTransferController {
 	@GetMapping("/pending")
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_APPROVE')")
 	@Operation(summary = "查詢我的待審案件", description = "列出目前登入者可處理的資產異動待審案件")
-	public BaseResponse<List<AssetTransferApplicationEntity>> pending() {
+	public BaseResponse<List<AssetTransferResponse>> pending() {
 		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(service.getPendingTasks(currentUserId));
 	}

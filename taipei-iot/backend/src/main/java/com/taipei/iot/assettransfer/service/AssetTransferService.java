@@ -1,8 +1,10 @@
 package com.taipei.iot.assettransfer.service;
 
 import com.taipei.iot.assettransfer.dto.AssetTransferCreateRequest;
+import com.taipei.iot.assettransfer.dto.AssetTransferResponse;
 import com.taipei.iot.assettransfer.dto.RejectTargetDto;
 import com.taipei.iot.assettransfer.entity.AssetTransferApplicationEntity;
+import com.taipei.iot.assettransfer.enums.AssetTransferStatus;
 import com.taipei.iot.assettransfer.repository.AssetTransferApplicationRepository;
 import com.taipei.iot.auth.repository.UserRepository;
 import com.taipei.iot.common.enums.ErrorCode;
@@ -19,9 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,12 +46,18 @@ public class AssetTransferService {
 	// ── 建立申請（草稿）─────────────────────────────────────────────────────────
 
 	@Transactional
-	public AssetTransferApplicationEntity create(AssetTransferCreateRequest req, String applicantId) {
+	public AssetTransferResponse create(AssetTransferCreateRequest req, String applicantId) {
 		// 先補齊顯示用資料，避免前端之後還要再查一次使用者與部門名稱。
 		String applicantName = userRepository.findById(applicantId).map(u -> u.getDisplayName()).orElse(null);
+		// findByDeptId 受 @Filter(tenantFilter) 保護：查無表示不存在或屬於他租戶，一律回 DEPT_NOT_FOUND。
 		String departmentName = deptInfoRepository.findByDeptId(req.departmentId())
 			.map(d -> d.getDeptName())
-			.orElse(null);
+			.orElseThrow(() -> new BusinessException(ErrorCode.DEPT_NOT_FOUND));
+		if (req.targetDepartmentId() != null) {
+			// findByDeptId 受 @Filter(tenantFilter) 保護：查無表示不存在或屬於他租戶，一律回 DEPT_NOT_FOUND。
+			deptInfoRepository.findByDeptId(req.targetDepartmentId())
+				.orElseThrow(() -> new BusinessException(ErrorCode.DEPT_NOT_FOUND));
+		}
 
 		// 先建立草稿狀態的申請單，送出前只保存基本欄位與目前建立者資訊。
 		AssetTransferApplicationEntity app = AssetTransferApplicationEntity.builder()
@@ -66,24 +73,32 @@ public class AssetTransferService {
 			.reason(req.reason())
 			.assetValue(req.assetValue())
 			.createdBy(applicantId)
-			.status("DRAFT")
 			.build();
-		return repository.save(Objects.requireNonNull(app, "app"));
-		/**
-		 * 加上 Objects.requireNonNull(app, "app") 在這裡是多餘的（是程式碼掃描工具，建議加上的防禦性程式碼）
-		 */
+		return toResponse(repository.save(app));
+	}
+
+	// ── 建立並立即送出（原子操作）────────────────────────────────────────────────
+
+	/**
+	 * 建立草稿後立即啟動簽核流程，兩步在同一個 transaction 內完成。 解決前端 create → submit
+	 * 兩步操作無原子性的問題：若流程啟動失敗，草稿也會隨 rollback 一併撤銷。
+	 */
+	@Transactional
+	public AssetTransferResponse createAndSubmit(AssetTransferCreateRequest req, String applicantId) {
+		AssetTransferResponse draft = create(req, applicantId);
+		return submit(draft.id(), applicantId);
 	}
 
 	// ── 送出申請（啟動流程）──────────────────────────────────────────────────────
 
 	@Transactional
-	public AssetTransferApplicationEntity submit(Long applicationId, String applicantId) {
+	public AssetTransferResponse submit(Long applicationId, String applicantId) {
 		AssetTransferApplicationEntity app = findById(applicationId);
 
 		if (!app.getApplicantId().equals(applicantId)) {
 			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
 		}
-		if (!"DRAFT".equals(app.getStatus())) {
+		if (app.getStatus() != AssetTransferStatus.DRAFT) {
 			throw new BusinessException(ErrorCode.ASSET_TRANSFER_INVALID_STATUS, "目前狀態：" + app.getStatus());
 		}
 
@@ -101,21 +116,25 @@ public class AssetTransferService {
 		instance = workflowEngine.approve(instance.getId(), "申請人送出", applicantId);
 
 		app.setWorkflowInstanceId(instance.getId());
-		app.setStatus("PROCESSING");
+		app.setStatus(AssetTransferStatus.PROCESSING);
 		app.setCurrentAssignee(resolveCurrentAssignee(instance.getId()));
-		return repository.save(Objects.requireNonNull(app, "app"));
+		return toResponse(repository.save(app));
 	}
 
 	// ── 審核通過 ───────────────────────────────────────────────────────────────
 
 	@Transactional
-	public AssetTransferApplicationEntity approve(Long applicationId, String userId, String comment) {
+	public AssetTransferResponse approve(Long applicationId, String userId, String comment) {
 		AssetTransferApplicationEntity app = findByIdAndAssertProcessing(applicationId);
+
+		if (!userId.equals(app.getCurrentAssignee())) {
+			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
+		}
 
 		WorkflowInstanceEntity instance = workflowEngine.approve(app.getWorkflowInstanceId(), comment, userId);
 
 		if ("COMPLETED".equals(instance.getStatus())) {
-			app.setStatus("COMPLETED");
+			app.setStatus(AssetTransferStatus.COMPLETED);
 			app.setApprovedAt(LocalDateTime.now());
 			app.setApprovedBy(userId);
 			app.setCurrentAssignee(null);
@@ -123,15 +142,18 @@ public class AssetTransferService {
 		else {
 			app.setCurrentAssignee(resolveCurrentAssignee(instance.getId()));
 		}
-		return repository.save(Objects.requireNonNull(app, "app"));
+		return toResponse(repository.save(app));
 	}
 
 	// ── 審核退回 ───────────────────────────────────────────────────────────────
 
 	@Transactional
-	public AssetTransferApplicationEntity reject(Long applicationId, String userId, String comment,
-			String targetStepId) {
+	public AssetTransferResponse reject(Long applicationId, String userId, String comment, String targetStepId) {
 		AssetTransferApplicationEntity app = findByIdAndAssertProcessing(applicationId);
+
+		if (!userId.equals(app.getCurrentAssignee())) {
+			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
+		}
 
 		WorkflowInstanceEntity instance = workflowEngine.reject(app.getWorkflowInstanceId(), targetStepId, comment,
 				userId);
@@ -140,37 +162,41 @@ public class AssetTransferService {
 		// 僅當退回目標為申請人本身時，才將申請狀態改為 REJECTED；
 		// 若退回到中間審核步驟（例如財產管理退回部門主管），申請仍在流程中，狀態維持 PROCESSING。
 		if (app.getApplicantId().equals(newAssignee)) {
-			app.setStatus("REJECTED");
+			app.setStatus(AssetTransferStatus.REJECTED);
 		}
 		app.setRejectReason(comment);
 		app.setCurrentAssignee(newAssignee);
-		return repository.save(Objects.requireNonNull(app, "app"));
+		return toResponse(repository.save(app));
 	}
 
 	// ── 補件重送 ───────────────────────────────────────────────────────────────
 
 	@Transactional
-	public AssetTransferApplicationEntity resubmit(Long applicationId, String userId, String comment) {
+	public AssetTransferResponse resubmit(Long applicationId, String userId, String comment) {
 		AssetTransferApplicationEntity app = findByIdAndAssertHasWorkflow(applicationId);
+
+		if (!app.getApplicantId().equals(userId)) {
+			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
+		}
 
 		WorkflowInstanceEntity instance = workflowEngine.resubmit(app.getWorkflowInstanceId(), comment, userId);
 
-		app.setStatus("PROCESSING");
+		app.setStatus(AssetTransferStatus.PROCESSING);
 		app.setRejectReason(null);
 		app.setCurrentAssignee(resolveCurrentAssignee(instance.getId()));
-		return repository.save(Objects.requireNonNull(app, "app"));
+		return toResponse(repository.save(app));
 	}
 
 	// ── 查詢 ───────────────────────────────────────────────────────────────────
 
 	@Transactional(readOnly = true)
-	public AssetTransferApplicationEntity getById(Long id) {
-		return findById(id);
+	public AssetTransferResponse getById(Long id) {
+		return toResponse(findById(id));
 	}
 
 	@Transactional(readOnly = true)
-	public List<AssetTransferApplicationEntity> getMyApplications(String applicantId) {
-		return repository.findByApplicantIdOrderByCreatedAtDesc(applicantId);
+	public List<AssetTransferResponse> getMyApplications(String applicantId) {
+		return repository.findByApplicantIdOrderByCreatedAtDesc(applicantId).stream().map(this::toResponse).toList();
 	}
 
 	@Transactional(readOnly = true)
@@ -187,7 +213,7 @@ public class AssetTransferService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<AssetTransferApplicationEntity> getPendingTasks(String userId) {
+	public List<AssetTransferResponse> getPendingTasks(String userId) {
 		List<Long> instanceIds = stepLogRepository.findByAssigneeUserIdAndCompletedAtIsNull(userId)
 			.stream()
 			.map(WorkflowStepLogEntity::getWorkflowInstanceId)
@@ -197,7 +223,7 @@ public class AssetTransferService {
 		if (instanceIds.isEmpty()) {
 			return List.of();
 		}
-		return repository.findByWorkflowInstanceIdIn(instanceIds);
+		return repository.findByWorkflowInstanceIdIn(instanceIds).stream().map(this::toResponse).toList();
 	}
 
 	// ── Private helpers ────────────────────────────────────────────────────────
@@ -208,7 +234,7 @@ public class AssetTransferService {
 
 	private AssetTransferApplicationEntity findByIdAndAssertProcessing(Long id) {
 		AssetTransferApplicationEntity app = findById(id);
-		if (!"PROCESSING".equals(app.getStatus())) {
+		if (app.getStatus() != AssetTransferStatus.PROCESSING) {
 			throw new BusinessException(ErrorCode.ASSET_TRANSFER_INVALID_STATUS, "目前狀態：" + app.getStatus());
 		}
 		return app;
@@ -228,9 +254,18 @@ public class AssetTransferService {
 			.orElse(null);
 	}
 
+	private AssetTransferResponse toResponse(AssetTransferApplicationEntity entity) {
+		String assigneeName = null;
+		if (entity.getCurrentAssignee() != null) {
+			assigneeName = userRepository.findById(entity.getCurrentAssignee())
+				.map(u -> u.getDisplayName())
+				.orElse(entity.getCurrentAssignee());
+		}
+		return AssetTransferResponse.from(entity, assigneeName);
+	}
+
 	private String generateApplicationNo() {
-		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-		return "AT-" + timestamp;
+		return "AT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16).toUpperCase();
 	}
 
 }

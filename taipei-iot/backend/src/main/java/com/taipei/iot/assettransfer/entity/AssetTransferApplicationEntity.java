@@ -2,9 +2,12 @@ package com.taipei.iot.assettransfer.entity;
 
 import com.taipei.iot.tenant.TenantAware;
 import com.taipei.iot.tenant.TenantEntityListener;
+import com.taipei.iot.assettransfer.enums.AssetTransferStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -76,9 +79,10 @@ public class AssetTransferApplicationEntity implements TenantAware {
 	@Column(name = "workflow_instance_id")
 	private Long workflowInstanceId;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 32)
 	@Builder.Default
-	private String status = "DRAFT";
+	private AssetTransferStatus status = AssetTransferStatus.DRAFT;
 
 	@Column(name = "current_assignee", length = 64)
 	private String currentAssignee;

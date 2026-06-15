@@ -5,12 +5,14 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useDeptStore } from '@/stores/deptStore'
 import DeptTreeSelector from '@/components/DeptTreeSelector.vue'
-import { createApplication, submitApplication } from '@/api/assetTransfer'
+import { createApplication, createAndSubmitApplication } from '@/api/assetTransfer'
+import { useApiError } from '@/composables/useApiError'
 import type { AssetTransferCreateRequest } from '@/types/assetTransfer'
 
 const { t } = useI18n()
 const router = useRouter()
 const deptStore = useDeptStore()
+const { handleError } = useApiError()
 
 // Ensure dept options are loaded
 if (!deptStore.deptOptions.length) {
@@ -57,8 +59,10 @@ async function handleSaveDraft() {
     await createApplication({ ...form })
     ElMessage.success(t('assetTransfer.createdSuccess'))
     router.push('/asset-transfer/my')
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {
+      '90005': t('common.deptNotFound'),
+    }, t('assetTransfer.loadFailed'))
   } finally {
     saving.value = false
   }
@@ -69,12 +73,13 @@ async function handleSubmit() {
   if (!valid) return
   submitting.value = true
   try {
-    const createRes = await createApplication({ ...form })
-    await submitApplication(createRes.body.id)
+    await createAndSubmitApplication({ ...form })
     ElMessage.success(t('assetTransfer.submittedSuccess'))
     router.push('/asset-transfer/my')
-  } catch {
-    ElMessage.error(t('assetTransfer.loadFailed'))
+  } catch (err) {
+    handleError(err, {
+      '90005': t('common.deptNotFound'),
+    }, t('assetTransfer.loadFailed'))
   } finally {
     submitting.value = false
   }

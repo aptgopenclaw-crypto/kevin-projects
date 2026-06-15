@@ -55,10 +55,10 @@ public class MenuService {
 		// 1. Get permission codes for the user's roles (single JOIN query)
 		List<String> permissionCodes = permissionRepository.findCodesByRoleIdsAndTenant(roleIds, tenantId);
 
-		// 注意：不在此處因 permissionCodes 為空就提前返回。
-		// permission_code = NULL 的 menu 對所有已認證使用者開放，不依賴任何 permission。
-		// 若提前 return，會讓零 permission 的角色（如 ROLE_PROPERTY_MANAGER 初始狀態）
-		// 完全看不到任何 menu。
+		// 無任何 permission → 無可見 menu（避免不必要的 DB 查詢）
+		if (permissionCodes.isEmpty()) {
+			return List.of();
+		}
 
 		// 2. Scope 候選清單：依角色身份決定 PLATFORM / TENANT / PUBLIC
 		List<MenuEntity> scopeCandidates = menuRepository.findByScopeInAndVisibleTrue(allowedScopes);
