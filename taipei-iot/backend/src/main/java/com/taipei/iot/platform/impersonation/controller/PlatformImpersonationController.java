@@ -8,6 +8,8 @@ import com.taipei.iot.platform.impersonation.dto.CreateImpersonationRequest;
 import com.taipei.iot.platform.impersonation.dto.ImpersonationSessionDto;
 import com.taipei.iot.platform.impersonation.dto.ImpersonationTokenResponse;
 import com.taipei.iot.platform.impersonation.service.ImpersonationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,12 +41,14 @@ import java.util.List;
 @RequestMapping("/v1/platform/impersonations")
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('PLATFORM_IMPERSONATE')")
+@Tag(name = "PlatformImpersonation", description = "平台代操管理：建立、撤銷與查詢代操會話")
 public class PlatformImpersonationController {
 
 	private final ImpersonationService impersonationService;
 
 	@PostMapping
 	@AuditEvent(AuditEventType.IMPERSONATE_START)
+	@Operation(summary = "建立代操會話", description = "建立新的代操會話並簽發 IMPERSONATION scope token")
 	public BaseResponse<ImpersonationTokenResponse> create(@Valid @RequestBody CreateImpersonationRequest req) {
 		String operatorId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(impersonationService.create(req, operatorId));
@@ -52,6 +56,7 @@ public class PlatformImpersonationController {
 
 	@DeleteMapping("/{sessionId}")
 	@AuditEvent(AuditEventType.IMPERSONATE_END)
+	@Operation(summary = "撤銷代操會話", description = "撤銷指定代操會話；重複呼叫具冪等性")
 	public BaseResponse<Void> revoke(@PathVariable String sessionId) {
 		String operatorId = SecurityContextUtils.requireCurrentUserIdStrict();
 		impersonationService.revoke(sessionId, operatorId);
@@ -59,6 +64,7 @@ public class PlatformImpersonationController {
 	}
 
 	@GetMapping
+	@Operation(summary = "查詢我的代操會話", description = "列出當前操作員建立的代操會話，可選 status 過濾")
 	public BaseResponse<List<ImpersonationSessionDto>> list(@RequestParam(required = false) String status) {
 		String operatorId = SecurityContextUtils.requireCurrentUserIdStrict();
 		return BaseResponse.success(impersonationService.listByOperator(operatorId, status));

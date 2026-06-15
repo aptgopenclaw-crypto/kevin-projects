@@ -29,7 +29,7 @@ public class PlatformAnnouncementReadController {
 	private final PlatformAnnouncementService service;
 
 	@GetMapping
-	@Operation(summary = "已發佈的平台公告列表（租戶端公告欄使用）")
+	@Operation(summary = "已發佈的平台公告列表", description = "回傳租戶端公告欄可見的已發佈且未過期平台公告")
 	public BaseResponse<PageResponse<PlatformAnnouncementResponse>> list(
 			@RequestParam(required = false) String category, @RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {

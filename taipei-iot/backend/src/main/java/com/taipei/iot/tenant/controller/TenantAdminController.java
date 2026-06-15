@@ -36,7 +36,7 @@ public class TenantAdminController {
 
 	@GetMapping
 	@RateLimit(key = "admin-tenant-list", limit = 60, period = 60)
-	@Operation(summary = "列出所有租戶", description = "回傳系統內全部租戶（含 disabled）")
+	@Operation(summary = "列出所有租戶", description = "回傳系統內全部租戶（包含停用狀態）")
 	public BaseResponse<List<TenantDto>> listTenants() {
 		return BaseResponse.success(tenantAdminService.listTenants());
 	}
@@ -47,7 +47,7 @@ public class TenantAdminController {
 	@PostMapping
 	@RateLimit(key = "admin-tenant-create", limit = 10, period = 60)
 	@AuditEvent(AuditEventType.CREATE_TENANT)
-	@Operation(summary = "建立新租戶")
+	@Operation(summary = "建立新租戶", description = "建立新的平台租戶資料，並初始化其基本狀態")
 	public BaseResponse<TenantDto> createTenant(@Valid @RequestBody CreateTenantRequest request) {
 		return BaseResponse.success(tenantAdminService.createTenant(request));
 	}
@@ -55,7 +55,7 @@ public class TenantAdminController {
 	@PutMapping("/{tenantId}")
 	@RateLimit(key = "admin-tenant-update", limit = 30, period = 60)
 	@AuditEvent(AuditEventType.UPDATE_TENANT)
-	@Operation(summary = "編輯指定租戶基本資料")
+	@Operation(summary = "編輯指定租戶基本資料", description = "更新租戶名稱、描述等基本資訊")
 	public BaseResponse<TenantDto> updateTenant(@PathVariable String tenantId,
 			@Valid @RequestBody UpdateTenantRequest request) {
 		return BaseResponse.success(tenantAdminService.updateTenant(tenantId, request));

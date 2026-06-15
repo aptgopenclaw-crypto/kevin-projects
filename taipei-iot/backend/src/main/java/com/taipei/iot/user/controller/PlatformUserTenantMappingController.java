@@ -53,14 +53,14 @@ public class PlatformUserTenantMappingController {
 	private final UserAdminService userAdminService;
 
 	@GetMapping
-	@Operation(summary = "列出使用者所有租戶角色映射")
+	@Operation(summary = "列出使用者所有租戶角色映射", description = "回傳指定使用者目前所有租戶角色映射清單")
 	public BaseResponse<List<UserTenantMappingDto>> list(
 			@PathVariable @Pattern(regexp = "^[a-f0-9\\-]{36}$") String userId) {
 		return BaseResponse.success(userAdminService.getUserTenantMappings(userId));
 	}
 
 	@PostMapping
-	@Operation(summary = "為使用者新增某租戶之角色映射")
+	@Operation(summary = "為使用者新增租戶角色映射", description = "為指定使用者新增一筆租戶角色映射")
 	public BaseResponse<UserTenantMappingDto> add(Authentication authentication,
 			@PathVariable @Pattern(regexp = "^[a-f0-9\\-]{36}$") String userId,
 			@Valid @RequestBody AddTenantRoleRequest req) {
@@ -69,7 +69,7 @@ public class PlatformUserTenantMappingController {
 	}
 
 	@DeleteMapping("/{mappingId}")
-	@Operation(summary = "移除某筆使用者租戶角色映射")
+	@Operation(summary = "移除租戶角色映射", description = "依 mappingId 移除指定使用者的租戶角色映射")
 	public BaseResponse<Void> remove(Authentication authentication,
 			@PathVariable @Pattern(regexp = "^[a-f0-9\\-]{36}$") String userId, @PathVariable Long mappingId) {
 		String adminUserId = (String) authentication.getPrincipal();
