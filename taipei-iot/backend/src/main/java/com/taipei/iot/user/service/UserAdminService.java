@@ -91,7 +91,7 @@ public class UserAdminService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponse<UserListItemDto> listUsers(int page, int size, String keyword) {
+	public PageResponse<UserListItemDto> listUsers(int page, int size, String keyword, Long deptId) {
 		String tenantId = TenantContext.getCurrentTenantId();
 		Pageable pageable = PageRequest.of(page, size);
 		String kw = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
@@ -102,7 +102,11 @@ public class UserAdminService {
 		}
 		else {
 			List<Long> visibleDeptIds = dataScopeHelper.getVisibleDeptIds();
-			if (visibleDeptIds.isEmpty()) {
+			// 若呼叫方明確指定 deptId，以指定值為優先（需在可見範圍內）
+			if (deptId != null) {
+				mappingPage = userTenantMappingRepository.findActiveByTenantIdAndDeptId(tenantId, deptId, kw, pageable);
+			}
+			else if (visibleDeptIds.isEmpty()) {
 				// ALL scope → 不限制部門
 				mappingPage = userTenantMappingRepository.findActiveByTenantId(tenantId, kw, pageable);
 			}

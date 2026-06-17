@@ -71,7 +71,12 @@ public interface UserTenantMappingRepository
 
 	List<UserTenantMappingEntity> findByTenantIdAndRoleIdAndEnabledTrue(String tenantId, String roleId);
 
+	List<UserTenantMappingEntity> findByTenantIdAndRoleIdAndEnabledTrueOrderByUserIdAsc(String tenantId, String roleId);
+
 	List<UserTenantMappingEntity> findByTenantIdAndDeptIdAndRoleIdAndEnabledTrue(String tenantId, Long deptId,
 			String roleId);
+
+	List<UserTenantMappingEntity> findByTenantIdAndDeptIdAndRoleIdAndEnabledTrueOrderByUserIdAsc(String tenantId,
+			Long deptId, String roleId);
 
 }

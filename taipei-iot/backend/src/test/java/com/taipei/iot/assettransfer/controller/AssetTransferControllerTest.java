@@ -34,6 +34,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -85,7 +86,7 @@ class AssetTransferControllerTest {
 	private AssetTransferResponse stubResponse() {
 		return new AssetTransferResponse(1L, "AT-TEST001", "user-001", "測試使用者", 100L, "IT部門", "AC-001", "Laptop",
 				"INTERNAL", null, null, BigDecimal.valueOf(50000), AssetTransferStatus.DRAFT, null, null, null,
-				"user-001", null, null, null, null);
+				"user-001", null, null, null, null, false);
 	}
 
 	// ═══════════════════════════════════════════════════════════════════════
@@ -204,7 +205,7 @@ class AssetTransferControllerTest {
 			when(service.createAndSubmit(any(AssetTransferCreateRequest.class), anyString()))
 				.thenReturn(new AssetTransferResponse(1L, "AT-TEST001", "user-001", "測試使用者", 100L, "IT部門", "AC-001",
 						"Laptop", "INTERNAL", null, null, BigDecimal.valueOf(50000), AssetTransferStatus.PROCESSING,
-						"approver-001", "審核者", null, "user-001", null, null, null, null));
+						"approver-001", "審核者", null, "user-001", null, null, null, null, false));
 
 			AssetTransferCreateRequest req = new AssetTransferCreateRequest("AC-001", "Laptop", "INTERNAL", 100L, null,
 					"reason", BigDecimal.valueOf(50000));
@@ -264,7 +265,7 @@ class AssetTransferControllerTest {
 		private AssetTransferResponse approvedResp() {
 			return new AssetTransferResponse(1L, "AT-TEST001", "user-001", "測試使用者", 100L, "IT部門", "AC-001", "Laptop",
 					"INTERNAL", null, null, BigDecimal.valueOf(50000), AssetTransferStatus.COMPLETED, null, null, null,
-					"user-001", null, null, "approver-001", null);
+					"user-001", null, null, "approver-001", null, false);
 		}
 
 		@Test
@@ -360,6 +361,42 @@ class AssetTransferControllerTest {
 	}
 
 	// ═══════════════════════════════════════════════════════════════════════
+	// POST /v1/auth/asset-transfer/cancel/{id}
+	// ═══════════════════════════════════════════════════════════════════════
+
+	@Nested
+	class CancelEndpointTests {
+
+		@Test
+		void cancel_withPermission_returns200() throws Exception {
+			mockJwt("user-001", "T1", List.of("ROLE_USER"), List.of("ASSET_TRANSFER_CREATE"));
+			when(service.cancel(anyLong(), anyString(), anyString())).thenReturn(stubResponse());
+
+			AssetTransferActionRequest req = new AssetTransferActionRequest("業務調整取消");
+
+			mockMvc
+				.perform(post("/v1/auth/asset-transfer/cancel/1").header("Authorization", AUTH_HEADER)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(req)))
+				.andExpect(status().isOk());
+		}
+
+		@Test
+		void cancel_withoutPermission_returns403() throws Exception {
+			mockJwt("user-001", "T1", List.of("ROLE_USER"), List.of("ASSET_TRANSFER_VIEW"));
+
+			AssetTransferActionRequest req = new AssetTransferActionRequest("取消");
+
+			mockMvc
+				.perform(post("/v1/auth/asset-transfer/cancel/1").header("Authorization", AUTH_HEADER)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(req)))
+				.andExpect(status().isForbidden());
+		}
+
+	}
+
+	// ═══════════════════════════════════════════════════════════════════════
 	// GET /v1/auth/asset-transfer/my
 	// ═══════════════════════════════════════════════════════════════════════
 
@@ -421,7 +458,7 @@ class AssetTransferControllerTest {
 		@Test
 		void getById_withPermission_returns200() throws Exception {
 			mockJwt("user-001", "T1", List.of("ROLE_USER"), List.of("ASSET_TRANSFER_VIEW"));
-			when(service.getById(1L)).thenReturn(stubResponse());
+			when(service.getById(eq(1L), anyString())).thenReturn(stubResponse());
 
 			mockMvc.perform(get("/v1/auth/asset-transfer/1").header("Authorization", AUTH_HEADER))
 				.andExpect(status().isOk())

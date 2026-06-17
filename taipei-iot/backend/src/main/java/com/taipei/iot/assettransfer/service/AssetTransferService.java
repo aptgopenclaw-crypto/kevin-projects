@@ -14,13 +14,18 @@ import com.taipei.iot.workflow.entity.WorkflowInstanceEntity;
 import com.taipei.iot.workflow.entity.WorkflowStepLogEntity;
 import com.taipei.iot.workflow.model.StepDefinition;
 import com.taipei.iot.workflow.model.WorkflowContext;
+import com.taipei.iot.workflow.model.WorkflowStatus;
+import com.taipei.iot.workflow.repository.DelegateSettingRepository;
 import com.taipei.iot.workflow.repository.WorkflowStepLogRepository;
 import com.taipei.iot.workflow.service.WorkflowEngine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.taipei.iot.tenant.TenantContext;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,6 +43,8 @@ public class AssetTransferService {
 	private final WorkflowEngine workflowEngine;
 
 	private final WorkflowStepLogRepository stepLogRepository;
+
+	private final DelegateSettingRepository delegateSettingRepository;
 
 	private final UserRepository userRepository;
 
@@ -127,13 +134,12 @@ public class AssetTransferService {
 	public AssetTransferResponse approve(Long applicationId, String userId, String comment) {
 		AssetTransferApplicationEntity app = findByIdAndAssertProcessing(applicationId);
 
-		if (!userId.equals(app.getCurrentAssignee())) {
-			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
-		}
+		assertCanAct(userId, app.getCurrentAssignee());
 
-		WorkflowInstanceEntity instance = workflowEngine.approve(app.getWorkflowInstanceId(), comment, userId);
+		WorkflowInstanceEntity instance = workflowEngine.approve(app.getWorkflowInstanceId(), comment,
+				app.getCurrentAssignee());
 
-		if ("COMPLETED".equals(instance.getStatus())) {
+		if (instance.getStatus() == WorkflowStatus.COMPLETED) {
 			app.setStatus(AssetTransferStatus.COMPLETED);
 			app.setApprovedAt(LocalDateTime.now());
 			app.setApprovedBy(userId);
@@ -151,12 +157,10 @@ public class AssetTransferService {
 	public AssetTransferResponse reject(Long applicationId, String userId, String comment, String targetStepId) {
 		AssetTransferApplicationEntity app = findByIdAndAssertProcessing(applicationId);
 
-		if (!userId.equals(app.getCurrentAssignee())) {
-			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
-		}
+		assertCanAct(userId, app.getCurrentAssignee());
 
 		WorkflowInstanceEntity instance = workflowEngine.reject(app.getWorkflowInstanceId(), targetStepId, comment,
-				userId);
+				app.getCurrentAssignee());
 
 		String newAssignee = resolveCurrentAssignee(instance.getId());
 		// 僅當退回目標為申請人本身時，才將申請狀態改為 REJECTED；
@@ -187,11 +191,31 @@ public class AssetTransferService {
 		return toResponse(repository.save(app));
 	}
 
+	// ── 取消申請 ───────────────────────────────────────────────────────────────
+
+	@Transactional
+	public AssetTransferResponse cancel(Long applicationId, String userId, String comment) {
+		AssetTransferApplicationEntity app = findByIdAndAssertHasWorkflow(applicationId);
+
+		if (!app.getApplicantId().equals(userId)) {
+			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
+		}
+		if (app.getStatus() != AssetTransferStatus.PROCESSING) {
+			throw new BusinessException(ErrorCode.ASSET_TRANSFER_INVALID_STATUS, "目前狀態：" + app.getStatus());
+		}
+
+		workflowEngine.cancel(app.getWorkflowInstanceId(), comment, userId);
+
+		app.setStatus(AssetTransferStatus.CANCELLED);
+		app.setCurrentAssignee(null);
+		return toResponse(repository.save(app));
+	}
+
 	// ── 查詢 ───────────────────────────────────────────────────────────────────
 
 	@Transactional(readOnly = true)
-	public AssetTransferResponse getById(Long id) {
-		return toResponse(findById(id));
+	public AssetTransferResponse getById(Long id, String currentUserId) {
+		return toResponse(findById(id), currentUserId);
 	}
 
 	@Transactional(readOnly = true)
@@ -214,7 +238,16 @@ public class AssetTransferService {
 
 	@Transactional(readOnly = true)
 	public List<AssetTransferResponse> getPendingTasks(String userId) {
-		List<Long> instanceIds = stepLogRepository.findByAssigneeUserIdAndCompletedAtIsNull(userId)
+		// 1. 自己本人的待審
+		List<String> assigneeIds = new ArrayList<>();
+		assigneeIds.add(userId);
+
+		// 2. 今日有效的代理：把被代理人的待審也一起撈入
+		List<String> delegatedFrom = delegateSettingRepository.findDelegatedUserIds(TenantContext.getCurrentTenantId(),
+				userId, BUSINESS_TYPE, LocalDate.now());
+		assigneeIds.addAll(delegatedFrom);
+
+		List<Long> instanceIds = stepLogRepository.findByAssigneeUserIdInAndCompletedAtIsNull(assigneeIds)
 			.stream()
 			.map(WorkflowStepLogEntity::getWorkflowInstanceId)
 			.distinct()
@@ -255,17 +288,49 @@ public class AssetTransferService {
 	}
 
 	private AssetTransferResponse toResponse(AssetTransferApplicationEntity entity) {
+		return toResponse(entity, null);
+	}
+
+	private AssetTransferResponse toResponse(AssetTransferApplicationEntity entity, String currentUserId) {
 		String assigneeName = null;
 		if (entity.getCurrentAssignee() != null) {
 			assigneeName = userRepository.findById(entity.getCurrentAssignee())
 				.map(u -> u.getDisplayName())
 				.orElse(entity.getCurrentAssignee());
 		}
-		return AssetTransferResponse.from(entity, assigneeName);
+		boolean canAct = false;
+		if (currentUserId != null && entity.getStatus() == AssetTransferStatus.PROCESSING
+				&& entity.getCurrentAssignee() != null) {
+			// 本人就是 currentAssignee
+			if (currentUserId.equals(entity.getCurrentAssignee())) {
+				canAct = true;
+			}
+			else {
+				// 或者今日有效代理：currentAssignee 的代理人是 currentUserId
+				List<String> delegatedFrom = delegateSettingRepository.findDelegatedUserIds(
+						TenantContext.getCurrentTenantId(), currentUserId, BUSINESS_TYPE, LocalDate.now());
+				canAct = delegatedFrom.contains(entity.getCurrentAssignee());
+			}
+		}
+		return AssetTransferResponse.from(entity, assigneeName, canAct);
 	}
 
 	private String generateApplicationNo() {
 		return "AT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16).toUpperCase();
+	}
+
+	/**
+	 * 驗證操作者是否為 currentAssignee 本人或今日有效的代理人。
+	 */
+	private void assertCanAct(String userId, String currentAssignee) {
+		if (userId.equals(currentAssignee)) {
+			return;
+		}
+		List<String> delegatedFrom = delegateSettingRepository.findDelegatedUserIds(TenantContext.getCurrentTenantId(),
+				userId, BUSINESS_TYPE, LocalDate.now());
+		if (!delegatedFrom.contains(currentAssignee)) {
+			throw new BusinessException(ErrorCode.ASSET_TRANSFER_PERMISSION_DENIED);
+		}
 	}
 
 }

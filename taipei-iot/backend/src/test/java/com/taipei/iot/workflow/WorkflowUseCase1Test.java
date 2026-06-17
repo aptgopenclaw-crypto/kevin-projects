@@ -5,7 +5,9 @@ import com.taipei.iot.workflow.entity.WorkflowDefinitionEntity;
 import com.taipei.iot.workflow.entity.WorkflowInstanceEntity;
 import com.taipei.iot.workflow.entity.WorkflowStepLogEntity;
 import com.taipei.iot.workflow.model.StepDefinition;
+import com.taipei.iot.workflow.model.WorkflowAction;
 import com.taipei.iot.workflow.model.WorkflowContext;
+import com.taipei.iot.workflow.model.WorkflowStatus;
 import com.taipei.iot.workflow.repository.WorkflowDefinitionRepository;
 import com.taipei.iot.workflow.repository.WorkflowInstanceRepository;
 import com.taipei.iot.workflow.repository.WorkflowStepLogRepository;
@@ -20,8 +22,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
-import java.time.LocalDateTime;
+import org.springframework.context.ApplicationEventPublisher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +85,9 @@ class WorkflowUseCase1Test {
 	@Spy
 	private ObjectMapper objectMapper = new ObjectMapper();
 
+	@Mock
+	private ApplicationEventPublisher eventPublisher;
+
 	private WorkflowEngine engine;
 
 	// 模擬資料庫的 in-memory 儲存
@@ -103,7 +107,7 @@ class WorkflowUseCase1Test {
 			default -> throw new IllegalArgumentException("Unknown role: " + step.getRoleCode());
 		};
 
-		engine = new WorkflowEngine(definitionRepo, instanceRepo, stepLogRepo, resolver, objectMapper);
+		engine = new WorkflowEngine(definitionRepo, instanceRepo, stepLogRepo, resolver, objectMapper, eventPublisher);
 
 		WorkflowDefinitionEntity def = WorkflowDefinitionEntity.builder()
 			.id(1L)
@@ -112,7 +116,7 @@ class WorkflowUseCase1Test {
 			.stepsJson(STEPS_JSON)
 			.build();
 
-		when(definitionRepo.findByCodeAndEnabledTrue("asset_transfer")).thenReturn(Optional.of(def));
+		when(definitionRepo.findLatestEnabledByCode("asset_transfer")).thenReturn(Optional.of(def));
 		when(definitionRepo.findById(1L)).thenReturn(Optional.of(def));
 
 		// instance save/findById：操作同一個 savedInstance 物件
@@ -163,7 +167,7 @@ class WorkflowUseCase1Test {
 		WorkflowInstanceEntity instance = engine.start("asset_transfer", "UC1-001", "ASSET_TRANSFER", context);
 
 		assertThat(instance.getCurrentStepId()).isEqualTo("step_applicant");
-		assertThat(instance.getStatus()).isEqualTo("IN_PROGRESS");
+		assertThat(instance.getStatus()).isEqualTo(WorkflowStatus.IN_PROGRESS);
 
 		WorkflowStepLogEntity firstLog = currentLog();
 		assertThat(firstLog.getStepName()).isEqualTo("申請人送審");
@@ -173,7 +177,7 @@ class WorkflowUseCase1Test {
 		instance = engine.approve(1L, "申請資產移轉", APPLICANT_ID);
 
 		assertThat(instance.getCurrentStepId()).isEqualTo("step_manager");
-		assertThat(instance.getStatus()).isEqualTo("IN_PROGRESS");
+		assertThat(instance.getStatus()).isEqualTo(WorkflowStatus.IN_PROGRESS);
 
 		WorkflowStepLogEntity managerLog = currentLog();
 		assertThat(managerLog.getStepName()).isEqualTo("部門主管審核");
@@ -183,7 +187,7 @@ class WorkflowUseCase1Test {
 		instance = engine.approve(1L, "同意", MANAGER_ID);
 
 		assertThat(instance.getCurrentStepId()).isEqualTo("step_property");
-		assertThat(instance.getStatus()).isEqualTo("IN_PROGRESS");
+		assertThat(instance.getStatus()).isEqualTo(WorkflowStatus.IN_PROGRESS);
 
 		WorkflowStepLogEntity propertyLog = currentLog();
 		assertThat(propertyLog.getStepName()).isEqualTo("財產管理審核");
@@ -192,7 +196,7 @@ class WorkflowUseCase1Test {
 		// ── Step 4: 財產管理審核通過 → 結案 ─────────────────────────────────────
 		instance = engine.approve(1L, "核准", PROPERTY_MANAGER_ID);
 
-		assertThat(instance.getStatus()).isEqualTo("COMPLETED");
+		assertThat(instance.getStatus()).isEqualTo(WorkflowStatus.COMPLETED);
 
 		// ── 驗證歷程完整性 ────────────────────────────────────────────────────────
 		List<WorkflowStepLogEntity> history = engine.getHistory(1L);
@@ -202,15 +206,15 @@ class WorkflowUseCase1Test {
 		// 驗證每一步驟的 action 正確記錄
 		assertThat(history.get(0).getStepId()).isEqualTo("step_applicant");
 		assertThat(history.get(0).getAssigneeUserId()).isEqualTo(APPLICANT_ID);
-		assertThat(history.get(0).getAction()).isEqualTo("approve");
+		assertThat(history.get(0).getAction()).isEqualTo(WorkflowAction.APPROVE);
 
 		assertThat(history.get(1).getStepId()).isEqualTo("step_manager");
 		assertThat(history.get(1).getAssigneeUserId()).isEqualTo(MANAGER_ID);
-		assertThat(history.get(1).getAction()).isEqualTo("approve");
+		assertThat(history.get(1).getAction()).isEqualTo(WorkflowAction.APPROVE);
 
 		assertThat(history.get(2).getStepId()).isEqualTo("step_property");
 		assertThat(history.get(2).getAssigneeUserId()).isEqualTo(PROPERTY_MANAGER_ID);
-		assertThat(history.get(2).getAction()).isEqualTo("approve");
+		assertThat(history.get(2).getAction()).isEqualTo(WorkflowAction.APPROVE);
 	}
 
 	// ── helper ────────────────────────────────────────────────────────────────

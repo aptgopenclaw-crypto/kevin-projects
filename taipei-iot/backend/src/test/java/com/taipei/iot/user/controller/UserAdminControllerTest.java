@@ -96,7 +96,7 @@ class UserAdminControllerTest {
 			.page(0)
 			.size(20)
 			.build();
-		when(userAdminService.listUsers(0, 20, null)).thenReturn(pageResponse);
+		when(userAdminService.listUsers(0, 20, null, null)).thenReturn(pageResponse);
 
 		mockMvc.perform(get("/v1/auth/users").header("Authorization", "Bearer " + validToken()))
 			.andExpect(status().isOk())
@@ -131,7 +131,7 @@ class UserAdminControllerTest {
 			.andExpect(status().isForbidden())
 			.andExpect(jsonPath("$.errorCode").value("10031"));
 
-		verify(userAdminService, never()).listUsers(anyInt(), anyInt(), any());
+		verify(userAdminService, never()).listUsers(anyInt(), anyInt(), any(), any());
 	}
 
 	/**
@@ -150,7 +150,7 @@ class UserAdminControllerTest {
 
 		java.util.concurrent.atomic.AtomicReference<String> capturedImpersonator = new java.util.concurrent.atomic.AtomicReference<>();
 		java.util.concurrent.atomic.AtomicReference<String> capturedTenantId = new java.util.concurrent.atomic.AtomicReference<>();
-		when(userAdminService.listUsers(0, 20, null)).thenAnswer(inv -> {
+		when(userAdminService.listUsers(0, 20, null, null)).thenAnswer(inv -> {
 			capturedImpersonator.set(com.taipei.iot.tenant.TenantContext.getImpersonator());
 			capturedTenantId.set(com.taipei.iot.tenant.TenantContext.getCurrentTenantId());
 			return PageResponse.<UserListItemDto>builder()

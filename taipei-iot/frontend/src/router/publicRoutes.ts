@@ -56,4 +56,10 @@ export const publicRoutes: RouteRecordRaw[] = [
     meta: { isPublic: true, breadcrumb: '申請詳情' },
     props: true,
   },
+  {
+    path: '/workflow-delegate/assign',
+    name: 'WorkflowDelegateAssign',
+    component: () => import('@/views/workflowDelegate/WorkflowDelegateView.vue'),
+    meta: { isPublic: true, breadcrumb: '指派代理' },
+  },
 ]

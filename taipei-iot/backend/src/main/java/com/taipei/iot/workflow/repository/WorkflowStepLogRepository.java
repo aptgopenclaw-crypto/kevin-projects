@@ -15,6 +15,8 @@ public interface WorkflowStepLogRepository extends JpaRepository<WorkflowStepLog
 
 	List<WorkflowStepLogEntity> findByAssigneeUserIdAndCompletedAtIsNull(String assigneeUserId);
 
+	List<WorkflowStepLogEntity> findByAssigneeUserIdInAndCompletedAtIsNull(List<String> assigneeUserIds);
+
 	@Query("""
 			SELECT l FROM WorkflowStepLogEntity l
 			WHERE l.workflowInstanceId = :instanceId

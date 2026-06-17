@@ -5,25 +5,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taipei.iot.workflow.entity.WorkflowDefinitionEntity;
 import com.taipei.iot.workflow.entity.WorkflowInstanceEntity;
 import com.taipei.iot.workflow.entity.WorkflowStepLogEntity;
+import com.taipei.iot.workflow.event.WorkflowStepAssignedEvent;
+import com.taipei.iot.workflow.event.WorkflowStepCompletedEvent;
 import com.taipei.iot.workflow.exception.WorkflowInvalidTransitionException;
 import com.taipei.iot.workflow.exception.WorkflowInstanceNotFoundException;
+import com.taipei.iot.workflow.exception.WorkflowInstanceNotInProgressException;
 import com.taipei.iot.workflow.exception.WorkflowNoRejectHistoryException;
 import com.taipei.iot.workflow.exception.WorkflowNotFoundException;
 import com.taipei.iot.workflow.exception.WorkflowPermissionException;
 import com.taipei.iot.workflow.exception.WorkflowStepAlreadyCompletedException;
 import com.taipei.iot.workflow.model.StepDefinition;
+import com.taipei.iot.workflow.model.WorkflowAction;
 import com.taipei.iot.workflow.model.WorkflowContext;
+import com.taipei.iot.workflow.model.WorkflowStatus;
+import com.taipei.iot.workflow.model.WorkflowStepType;
 import com.taipei.iot.workflow.model.WorkflowStepsJson;
 import com.taipei.iot.workflow.repository.WorkflowDefinitionRepository;
 import com.taipei.iot.workflow.repository.WorkflowInstanceRepository;
 import com.taipei.iot.workflow.repository.WorkflowStepLogRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorkflowEngine {
@@ -38,6 +47,8 @@ public class WorkflowEngine {
 
 	private final ObjectMapper objectMapper;
 
+	private final ApplicationEventPublisher eventPublisher;
+
 	// ── Public API ─────────────────────────────────────────────────────────────
 
 	/**
@@ -47,8 +58,8 @@ public class WorkflowEngine {
 	public WorkflowInstanceEntity start(String workflowCode, String businessId, String businessType,
 			WorkflowContext context) {
 
-		// 1. 讀取流程定義
-		WorkflowDefinitionEntity def = definitionRepo.findByCodeAndEnabledTrue(workflowCode)
+		// 1. 讀取流程定義（取 version 最高的啟用版本）
+		WorkflowDefinitionEntity def = definitionRepo.findLatestEnabledByCode(workflowCode)
 			.orElseThrow(() -> new WorkflowNotFoundException(workflowCode));
 
 		// 2. 建立流程實例
@@ -61,7 +72,7 @@ public class WorkflowEngine {
 			.businessId(businessId)
 			.businessType(businessType)
 			.currentStepId(firstStep.getId())
-			.status("IN_PROGRESS")
+			.status(WorkflowStatus.IN_PROGRESS)
 			.contextJson(toJson(context))
 			.build();
 
@@ -84,6 +95,11 @@ public class WorkflowEngine {
 		WorkflowInstanceEntity instance = instanceRepo.findByIdForUpdate(instanceId)
 			.orElseThrow(() -> new WorkflowInstanceNotFoundException(instanceId));
 
+		// 狀態機守衛：僅允許 IN_PROGRESS 的流程繼續操作，提供明確的錯誤訊息
+		if (instance.getStatus() != WorkflowStatus.IN_PROGRESS) {
+			throw new WorkflowInstanceNotInProgressException(instanceId, instance.getStatus());
+		}
+
 		// 讀取目前步驟待辦，驗證審核人員身份與步驟狀態
 		WorkflowStepLogEntity currentLog = requireCurrentLog(instanceId);
 		validateAssignee(currentLog, userId);
@@ -101,33 +117,28 @@ public class WorkflowEngine {
 		StepDefinition currentStep = findStep(stepsJson, currentLog.getStepId());
 
 		// 完成目前步驟待辦
-		completeLog(currentLog, "approve", comment, null);
+		completeLog(currentLog, WorkflowAction.APPROVE, comment, null);
 
-		// 如果下一步驟是 end 就直接完成流程，否则推进到下一步
-		if ("end".equals(currentStep.getType())) {
-			instance.setStatus("COMPLETED");
-			instance.setUpdatedAt(LocalDateTime.now());
+		// 如果目前步驟是 end 就直接完成流程，否則推進到下一步
+		if (currentStep.getType() == WorkflowStepType.END) {
+			instance.setStatus(WorkflowStatus.COMPLETED);
 			return instanceRepo.save(instance);
 		}
 
-		// 推進到下一步，更新流程實例的 currentStepId，並建立下一步的待辦
+		// 推進到下一步，先完整計算最終狀態，再執行單次 save
 		StepDefinition nextStep = findStep(stepsJson, currentStep.getNext());
 		instance.setCurrentStepId(nextStep.getId());
-		instance.setUpdatedAt(LocalDateTime.now());
 
-		// 寫入資料庫
+		if (nextStep.getType() == WorkflowStepType.END) {
+			// 下一步是結束步驟：直接完成流程，一次 save
+			instance.setStatus(WorkflowStatus.COMPLETED);
+			return instanceRepo.save(instance);
+		}
+
+		// 下一步是正常步驟：save 後建立該步驟的待辦
 		instance = instanceRepo.save(instance);
-
-		// 如果下一步不是 end 就建立待辦；如果是 end 就直接完成流程，不建立待辦
-		if (!"end".equals(nextStep.getType())) {
-			WorkflowContext context = parseContext(instance.getContextJson());
-			createStepLog(instance, nextStep, context);
-		}
-		else {
-			instance.setStatus("COMPLETED");
-			instance.setUpdatedAt(LocalDateTime.now());
-			instance = instanceRepo.save(instance);
-		}
+		WorkflowContext context = parseContext(instance.getContextJson());
+		createStepLog(instance, nextStep, context);
 		return instance;
 	}
 
@@ -140,6 +151,11 @@ public class WorkflowEngine {
 		// 加鎖讀取流程實例與目前步驟待辦，確保同一時間只有一個人能對同一個流程實例進行審核動作
 		WorkflowInstanceEntity instance = instanceRepo.findByIdForUpdate(instanceId)
 			.orElseThrow(() -> new WorkflowInstanceNotFoundException(instanceId));
+
+		// 狀態機守衛：僅允許 IN_PROGRESS 的流程繼續操作，提供明確的錯誤訊息
+		if (instance.getStatus() != WorkflowStatus.IN_PROGRESS) {
+			throw new WorkflowInstanceNotInProgressException(instanceId, instance.getStatus());
+		}
 
 		// 讀取目前步驟待辦，驗證審核人員身份與步驟狀態
 		WorkflowStepLogEntity currentLog = requireCurrentLog(instanceId);
@@ -165,12 +181,10 @@ public class WorkflowEngine {
 		}
 
 		// 完成目前步驟待辦，並註記退回目標步驟
-		completeLog(currentLog, "reject", comment, targetStepId);
-
+		completeLog(currentLog, WorkflowAction.REJECT, comment, targetStepId);
 		// 更新流程實例的 currentStepId 為退回目標步驟，並建立退回目標步驟的待辦
 		StepDefinition targetStep = findStep(stepsJson, targetStepId);
 		instance.setCurrentStepId(targetStep.getId());
-		instance.setUpdatedAt(LocalDateTime.now());
 		instance = instanceRepo.save(instance);
 
 		// 建立退回目標步驟的待辦
@@ -181,7 +195,27 @@ public class WorkflowEngine {
 	}
 
 	/**
-	 * 補件重送，回到最近一次退回的來源步驟。
+	 * 補件重送，回到「最後一次執行退回操作的步驟」（即退回的發起方，非退回的目標方）。
+	 *
+	 * <p>
+	 * <b>回傳步驟語意說明：</b><br>
+	 * {@code returnStepId} 取自歷程中最後一筆 {@link WorkflowAction#REJECT} 記錄的
+	 * {@code stepId}，代表「是哪個步驟做的退回」，而非「退回到哪個步驟」。<br>
+	 * 例如流程為：申請人 → 主管 → 財產管理：
+	 * <ul>
+	 * <li>主管在 {@code step_manager} 退回給申請人 ({@code step_applicant})</li>
+	 * <li>申請人補件後，resubmit 回到 {@code step_manager}（退回的發起步驟）， 而非
+	 * {@code step_applicant}（退回的目標步驟）</li>
+	 * </ul>
+	 *
+	 * <p>
+	 * <b>多次退回的行為：</b><br>
+	 * 若流程曾被財產管理退回給主管，主管又退回給申請人，此時 {@code lastReject}
+	 * 為主管的退回記錄（{@code step_manager}），補件後直接回到主管那關， 跳過財產管理的再次審核。這是刻意設計，表示「最近一次要求補件的審核人」。
+	 * 若業務需要回到最頂層重走，請改為取第一筆 reject 記錄。
+	 * @param instanceId 流程實例 ID
+	 * @param comment 申請人補件說明
+	 * @param userId 操作者 user ID（必須是當前步驟的 assignee，即申請人）
 	 */
 	@Transactional
 	public WorkflowInstanceEntity resubmit(Long instanceId, String comment, String userId) {
@@ -190,6 +224,11 @@ public class WorkflowEngine {
 		WorkflowInstanceEntity instance = instanceRepo.findByIdForUpdate(instanceId)
 			.orElseThrow(() -> new WorkflowInstanceNotFoundException(instanceId));
 
+		// 狀態機守衛：僅允許 IN_PROGRESS 的流程繼續操作，提供明確的錯誤訊息
+		if (instance.getStatus() != WorkflowStatus.IN_PROGRESS) {
+			throw new WorkflowInstanceNotInProgressException(instanceId, instance.getStatus());
+		}
+
 		// 讀取目前步驟待辦，驗證審核人員身份與步驟狀態
 		WorkflowStepLogEntity currentLog = requireCurrentLog(instanceId);
 		validateAssignee(currentLog, userId);
@@ -197,22 +236,60 @@ public class WorkflowEngine {
 		List<WorkflowStepLogEntity> history = stepLogRepo.findByWorkflowInstanceIdOrderByEnteredAtAsc(instanceId);
 
 		WorkflowStepLogEntity lastReject = history.stream()
-			.filter(l -> "reject".equals(l.getAction()))
+			.filter(l -> WorkflowAction.REJECT == l.getAction())
 			.reduce((a, b) -> b) // 最後一筆
 			.orElseThrow(() -> new WorkflowNoRejectHistoryException(instanceId));
 
 		String returnStepId = lastReject.getStepId();
-		completeLog(currentLog, "resubmit", comment, null);
+		completeLog(currentLog, WorkflowAction.RESUBMIT, comment, null);
 
 		WorkflowStepsJson stepsJson = parseStepsJson(loadDef(instance).getStepsJson());
 		StepDefinition returnStep = findStep(stepsJson, returnStepId);
 		instance.setCurrentStepId(returnStep.getId());
-		instance.setUpdatedAt(LocalDateTime.now());
 		instance = instanceRepo.save(instance);
 
 		WorkflowContext context = parseContext(instance.getContextJson());
 		createStepLog(instance, returnStep, context);
 		return instance;
+	}
+
+	/**
+	 * 申請人取消流程。
+	 * <p>
+	 * 僅限流程仍為 {@link WorkflowStatus#IN_PROGRESS} 時由申請人主動取消。 取消後目前步驟待辦標記為
+	 * {@link WorkflowAction#CANCEL}， 流程實例狀態設為 {@link WorkflowStatus#CANCELLED}。
+	 * @param instanceId 流程實例 ID
+	 * @param comment 取消原因
+	 * @param userId 操作者 user ID（必須是申請人）
+	 */
+	@Transactional
+	public WorkflowInstanceEntity cancel(Long instanceId, String comment, String userId) {
+
+		// 加鎖讀取流程實例
+		WorkflowInstanceEntity instance = instanceRepo.findByIdForUpdate(instanceId)
+			.orElseThrow(() -> new WorkflowInstanceNotFoundException(instanceId));
+
+		// 狀態機守衛：僅允許 IN_PROGRESS 的流程被取消
+		if (instance.getStatus() != WorkflowStatus.IN_PROGRESS) {
+			throw new WorkflowInstanceNotInProgressException(instanceId, instance.getStatus());
+		}
+
+		// 驗證操作者是申請人（僅申請人可取消自己的流程）
+		WorkflowContext context = parseContext(instance.getContextJson());
+		if (!userId.equals(context.getApplicantId())) {
+			throw new WorkflowPermissionException(userId, "cancel instance#" + instanceId);
+		}
+
+		// 完成目前步驟待辦（標記為取消）
+		WorkflowStepLogEntity currentLog = requireCurrentLog(instanceId);
+		if (currentLog.getCompletedAt() != null) {
+			throw new WorkflowStepAlreadyCompletedException(currentLog.getStepName());
+		}
+		completeLog(currentLog, WorkflowAction.CANCEL, comment, null);
+
+		// 流程實例狀態設為 CANCELLED
+		instance.setStatus(WorkflowStatus.CANCELLED);
+		return instanceRepo.save(instance);
 	}
 
 	/**
@@ -250,6 +327,22 @@ public class WorkflowEngine {
 		return stepLogRepo.findByWorkflowInstanceIdOrderByEnteredAtAsc(instanceId);
 	}
 
+	/**
+	 * 檢查使用者是否有權限存取指定流程實例（申請人 OR 任一步驟的審核人）。
+	 * <p>
+	 * 若需要管理員例外，由 Controller 層在呼叫前以 {@code hasAuthority} 判斷並跳過此檢查。
+	 */
+	@Transactional(readOnly = true)
+	public boolean hasAccessToInstance(WorkflowInstanceEntity instance, String userId) {
+		WorkflowContext context = parseContext(instance.getContextJson());
+		if (userId.equals(context.getApplicantId())) {
+			return true;
+		}
+		return stepLogRepo.findByWorkflowInstanceIdOrderByEnteredAtAsc(instance.getId())
+			.stream()
+			.anyMatch(log -> userId.equals(log.getAssigneeUserId()));
+	}
+
 	// ── Private helpers ────────────────────────────────────────────────────────
 
 	private WorkflowDefinitionEntity loadDef(WorkflowInstanceEntity instance) {
@@ -262,21 +355,40 @@ public class WorkflowEngine {
 		if (step.getRoleCode() != null) {
 			assignee = assigneeResolver.resolve(step, context);
 		}
-		WorkflowStepLogEntity log = WorkflowStepLogEntity.builder()
+		WorkflowStepLogEntity stepLog = WorkflowStepLogEntity.builder()
 			.workflowInstanceId(instance.getId())
 			.stepId(step.getId())
 			.stepName(step.getName())
 			.assigneeUserId(assignee)
 			.build();
-		stepLogRepo.save(log);
+		stepLogRepo.save(stepLog);
+
+		log.info("[Workflow] createStepLog: instance={}, step={}, assignee={}", instance.getId(), step.getId(),
+				assignee);
+
+		// 發布步驟指派事件（通知新任審核人）
+		if (assignee != null) {
+			log.info("[Workflow] publishing WorkflowStepAssignedEvent: assignee={}, step={}", assignee, step.getId());
+			eventPublisher.publishEvent(new WorkflowStepAssignedEvent(this, instance.getTenantId(), assignee,
+					instance.getId(), instance.getBusinessType(), step.getId(), step.getName()));
+		}
 	}
 
-	private void completeLog(WorkflowStepLogEntity log, String action, String comment, String targetStepId) {
-		log.setAction(action);
-		log.setComment(comment);
-		log.setTargetStepId(targetStepId);
-		log.setCompletedAt(LocalDateTime.now());
-		stepLogRepo.save(log);
+	private void completeLog(WorkflowStepLogEntity stepLog, WorkflowAction action, String comment,
+			String targetStepId) {
+		stepLog.setAction(action);
+		stepLog.setComment(comment);
+		stepLog.setTargetStepId(targetStepId);
+		stepLog.setCompletedAt(LocalDateTime.now());
+		stepLogRepo.save(stepLog);
+
+		log.info("[Workflow] completeLog: instance={}, step={}, action={}", stepLog.getWorkflowInstanceId(),
+				stepLog.getStepId(), action);
+
+		// 發布步驟完成事件
+		eventPublisher
+			.publishEvent(new WorkflowStepCompletedEvent(this, stepLog.getTenantId(), stepLog.getWorkflowInstanceId(),
+					null, stepLog.getStepId(), stepLog.getStepName(), action, stepLog.getAssigneeUserId()));
 	}
 
 	private void validateAssignee(WorkflowStepLogEntity log, String userId) {

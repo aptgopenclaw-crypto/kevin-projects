@@ -16,6 +16,7 @@ export interface UserListQuery {
   page?: number
   size?: number
   keyword?: string
+  deptId?: number | null
 }
 
 export interface CreateUserRequest {

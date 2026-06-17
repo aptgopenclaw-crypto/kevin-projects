@@ -175,7 +175,7 @@ public class SecurityConfig {
 				.requestMatchers("/v1/platform/tenants/**")
 				.hasAuthority("PLATFORM_TENANT_MANAGE")
 				// POC: 簽核引擎開發驗證端點（需 authenticated，不限特定權限）
-				.requestMatchers("/api/poc/**")
+				.requestMatchers("/v1/api/poc/**")
 				.authenticated()
 				// 資產異動申請 API（細部由 @PreAuthorize 控制）
 				.requestMatchers("/v1/auth/asset-transfer/**")

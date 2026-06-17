@@ -42,6 +42,8 @@ public class NotificationService {
 	 * @param payload 通知內容與收件人資訊
 	 */
 	public void send(NotificationPayload payload) {
+		log.info("[NotificationService] send: {} channels, userIds={}, title={}", channels.size(), payload.getUserIds(),
+				payload.getTitle());
 		for (NotificationChannel channel : channels) {
 			try {
 				channel.send(payload);

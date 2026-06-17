@@ -2,13 +2,17 @@ package com.taipei.iot.workflow.entity;
 
 import com.taipei.iot.tenant.TenantAware;
 import com.taipei.iot.tenant.TenantEntityListener;
+import com.taipei.iot.workflow.model.WorkflowAction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,10 +52,12 @@ public class WorkflowStepLogEntity implements TenantAware {
 	@Column(name = "assignee_user_id", length = 100)
 	private String assigneeUserId;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "action", length = 50)
-	private String action;
+	private WorkflowAction action;
 
-	@Column(name = "comment")
+	@Size(max = 2000)
+	@Column(name = "comment", length = 2000)
 	private String comment;
 
 	@Column(name = "target_step_id", length = 100)

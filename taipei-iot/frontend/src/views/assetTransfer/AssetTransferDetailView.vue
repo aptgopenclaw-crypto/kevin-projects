@@ -35,11 +35,7 @@ const rejectTargetsLoading = ref(false)
 
 const currentUserId = computed(() => authStore.userInfo?.userId ?? '')
 
-const canAct = computed(
-  () =>
-    app.value?.status === 'PROCESSING' &&
-    app.value?.currentAssignee === currentUserId.value,
-)
+const canAct = computed(() => app.value?.canAct === true)
 
 const canResubmit = computed(
   () =>

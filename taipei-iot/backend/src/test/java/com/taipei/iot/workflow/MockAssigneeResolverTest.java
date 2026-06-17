@@ -3,6 +3,7 @@ package com.taipei.iot.workflow;
 import com.taipei.iot.workflow.entity.DelegateSettingEntity;
 import com.taipei.iot.workflow.model.StepDefinition;
 import com.taipei.iot.workflow.model.WorkflowContext;
+import com.taipei.iot.workflow.model.WorkflowStepType;
 import com.taipei.iot.workflow.repository.DelegateSettingRepository;
 import com.taipei.iot.workflow.service.MockAssigneeResolver;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,7 @@ class MockAssigneeResolverTest {
 			.applicantId(APPLICANT_ID)
 			.build();
 
-		when(delegateSettingRepository.findActiveDelegate(any(), any(), any())).thenReturn(Optional.empty());
+		when(delegateSettingRepository.findActiveDelegate(any(), any(), any(), any())).thenReturn(Optional.empty());
 	}
 
 	// ── 基本角色解析 ────────────────────────────────────────────────────────────
@@ -91,7 +92,7 @@ class MockAssigneeResolverTest {
 			.effectiveTo(LocalDate.now().plusDays(10))
 			.build();
 
-		when(delegateSettingRepository.findActiveDelegate(eq(DEPT_ADMIN_ID), any(), any()))
+		when(delegateSettingRepository.findActiveDelegate(any(), eq(DEPT_ADMIN_ID), any(), any()))
 			.thenReturn(Optional.of(delegate));
 
 		StepDefinition step = step("step_manager", "ROLE_DEPT_ADMIN");
@@ -108,7 +109,7 @@ class MockAssigneeResolverTest {
 			.effectiveTo(LocalDate.now().plusDays(10))
 			.build();
 
-		when(delegateSettingRepository.findActiveDelegate(eq(DEPT_ADMIN_ID), any(), any()))
+		when(delegateSettingRepository.findActiveDelegate(any(), eq(DEPT_ADMIN_ID), any(), any()))
 			.thenReturn(Optional.of(delegate));
 
 		StepDefinition step = step("step_manager", "ROLE_DEPT_ADMIN");
@@ -119,7 +120,7 @@ class MockAssigneeResolverTest {
 	// ── helpers ────────────────────────────────────────────────────────────────
 
 	private StepDefinition step(String id, String roleCode) {
-		return StepDefinition.builder().id(id).name("test").type("normal").roleCode(roleCode).build();
+		return StepDefinition.builder().id(id).name("test").type(WorkflowStepType.NORMAL).roleCode(roleCode).build();
 	}
 
 }

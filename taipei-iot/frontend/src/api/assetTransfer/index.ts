@@ -56,3 +56,9 @@ export const getPendingTasks = () =>
   axiosIns.get<unknown, BaseResponse<AssetTransferApplicationDto[]>>(
     '/auth/asset-transfer/pending',
   )
+
+export const cancelApplication = (id: number, req: AssetTransferActionRequest) =>
+  axiosIns.post<unknown, BaseResponse<AssetTransferApplicationDto>>(
+    `/auth/asset-transfer/cancel/${id}`,
+    req,
+  )

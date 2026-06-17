@@ -1,5 +1,6 @@
 package com.taipei.iot.workflow.service;
 
+import com.taipei.iot.tenant.TenantContext;
 import com.taipei.iot.workflow.exception.WorkflowNotFoundException;
 import com.taipei.iot.workflow.model.StepDefinition;
 import com.taipei.iot.workflow.model.WorkflowContext;
@@ -49,7 +50,9 @@ public class MockAssigneeResolver implements IAssigneeResolver {
 		}
 
 		// 代理人覆寫
-		return delegateSettingRepository.findActiveDelegate(assignee, context.getBusinessType(), LocalDate.now())
+		return delegateSettingRepository
+			.findActiveDelegate(TenantContext.getCurrentTenantId(), assignee, context.getBusinessType(),
+					LocalDate.now())
 			.map(delegate -> {
 				String delegateTo = delegate.getDelegateTo();
 

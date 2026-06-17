@@ -5,10 +5,13 @@ import com.taipei.iot.workflow.entity.WorkflowDefinitionEntity;
 import com.taipei.iot.workflow.entity.WorkflowInstanceEntity;
 import com.taipei.iot.workflow.entity.WorkflowStepLogEntity;
 import com.taipei.iot.workflow.exception.WorkflowInvalidTransitionException;
+import com.taipei.iot.workflow.exception.WorkflowInstanceNotInProgressException;
 import com.taipei.iot.workflow.exception.WorkflowNoRejectHistoryException;
 import com.taipei.iot.workflow.exception.WorkflowPermissionException;
 import com.taipei.iot.workflow.exception.WorkflowStepAlreadyCompletedException;
+import com.taipei.iot.workflow.model.WorkflowAction;
 import com.taipei.iot.workflow.model.WorkflowContext;
+import com.taipei.iot.workflow.model.WorkflowStatus;
 import com.taipei.iot.workflow.repository.WorkflowDefinitionRepository;
 import com.taipei.iot.workflow.repository.WorkflowInstanceRepository;
 import com.taipei.iot.workflow.repository.WorkflowStepLogRepository;
@@ -47,7 +50,7 @@ class WorkflowEngineTest {
 			    {"id":"step_manager","name":"部門主管審核","type":"normal",
 			     "role_code":"ROLE_DEPT_ADMIN","next":"step_property","reject_target":"step_applicant"},
 			    {"id":"step_property","name":"財產管理審核","type":"normal",
-			     "role_code":"ROLE_DEPT_ADMIN","next":"step_end","reject_target":"step_manager"},
+			     "role_code":"ROLE_PROPERTY_MANAGER","next":"step_end","reject_target":"step_manager"},
 			    {"id":"step_end","name":"結案","type":"end",
 			     "role_code":null,"next":null,"reject_target":null}
 			  ]
@@ -119,7 +122,7 @@ class WorkflowEngineTest {
 
 	@Test
 	void start_shouldCreateInstanceAtFirstStep() {
-		when(definitionRepo.findByCodeAndEnabledTrue("asset_transfer")).thenReturn(Optional.of(def));
+		when(definitionRepo.findLatestEnabledByCode("asset_transfer")).thenReturn(Optional.of(def));
 
 		WorkflowContext ctx = WorkflowContext.builder()
 			.businessId("BIZ-001")
@@ -130,7 +133,7 @@ class WorkflowEngineTest {
 		WorkflowInstanceEntity result = engine.start("asset_transfer", "BIZ-001", "ASSET_TRANSFER", ctx);
 
 		assertThat(result.getCurrentStepId()).isEqualTo("step_applicant");
-		assertThat(result.getStatus()).isEqualTo("IN_PROGRESS");
+		assertThat(result.getStatus()).isEqualTo(WorkflowStatus.IN_PROGRESS);
 	}
 
 	// ── approve() ──────────────────────────────────────────────────────────────
@@ -191,7 +194,7 @@ class WorkflowEngineTest {
 		// 修改：end step 的 validateAssignee 邏輯 — 允許 null assignee 時任意人
 		// 直接驗證引擎正確結案
 		WorkflowInstanceEntity result = engine.approve(1L, "結案", null);
-		assertThat(result.getStatus()).isEqualTo("COMPLETED");
+		assertThat(result.getStatus()).isEqualTo(WorkflowStatus.COMPLETED);
 	}
 
 	// ── reject() ───────────────────────────────────────────────────────────────
@@ -232,7 +235,7 @@ class WorkflowEngineTest {
 		WorkflowStepLogEntity currentLog = buildLog(instance.getId(), "step_applicant", "申請人送審", "user_dept_user_001");
 
 		WorkflowStepLogEntity rejectLog = buildLog(instance.getId(), "step_manager", "部門主管審核", "user_dept_admin_001");
-		rejectLog.setAction("reject");
+		rejectLog.setAction(WorkflowAction.REJECT);
 		rejectLog.setCompletedAt(LocalDateTime.now());
 
 		when(instanceRepo.findByIdForUpdate(1L)).thenReturn(Optional.of(instance));
@@ -259,6 +262,94 @@ class WorkflowEngineTest {
 			.isInstanceOf(WorkflowNoRejectHistoryException.class);
 	}
 
+	@Test
+	void resubmit_shouldReturnToLastRejectSourceStep_whenMultipleRejects() {
+		// 情境：財產管理退回 → 主管退回 → 申請人補件，resubmit 應回到「最後退回的發起方」即主管
+		WorkflowInstanceEntity instance = buildInstance("step_applicant");
+		WorkflowStepLogEntity currentLog = buildLog(instance.getId(), "step_applicant", "申請人送審", "user_dept_user_001");
+
+		// 第一次退回：財產管理退回給主管
+		WorkflowStepLogEntity rejectByProperty = buildLog(instance.getId(), "step_property", "財產管理審核",
+				"user_property_001");
+		rejectByProperty.setAction(WorkflowAction.REJECT);
+		rejectByProperty.setCompletedAt(LocalDateTime.now().minusHours(2));
+
+		// 第二次退回：主管退回給申請人（最後一筆）
+		WorkflowStepLogEntity rejectByManager = buildLog(instance.getId(), "step_manager", "部門主管審核",
+				"user_dept_admin_001");
+		rejectByManager.setAction(WorkflowAction.REJECT);
+		rejectByManager.setCompletedAt(LocalDateTime.now().minusHours(1));
+
+		when(instanceRepo.findByIdForUpdate(1L)).thenReturn(Optional.of(instance));
+		when(instanceRepo.findById(1L)).thenReturn(Optional.of(instance));
+		when(stepLogRepo.findCurrentByInstanceId(1L)).thenReturn(Optional.of(currentLog));
+		when(stepLogRepo.findByWorkflowInstanceIdOrderByEnteredAtAsc(1L))
+			.thenReturn(List.of(rejectByProperty, rejectByManager, currentLog));
+		when(definitionRepo.findById(1L)).thenReturn(Optional.of(def));
+
+		WorkflowInstanceEntity result = engine.resubmit(1L, "已補件", "user_dept_user_001");
+
+		// 應回到最後退回的發起方：主管（step_manager），而非第一次退回的財產管理（step_property）
+		assertThat(result.getCurrentStepId()).isEqualTo("step_manager");
+	}
+
+	// ── cancel() ──────────────────────────────────────────────────────────────
+
+	@Test
+	void cancel_byApplicant_shouldSetStatusToCancelled() {
+		WorkflowInstanceEntity instance = buildInstance("step_manager");
+		instance.setContextJson("{\"applicantId\":\"user_dept_user_001\"}");
+		WorkflowStepLogEntity currentLog = buildLog(instance.getId(), "step_manager", "部門主管審核", "user_dept_admin_001");
+
+		when(instanceRepo.findByIdForUpdate(1L)).thenReturn(Optional.of(instance));
+		when(instanceRepo.findById(1L)).thenReturn(Optional.of(instance));
+		when(stepLogRepo.findCurrentByInstanceId(1L)).thenReturn(Optional.of(currentLog));
+		when(definitionRepo.findById(1L)).thenReturn(Optional.of(def));
+
+		WorkflowInstanceEntity result = engine.cancel(1L, "業務調整取消", "user_dept_user_001");
+
+		assertThat(result.getStatus()).isEqualTo(WorkflowStatus.CANCELLED);
+		assertThat(currentLog.getAction()).isEqualTo(WorkflowAction.CANCEL);
+		assertThat(currentLog.getCompletedAt()).isNotNull();
+	}
+
+	@Test
+	void cancel_byNonApplicant_shouldThrowPermissionException() {
+		WorkflowInstanceEntity instance = buildInstance("step_manager");
+		instance.setContextJson("{\"applicantId\":\"user_dept_user_001\"}");
+		WorkflowStepLogEntity currentLog = buildLog(instance.getId(), "step_manager", "部門主管審核", "user_dept_admin_001");
+
+		when(instanceRepo.findByIdForUpdate(1L)).thenReturn(Optional.of(instance));
+		when(stepLogRepo.findCurrentByInstanceId(1L)).thenReturn(Optional.of(currentLog));
+
+		assertThatThrownBy(() -> engine.cancel(1L, "取消", "wrong_user")).isInstanceOf(WorkflowPermissionException.class);
+	}
+
+	@Test
+	void cancel_whenInstanceAlreadyCompleted_shouldThrowException() {
+		WorkflowInstanceEntity instance = buildInstance("step_end");
+		instance.setStatus(WorkflowStatus.COMPLETED);
+
+		when(instanceRepo.findByIdForUpdate(1L)).thenReturn(Optional.of(instance));
+
+		assertThatThrownBy(() -> engine.cancel(1L, "取消", "user_dept_user_001"))
+			.isInstanceOf(WorkflowInstanceNotInProgressException.class);
+	}
+
+	@Test
+	void cancel_whenCurrentLogAlreadyCompleted_shouldThrowException() {
+		WorkflowInstanceEntity instance = buildInstance("step_manager");
+		instance.setContextJson("{\"applicantId\":\"user_dept_user_001\"}");
+		WorkflowStepLogEntity currentLog = buildLog(instance.getId(), "step_manager", "部門主管審核", "user_dept_admin_001");
+		currentLog.setCompletedAt(LocalDateTime.now());
+
+		when(instanceRepo.findByIdForUpdate(1L)).thenReturn(Optional.of(instance));
+		when(stepLogRepo.findCurrentByInstanceId(1L)).thenReturn(Optional.of(currentLog));
+
+		assertThatThrownBy(() -> engine.cancel(1L, "取消", "user_dept_user_001"))
+			.isInstanceOf(WorkflowStepAlreadyCompletedException.class);
+	}
+
 	// ── helpers ────────────────────────────────────────────────────────────────
 
 	private WorkflowInstanceEntity buildInstance(String currentStepId) {
@@ -268,7 +359,7 @@ class WorkflowEngineTest {
 			.businessId("BIZ-001")
 			.businessType("ASSET_TRANSFER")
 			.currentStepId(currentStepId)
-			.status("IN_PROGRESS")
+			.status(WorkflowStatus.IN_PROGRESS)
 			.build();
 	}
 

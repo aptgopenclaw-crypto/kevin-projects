@@ -25,6 +25,7 @@ public class InAppChannel implements NotificationChannel {
 
 	@Override
 	public void send(NotificationPayload payload) {
+		log.info("[InAppChannel] sending notification to users={}, title={}", payload.getUserIds(), payload.getTitle());
 		for (String userId : payload.getUserIds()) {
 			try {
 				NotificationEntity entity = NotificationEntity.builder()
@@ -37,7 +38,7 @@ public class InAppChannel implements NotificationChannel {
 					.refId(payload.getRefId())
 					.build();
 				NotificationEntity saved = notificationRepository.save(entity);
-				log.debug("In-app notification saved for user={}", userId);
+				log.info("[InAppChannel] notification saved: id={}, userId={}", saved.getId(), userId);
 
 				// Push via WebSocket (STOMP)
 				try {

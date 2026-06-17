@@ -22,6 +22,7 @@ export interface AssetTransferApplicationDto {
   approvedAt: string | null
   approvedBy: string | null
   rejectReason: string | null
+  canAct: boolean
 }
 
 export interface AssetTransferCreateRequest {

@@ -456,7 +456,7 @@ class UserAdminServiceTest {
 		Page<UserTenantMappingEntity> page = new PageImpl<>(List.of(m1, m2, m3), PageRequest.of(0, 20), 3);
 		when(userTenantMappingRepository.findActiveByTenantId(eq("TENANT_A"), isNull(), any())).thenReturn(page);
 
-		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null);
+		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null, null);
 
 		assertEquals(3, result.getContent().size());
 		assertEquals("研發部", result.getContent().get(0).getDeptName());
@@ -482,7 +482,7 @@ class UserAdminServiceTest {
 		Page<UserTenantMappingEntity> page = new PageImpl<>(List.of(mapping), PageRequest.of(0, 20), 1);
 		when(userTenantMappingRepository.findActiveByTenantId(eq("TENANT_A"), isNull(), any())).thenReturn(page);
 
-		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null);
+		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null, null);
 
 		assertNotNull(result);
 		assertEquals(1, result.getContent().size());
@@ -506,7 +506,7 @@ class UserAdminServiceTest {
 		Page<UserTenantMappingEntity> page = new PageImpl<>(List.of(mapping), PageRequest.of(0, 20), 1);
 		when(userTenantMappingRepository.findAllActive(isNull(), any())).thenReturn(page);
 
-		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null);
+		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null, null);
 
 		assertNotNull(result);
 		assertEquals(1, result.getContent().size());
@@ -541,7 +541,7 @@ class UserAdminServiceTest {
 		when(userTenantMappingRepository.findActiveByTenantIdAndDeptId(eq("TENANT_A"), eq(10L), isNull(), any()))
 			.thenReturn(page);
 
-		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null);
+		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null, null);
 
 		assertEquals(1, result.getContent().size());
 		verify(userTenantMappingRepository).findActiveByTenantIdAndDeptId(eq("TENANT_A"), eq(10L), isNull(), any());
@@ -557,7 +557,7 @@ class UserAdminServiceTest {
 				isNull(), any()))
 			.thenReturn(page);
 
-		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null);
+		PageResponse<UserListItemDto> result = userAdminService.listUsers(0, 20, null, null);
 
 		assertNotNull(result);
 		verify(userTenantMappingRepository).findActiveByTenantIdAndDeptIdIn(eq("TENANT_A"), eq(List.of(1L, 10L, 11L)),

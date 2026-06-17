@@ -42,6 +42,7 @@ function resolveRoute(item: NotificationItem): string {
   if (!refType) return '/'
   switch (refType) {
     case 'ANNOUNCEMENT': return `/admin/system/announcements`
+    case 'WORKFLOW':     return `/asset-transfer/pending`
     default:             return '/'
   }
 }
@@ -164,6 +165,9 @@ const currentUnreadCount = computed(() =>
           <span class="notification-item-title" :class="{ 'is-unread': !item.read }">
             {{ item.title }}
           </span>
+        </div>
+        <div v-if="item.content" class="notification-item-content">
+          {{ item.content }}
         </div>
         <div class="notification-item-meta">
           {{ formatDate(item.createdAt) }}
@@ -301,6 +305,16 @@ const currentUnreadCount = computed(() =>
 .notification-item-title.is-unread {
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.notification-item-content {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  padding-left: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .notification-item-meta {

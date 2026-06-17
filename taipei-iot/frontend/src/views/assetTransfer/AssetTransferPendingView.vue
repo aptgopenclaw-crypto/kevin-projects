@@ -2,8 +2,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
-import { getMyApplications, getPendingTasks } from '@/api/assetTransfer'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getMyApplications, getPendingTasks, cancelApplication } from '@/api/assetTransfer'
 import { useApiError } from '@/composables/useApiError'
 import type { AssetTransferApplicationDto, AssetTransferStatus } from '@/types/assetTransfer'
 
@@ -49,6 +49,21 @@ function goCreate() {
 
 function goDetail(row: AssetTransferApplicationDto) {
   router.push(`/asset-transfer/${row.id}`)
+}
+
+async function handleCancel(row: AssetTransferApplicationDto) {
+  try {
+    await ElMessageBox.confirm(t('assetTransfer.cancelConfirmMsg'), t('assetTransfer.cancelConfirmTitle'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+    })
+    await cancelApplication(row.id, { comment: null })
+    ElMessage.success(t('assetTransfer.cancelledSuccess'))
+    await loadData()
+  } catch {
+    // 使用者取消對話框或 API 錯誤，不做任何事
+  }
 }
 
 function formatDate(dateStr: string | null): string {
@@ -136,10 +151,20 @@ function getTransferTypeLabel(type: string) {
               {{ formatDate(row.createdAt) }}
             </template>
           </el-table-column>
-          <el-table-column :label="t('assetTransfer.colActions')" width="90" fixed="right">
+          <el-table-column :label="t('assetTransfer.colActions')" width="160" fixed="right">
             <template #default="{ row }">
               <el-button size="small" class="action-btn" @click="goDetail(row)">
                 {{ t('assetTransfer.btnViewDetail') }}
+              </el-button>
+              <el-button
+                v-if="isMyMode && row.status === 'PROCESSING'"
+                size="small"
+                type="danger"
+                plain
+                class="action-btn"
+                @click="handleCancel(row)"
+              >
+                {{ t('assetTransfer.btnCancel') }}
               </el-button>
             </template>
           </el-table-column>

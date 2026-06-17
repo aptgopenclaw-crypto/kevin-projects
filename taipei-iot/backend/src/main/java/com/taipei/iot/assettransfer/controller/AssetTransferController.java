@@ -102,11 +102,22 @@ public class AssetTransferController {
 		return BaseResponse.success(service.resubmit(id, currentUserId, req.comment()));
 	}
 
+	@PostMapping("/cancel/{id}")
+	@PreAuthorize("hasAuthority('ASSET_TRANSFER_CREATE')")
+	@AuditEvent(AuditEventType.WORKFLOW_CANCEL)
+	@Operation(summary = "取消資產異動申請", description = "申請人主動取消進行中的申請，僅限申請人本人操作")
+	public BaseResponse<AssetTransferResponse> cancel(@PathVariable Long id,
+			@Valid @RequestBody AssetTransferActionRequest req) {
+		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
+		return BaseResponse.success(service.cancel(id, currentUserId, req.comment()));
+	}
+
 	@GetMapping("/{id}")
 	@PreAuthorize("hasAuthority('ASSET_TRANSFER_VIEW')")
 	@Operation(summary = "查詢資產異動申請明細", description = "依申請 ID 查詢單筆申請資料與目前流程狀態")
 	public BaseResponse<AssetTransferResponse> getById(@PathVariable Long id) {
-		return BaseResponse.success(service.getById(id));
+		String currentUserId = SecurityContextUtils.requireCurrentUserIdStrict();
+		return BaseResponse.success(service.getById(id, currentUserId));
 	}
 
 	@GetMapping("/{id}/reject-targets")

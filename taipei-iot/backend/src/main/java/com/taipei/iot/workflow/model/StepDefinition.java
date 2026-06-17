@@ -21,7 +21,7 @@ public class StepDefinition {
 
 	private String name;
 
-	private String type;
+	private WorkflowStepType type;
 
 	private String roleCode;
 

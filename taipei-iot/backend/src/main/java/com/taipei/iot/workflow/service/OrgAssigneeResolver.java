@@ -67,14 +67,14 @@ public class OrgAssigneeResolver implements IAssigneeResolver {
 				RoleEntity role = findRole(roleCode);
 				Long deptId = parseDeptId(context);
 				List<UserTenantMappingEntity> mappings = userTenantMappingRepository
-					.findByTenantIdAndDeptIdAndRoleIdAndEnabledTrue(tenantId, deptId, role.getRoleId());
+					.findByTenantIdAndDeptIdAndRoleIdAndEnabledTrueOrderByUserIdAsc(tenantId, deptId, role.getRoleId());
 				yield firstUser(mappings, roleCode);
 			}
 			default -> {
 				// 跨部門角色（如 ROLE_PROPERTY_MANAGER）：tenant + role
 				RoleEntity role = findRole(roleCode);
 				List<UserTenantMappingEntity> mappings = userTenantMappingRepository
-					.findByTenantIdAndRoleIdAndEnabledTrue(tenantId, role.getRoleId());
+					.findByTenantIdAndRoleIdAndEnabledTrueOrderByUserIdAsc(tenantId, role.getRoleId());
 				yield firstUser(mappings, roleCode);
 			}
 		};
@@ -111,7 +111,9 @@ public class OrgAssigneeResolver implements IAssigneeResolver {
 		if (assignee == null) {
 			return null;
 		}
-		return delegateSettingRepository.findActiveDelegate(assignee, context.getBusinessType(), LocalDate.now())
+		return delegateSettingRepository
+			.findActiveDelegate(TenantContext.getCurrentTenantId(), assignee, context.getBusinessType(),
+					LocalDate.now())
 			.map(delegate -> {
 				String delegateTo = delegate.getDelegateTo();
 				if (delegateTo.equals(context.getApplicantId())) {

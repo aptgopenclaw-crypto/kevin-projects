@@ -24,19 +24,23 @@ const scopedDeptOptions = ref<DeptOptionVO[]>([])
 const deptLocked = ref(false)
 
 onMounted(async () => {
-  try {
-    const [rolesRes, deptRes] = await Promise.all([listAssignableRoles(), getScopedDeptOptions()])
-    roles.value = rolesRes.body.filter((r: RoleDto) => r.enabled)
-    scopedDeptOptions.value = deptRes.body
+  const [rolesResult, deptResult] = await Promise.allSettled([
+    listAssignableRoles(),
+    getScopedDeptOptions(),
+  ])
 
+  if (rolesResult.status === 'fulfilled') {
+    roles.value = rolesResult.value.body.filter((r: RoleDto) => r.enabled)
+  }
+
+  if (deptResult.status === 'fulfilled') {
+    scopedDeptOptions.value = deptResult.value.body
     // 若只有一個部門可選，自動帶入並鎖定
-    const flat = flattenDeptOptions(deptRes.body)
+    const flat = flattenDeptOptions(deptResult.value.body)
     if (flat.length === 1) {
       form.deptId = flat[0].value
       deptLocked.value = true
     }
-  } catch {
-    // Degradation: dropdowns will be empty
   }
 })
 
