@@ -1,6 +1,231 @@
 # CodeCortex — Personal Code Knowledge Graph for AI-Assisted Development
 
-## 一、解決哪些痛點
+> 🌐 Language: **English** | [繁體中文](README.zh-TW.md)
+
+---
+
+## 1. Pain Points
+
+### The Core Problem: AI Guessing in a Large Codebase
+
+The IoT platform template contains 14 business modules, 100 REST endpoints, and 324 Java classes.  
+When an AI Agent tries to generate new features based on this template, it faces three layers of failure:
+
+| Failure Mode | Root Cause |
+|---|---|
+| **DTO field hallucination** | `userName` or `username`? The AI doesn't know — it guesses |
+| **Module boundary violations** | Directly importing internal classes from other modules, breaking architectural isolation |
+| **Style inconsistency** | Generated Service naming and error handling clashes with existing code |
+| **Business rule blindness** | Unaware of implicit constraints like "targetDeptIds is required when scope=DEPT" |
+| **Test contract ignorance** | Modifying a Service without knowing which behaviors are locked by tests — breaking them silently |
+| **Context overflow** | Dozens of modules can't fit in a context window — AI only reads fragments |
+
+---
+
+## 2. How It Solves Them
+
+### Core Strategy: Make Implicit Knowledge Explicitly Queryable
+
+Instead of making AI read more code, CodeCortex **extracts, structures, and indexes** the knowledge embedded in the codebase into SQLite, then exposes it via an **MCP Server (20 tools)** for AI agents to query on demand.
+
+```
+Java / Vue / TS source code
+        │  tree-sitter AST parsing
+        ↓
+  knowledge.db (SQLite + FTS5)
+        │  MCP Server
+        ↓
+  AI Agent precise queries
+        │
+        ↓
+  Code generated to match existing conventions
+```
+
+### Five Key Design Decisions
+
+**1. DTO Contracts (eliminate field hallucination)**  
+`feature_contracts` automatically converts Java `@RequestBody` / return types into TypeScript Interfaces, stored in DB and emitted as `frontend/src/types/generated/<module>.contracts.ts`. AI calls `get_feature_contract()` and gets exact types — no more guessing.
+
+**2. Explicit Module Boundaries (prevent architectural violations)**  
+`module_exports` (public classes exposed externally) and `module_coupling` (actual cross-module reference edges) tell the AI exactly which classes can be referenced and which cannot.
+
+**3. Golden Example Injection (style consistency)**  
+`module_examples` stores real source code for each module × class type combination. AI calls `get_example_code()` for few-shot prompting — directly replicating naming conventions and structural patterns.
+
+**4. Business Constraint Extraction (prevent rule blindness)**  
+`code_constraints` auto-extracts implicit business rules from `throw new XxxException("...")` and `log.warn/error(...)`. These are **living data maintained by engineers** — no one dares touch an Exception message that would break production.
+
+**5. Test Semantics (prevent contract violations)**  
+`test_rules` converts JUnit `@Test` method names into readable behavioral contracts (`approve_shouldThrow_whenWrongUser` → `"Approve should throw when wrong user"`). AI queries before modifying a Service to ensure generated code includes the required guards.
+
+---
+
+## 3. Architecture & Workflow
+
+### Knowledge Extraction Pipeline (offline)
+
+```
+scripts/
+├── tree-sitter-analyzer.py   # Phase 1: Java AST → modules / classes / endpoints
+├── frontend-analyzer.py      # Phase 2: Vue/TS → frontend_views / fe_be_bindings
+├── phase35-enhancer.py       # Phase 3.5: feature_contracts / module_exports / coupling / examples
+├── phase5a-constraints.py    # Phase 5a: throw/log → code_constraints (business rules)
+├── phase5b-semantics.py      # Phase 5b: @Operation + @Schema + JUnit → test_rules + JSDoc
+├── generate-contract.py      # Self-growing: new Controller → update DB + emit .ts contracts
+├── watch.py                  # Phase 4a: Watchdog live monitor, Ctrl+S → incremental update
+└── pre-commit-sync.py        # Phase 4b: Git hook bridge, ensure DB sync before commit
+```
+
+### Knowledge Database (knowledge.db)
+
+| Table | Rows | Description |
+|---|---|---|
+| `modules` | 14 | Business module descriptions |
+| `classes` | 324 | Java classes (fields / methods) |
+| `endpoints` | 100 | REST endpoints |
+| `module_deps` | 65 | Inter-module dependencies |
+| `feature_contracts` | 100 | DTO → TypeScript Interface (with JSDoc from @Schema) |
+| `module_exports` | 90 | Public classes exposed by each module |
+| `module_coupling` | 250 | Cross-module coupling edges |
+| `module_examples` | 61 | Golden example source code |
+| `code_constraints` | 231 | Business rules (extracted from throw / log) |
+| `test_rules` | 1,015 | Behavioral contracts (extracted from JUnit @Test names) |
+| `frontend_views` | 31 | Vue pages |
+| `frontend_api_functions` | 121 | Frontend API functions |
+| `fe_be_bindings` | 85 | Frontend function → backend endpoint mappings (83% coverage) |
+
+FTS5 full-text indexes: `modules_fts`, `classes_fts`, `endpoints_fts`, `contracts_fts`, `code_constraints_fts`, `test_rules_fts`
+
+### MCP Server (20 Tools)
+
+```
+mcp-server/server.py
+```
+
+After reloading VS Code, use `#codecortex-knowledge` in Copilot Agent chat.
+
+| Tool | Problem Solved |
+|---|---|
+| `search_code_entity(keyword)` | FTS5 search across modules / endpoints / classes |
+| `get_feature_contract(endpoint)` | Exact TS Interface — eliminates DTO hallucination |
+| `get_module_exports(module)` | Which classes can be referenced cross-module |
+| `get_module_coupling(from, to)` | Actual coupling edges — prevents architectural violations |
+| `get_example_code(module, type)` | Golden example — ensures style consistency |
+| `get_code_constraints(module)` | Business rule constraints — prevents rule blindness |
+| `get_test_rules(class_name)` | Behavioral contracts — prevents breaking existing tests |
+| `resolve_dependencies(modules[])` | Calculate transitive dependencies + migration list |
+| *(12 base query tools)* | modules / classes / endpoints / frontend / routes… |
+
+### Developer Workflow (auto-sync in real time)
+
+```
+Ctrl+S  save .java / .vue / .ts
+    └→ watch.py (debounce 0.5s)
+           └→ incremental update knowledge.db (< 1s)
+
+git add + git commit
+    └→ .githooks/pre-commit
+           └→ pre-commit-sync.py confirms sync
+           └→ knowledge.db auto-staged into commit
+
+AI generates new Controller
+    └→ ⇧⌘B (VS Code Task)
+           └→ generate-contract.py
+           └→ updates feature_contracts
+           └→ emits frontend/src/types/generated/<module>.contracts.ts
+```
+
+### Mandatory AI Agent SOP (.github/copilot-instructions.md)
+
+```
+Step 1   search_code_entity()          confirm existing state
+Step 2   get_example_code()            retrieve golden examples
+Step 3   get_module_exports/coupling() confirm cross-module dependencies
+Step 4   get_feature_contract()        confirm DTO contracts
+Step 4.5 get_code_constraints()        query business constraints (required)
+Step 4.6 get_test_rules()              query test boundaries before modifying Service (required)
+Step 5   generate code
+Step 6   generate-contract.py         update knowledge base after generating Controller (required)
+```
+
+### Setup
+
+```bash
+python3 -m venv venv && source venv/bin/activate
+pip install tree-sitter tree-sitter-java tree-sitter-typescript mcp watchdog
+
+python scripts/tree-sitter-analyzer.py          # Phase 1: backend
+python scripts/frontend-analyzer.py             # Phase 2: frontend
+python scripts/phase35-enhancer.py              # Phase 3.5: DTO contracts + module boundaries
+python scripts/phase5a-constraints.py --db knowledge.db   # business constraints
+python scripts/phase5b-semantics.py --db knowledge.db     # test semantics + JSDoc
+
+python scripts/watch.py   # start live monitor (VS Code Task: Start File Watcher)
+```
+
+### Tech Stack
+
+**Backend**: Spring Boot 3.4.1 · Java 21 · Maven · PostgreSQL · Flyway · JWT · Redis  
+**Frontend**: Vue 3 · TypeScript · Pinia · Element Plus · Vite · Axios  
+**Knowledge Graph**: Python 3.13 · tree-sitter · SQLite · MCP Python SDK · watchdog
+
+---
+
+## 4. Future Roadmap
+
+### Short-term
+
+**1. Phase 5b incremental watch**  
+`watch.py` currently only updates `code_constraints` (Phase 5a) on Ctrl+S. Adding `_update_semantics_for_file()` would make `@Operation` / `@Schema` JSDoc sync instantly on save, without manually running `phase5b-semantics.py`.
+
+**2. Improve @Schema coverage**  
+Currently only `announcement` and `platform` modules have full `@Schema(description=...)` annotations. Completing the annotations across all modules would make JSDoc automatically appear in `.contracts.ts` files — frontend developers see field descriptions on hover.
+
+**3. Test coverage heatmap**  
+`test_rules` has 1,015 behavioral contracts but there is no dashboard showing which modules have low test density. Using `query_db()` to generate a per-module test rule count heatmap would guide where to add tests.
+
+### Mid-term
+
+**4. Cross-project knowledge sharing**  
+`knowledge.db` is currently project-local. In a monorepo with multiple sub-projects (SmartParking, SmartBuilding…) sharing the CodeCortex template, upgrading the MCP Server to a remote HTTP server would let AI agents across different workspaces query the same knowledge base.
+
+**5. Auto conflict detection**  
+When `generate-contract.py` updates `feature_contracts`, if new DTO field names don't match existing API calls in `fe_be_bindings`, automatically flag the conflict and notify the developer before frontend and backend go out of sync.
+
+**6. Flyway migration semantics**  
+`COMMENT ON COLUMN` in SQL migration files is another source of living, engineer-maintained data. Phase 5c: parse migration SQL and inject column descriptions into `feature_contracts` JSDoc, bringing data-layer semantics into the knowledge graph.
+
+### Long-term
+
+**7. Multi-modal input**  
+Current knowledge sources are code (Java / Vue / TS). Future extensions:
+- PR descriptions → auto-extract ADRs (Architecture Decision Records)
+- Swagger UI user comments → supplement API purpose descriptions
+- Jira / Linear ticket titles → link to endpoints for requirement traceability
+
+**8. Knowledge graph quality scoring**  
+Build quantitative metrics (`@Schema` coverage, `test_rules` density, anomalous `module_coupling` edge count), output a quality report after each CI run, and make "knowledge graph completeness" an engineering health indicator.
+
+---
+
+## Module List (14 Business Modules)
+
+| Module | Description |
+|---|---|
+| `auth` | Authentication — JWT, login/logout, session, OAuth/LDAP |
+| `common` | Shared utilities — exception handling, multi-tenant filtering, response wrapper |
+| `tenant` | Multi-tenancy — tenant management, isolation, data filtering |
+| `user` | Users — CRUD, password management, soft delete |
+| `dept` | Department management — tree structure, hierarchy paths |
+| `rbac` | Role-based access control — roles, menus, permissions, scope filtering |
+| `workflow` | Workflow engine — configurable approval flows, SLA |
+| `notification` | Notification system — in-app notifications, Email/SMS |
+| `audit` | Audit logs — operation auditing, login logs |
+| `announcement` | Announcement system — CRUD, attachments, versioning, read receipts |
+| `assettransfer` | Asset transfer — application and approval workflow |
+| `platform` | Platform management — cross-tenant operations |
+| `setting` | System settings — password policy |
+| `config` | Spring Boot config — CORS, Swagger |
 
 ### 核心問題：AI 在大型 codebase 裡邊寫邊猜
 
