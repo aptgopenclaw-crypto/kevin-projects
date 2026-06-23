@@ -25,3 +25,5 @@ Thumbs.db
 *.env
 .env.*
 application-local.yml
+
+history/
