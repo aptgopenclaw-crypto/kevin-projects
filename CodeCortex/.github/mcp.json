@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "codecortex-knowledge": {
+      "type": "stdio",
+      "command": "/home/kevin/workspaces/kevin-projects/CodeCortex/venv/bin/python",
+      "args": ["${workspaceFolder}/mcp-server/server.py"],
+      "env": {
+        "DB_PATH": "${workspaceFolder}/knowledge.db"
+      }
+    }
+  }
+}

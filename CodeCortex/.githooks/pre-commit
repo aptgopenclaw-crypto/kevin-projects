@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit
+# =============================================================================
+# CodeCortex Knowledge Graph — Git Pre-commit Hook
+#
+# Detects changed Java / Vue / TypeScript files in the staged area.
+# If any are found, incrementally re-parses them and updates knowledge.db
+# before the commit is recorded, ensuring the knowledge graph never goes stale.
+#
+# Setup (run once per clone):
+#   git config core.hooksPath CodeCortex/.githooks
+# Or if already in the CodeCortex directory:
+#   git config core.hooksPath .githooks
+#
+# To skip the hook for a single commit (e.g. work-in-progress):
+#   git commit --no-verify
+# =============================================================================
+
+set -euo pipefail
+
+# ── Resolve project root ───────────────────────────────────────────────────
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$HOOK_DIR/.." && pwd)"
+SCRIPTS_DIR="$PROJECT_ROOT/scripts"
+DB_PATH="$PROJECT_ROOT/knowledge.db"
+VENV_PYTHON="$PROJECT_ROOT/venv/bin/python"
+
+# ── Colour helpers ─────────────────────────────────────────────────────────
+RED='\033[0;31m'; YELLOW='\033[1;33m'; GREEN='\033[0;32m'; NC='\033[0m'
+info()    { echo -e "${GREEN}[knowledge-graph]${NC} $*"; }
+warning() { echo -e "${YELLOW}[knowledge-graph]${NC} $*"; }
+error()   { echo -e "${RED}[knowledge-graph]${NC} $*" >&2; }
+
+# ── Bail early if DB or venv don't exist yet ───────────────────────────────
+if [[ ! -f "$DB_PATH" ]]; then
+  warning "knowledge.db not found — skipping sync (run analyzers first)"
+  exit 0
+fi
+
+if [[ ! -x "$VENV_PYTHON" ]]; then
+  warning "venv not found at $VENV_PYTHON — skipping sync"
+  exit 0
+fi
+
+# ── Collect staged files relevant to the knowledge graph ──────────────────
+# git diff --cached lists files staged for commit (relative to repo root)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+mapfile -t STAGED_FILES < <(
+  git diff --cached --name-only --diff-filter=ACMR |
+  grep -E '\.(java|vue|ts)$' |
+  grep -v -E '(target/|dist/|node_modules/|\.min\.)' || true
+)
+
+if [[ ${#STAGED_FILES[@]} -eq 0 ]]; then
+  exit 0   # nothing relevant staged — skip silently
+fi
+
+# Categorise by type
+JAVA_FILES=()
+FRONTEND_FILES=()
+
+for f in "${STAGED_FILES[@]}"; do
+  abs="$REPO_ROOT/$f"
+  if [[ "$f" == *.java ]]; then
+    JAVA_FILES+=("$abs")
+  elif [[ "$f" == *.vue || "$f" == *.ts ]]; then
+    FRONTEND_FILES+=("$abs")
+  fi
+done
+
+TOTAL=$(( ${#JAVA_FILES[@]} + ${#FRONTEND_FILES[@]} ))
+info "Syncing knowledge graph for $TOTAL changed file(s)..."
+
+# ── Run incremental updater via Python ────────────────────────────────────
+# Pass the changed files as arguments so the script skips unchanged files.
+# Falls back to full re-parse if the incremental path fails.
+
+INCREMENTAL_SCRIPT="$SCRIPTS_DIR/pre-commit-sync.py"
+
+"$VENV_PYTHON" "$INCREMENTAL_SCRIPT" \
+  --db "$DB_PATH" \
+  --java  "${JAVA_FILES[@]+"${JAVA_FILES[@]}"}" \
+  --frontend "${FRONTEND_FILES[@]+"${FRONTEND_FILES[@]}"}"
+
+EXIT_CODE=$?
+
+if [[ $EXIT_CODE -ne 0 ]]; then
+  error "Knowledge graph sync failed (exit $EXIT_CODE)."
+  error "The commit has been blocked to prevent stale graph data."
+  error "Fix the error above, or run:  git commit --no-verify  to bypass."
+  exit 1
+fi
+
+# ── Stage the updated knowledge.db ────────────────────────────────────────
+# Only stage if knowledge.db is tracked by git (not in .gitignore)
+if git ls-files --error-unmatch "$DB_PATH" &>/dev/null 2>&1; then
+  git add "$DB_PATH"
+  info "knowledge.db staged ✓"
+else
+  info "knowledge.db updated (not tracked by git — consider adding to .gitignore or tracking it)"
+fi
+
+info "Knowledge graph sync complete ✓"
+exit 0

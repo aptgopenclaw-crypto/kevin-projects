@@ -1,0 +1,27 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.python-version
+
+# Java / Maven
+backend/target/
+backend/logs/
+*.class
+*.jar
+
+# Uploads (runtime files)
+backend/uploads/
+
+# VS Code
+.vscode/settings.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env
+.env.*
+application-local.yml
